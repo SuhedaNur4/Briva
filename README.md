@@ -10,7 +10,6 @@ Takım 122
 - Mesut Baksı: Scrum Master
 - Tarık Sarısı: Team Member
 
-> **Not:** Proje geliştirme süreci, Product Owner tarafından tek başına yürütülmektedir.
 
 ## Ürün İsmi
 
@@ -82,7 +81,6 @@ Backlog bu README içinde yönetilmektedir.
 
 Briva, modüler ve servis tabanlı bir mimari ile tasarlanmıştır. MVP aşamasında sadelik ve çalışan özellikler ön plandadır.
 
-
 | Katman | Teknoloji | Açıklama |
 |--------|-----------|----------|
 | Backend | Python + Flask | REST API tabanlı ana sistem |
@@ -92,6 +90,7 @@ Briva, modüler ve servis tabanlı bir mimari ile tasarlanmıştır. MVP aşamas
 | Kimlik Doğrulama | JWT (Flask-JWT-Extended) | Token tabanlı oturum yönetimi |
 | Güvenlik | Flask-Talisman, Flask-Limiter | Security headers ve rate limiting |
 | API Standardı | REST + JSON | Tüm endpoint'ler `/api/` altında |
+
 
 ## 🔌 Backend API Endpoint'leri
 
