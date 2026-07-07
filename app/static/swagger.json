@@ -1,0 +1,149 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Briva API",
+    "description": "Briva - Yapay Zekâ Destekli Gönüllülük Platformu API Dokümantasyonu",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Lokal Geliştirme Sunucusu"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Yeni kullanıcı kaydı",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {"type": "string", "example": "user@example.com"},
+                  "password": {"type": "string", "example": "Sifre123_!"},
+                  "role": {"type": "string", "example": "volunteer"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Kayıt başarılı"}
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Kullanıcı girişi",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {"type": "string", "example": "user@example.com"},
+                  "password": {"type": "string", "example": "Sifre123_!"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Giriş başarılı ve JWT döner"}
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "summary": "Etkinlikleri listele",
+        "tags": ["Events"],
+        "security": [],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Şehir filtresi"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Kategori filtresi"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Etkinlik listesi"}
+        }
+      },
+      "post": {
+        "summary": "Yeni etkinlik oluştur (STK)",
+        "tags": ["Events"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {"type": "string", "example": "Doğa Temizliği"},
+                  "start_date": {"type": "string", "example": "2026-08-01T10:00:00"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Etkinlik oluşturuldu"}
+        }
+      }
+    },
+    "/api/recommendations": {
+      "post": {
+        "summary": "Etkinlik önerisi al",
+        "tags": ["Recommendations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "city": {"type": "string", "example": "İstanbul"},
+                  "interests": {"type": "array", "items": {"type": "string"}, "example": ["çevre"]},
+                  "skills": {"type": "array", "items": {"type": "string"}, "example": ["organizasyon"]},
+                  "available_days": {"type": "array", "items": {"type": "string"}, "example": ["saturday"]}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Öneri listesi"}
+        }
+      }
+    }
+  }
+}

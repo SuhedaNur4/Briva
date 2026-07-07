@@ -44,6 +44,19 @@ def _register_blueprints(flask_app: Flask) -> None:
     flask_app.register_blueprint(applications_bp, url_prefix='/api/applications')
     flask_app.register_blueprint(recommendations_bp, url_prefix='/api/recommendations')
 
+    # Swagger UI Blueprint
+    from flask_swagger_ui import get_swaggerui_blueprint
+    SWAGGER_URL = '/docs'
+    API_URL = '/static/swagger.json'
+    swaggerui_bp = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            'app_name': "Briva API"
+        }
+    )
+    flask_app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
+
 def _register_error_handlers(flask_app: Flask) -> None:
 
     @flask_app.errorhandler(400)
