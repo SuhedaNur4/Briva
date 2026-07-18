@@ -4,6 +4,7 @@ from app.extensions import db
 from app.models.application import EventApplication
 from app.utils.auth_helpers import get_current_user
 from app.utils.validators import parse_request_json, validate_application_status, validate_optional_string
+from app.routes.notifications import create_notification
 applications_bp = Blueprint('applications', __name__)
 
 @applications_bp.route('/my', methods=['GET'])
@@ -51,5 +52,13 @@ def update_application(application_id: int):
             except ValueError as e:
                 return (jsonify({'error': str(e)}), 400)
     application.status = new_status
+    if is_org_owner and new_status in ('approved', 'rejected'):
+        status_tr = 'onaylandı' if new_status == 'approved' else 'reddedildi'
+        create_notification(
+            user_id=application.user_id,
+            message=f"'{application.event.title}' etkinliğine başvurunuz {status_tr}.",
+            notif_type='application_status',
+            related_event_id=application.event_id,
+        )
     db.session.commit()
     return (jsonify({'message': f"Başvuru durumu '{new_status}' olarak güncellendi.", 'application': application.to_dict(include_event=True, include_user=is_org_owner)}), 200)

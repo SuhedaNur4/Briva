@@ -6,6 +6,7 @@ from app.models.event import Event
 from app.models.application import EventApplication
 from app.utils.auth_helpers import get_current_user, organization_required, volunteer_required
 from app.utils.validators import parse_request_json, validate_required_string, validate_optional_string, validate_positive_int, validate_event_status
+from app.utils.ai_analyzer import analyze_event_text, compact_analysis
 events_bp = Blueprint('events', __name__)
 
 def _parse_datetime(value: str, field_name: str) -> datetime:
@@ -48,11 +49,41 @@ def create_event():
             return (jsonify({'error': str(e)}), 400)
     db.session.add(event)
     db.session.commit()
-    return (jsonify({'message': 'Etkinlik oluşturuldu.', 'event': event.to_dict()}), 201)
+    # Issue #18: etkinlik oluşturulurken açıklama kalitesi AI ile analiz edilip yanıtla döner
+    analysis = analyze_event_text(
+        title=event.title,
+        description=event.description or '',
+        category=event.category or '',
+        city=event.city or '',
+        requirements=event.requirements or '',
+    )
+    return (jsonify({'message': 'Etkinlik oluşturuldu.', 'event': event.to_dict(), 'ai_analysis': compact_analysis(analysis)}), 201)
 
 @events_bp.route('', methods=['GET'])
 def list_events():
     query = Event.query
+    keyword = request.args.get('q')
+    if keyword:
+        pattern = f'%{keyword.strip()}%'
+        query = query.filter(
+            db.or_(
+                Event.title.ilike(pattern),
+                Event.description.ilike(pattern),
+                Event.requirements.ilike(pattern),
+            )
+        )
+    start_after = request.args.get('start_after')
+    if start_after:
+        try:
+            query = query.filter(Event.start_date >= _parse_datetime(start_after, 'start_after'))
+        except ValueError as e:
+            return (jsonify({'error': str(e)}), 400)
+    start_before = request.args.get('start_before')
+    if start_before:
+        try:
+            query = query.filter(Event.start_date <= _parse_datetime(start_before, 'start_before'))
+        except ValueError as e:
+            return (jsonify({'error': str(e)}), 400)
     city = request.args.get('city')
     if city:
         query = query.filter(Event.city.ilike(f'%{city}%'))
