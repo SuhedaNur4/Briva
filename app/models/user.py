@@ -14,6 +14,9 @@ class User(db.Model):
     volunteer_profile = db.relationship('VolunteerProfile', back_populates='user', uselist=False, cascade='all, delete-orphan')
     organization = db.relationship('Organization', back_populates='user', uselist=False, cascade='all, delete-orphan')
     applications = db.relationship('EventApplication', back_populates='user', cascade='all, delete-orphan')
+    favorites = db.relationship('Favorite', back_populates='user', cascade='all, delete-orphan')
+    feedbacks = db.relationship('RecommendationFeedback', back_populates='user', cascade='all, delete-orphan')
+    notifications = db.relationship('Notification', back_populates='user', cascade='all, delete-orphan')
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)

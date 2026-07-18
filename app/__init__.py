@@ -37,12 +37,20 @@ def _register_blueprints(flask_app: Flask) -> None:
     from app.routes.events import events_bp
     from app.routes.applications import applications_bp
     from app.routes.recommendations import recommendations_bp
+    from app.routes.favorites import favorites_bp
+    from app.routes.ai import ai_bp
+    from app.routes.feedback import feedback_bp
+    from app.routes.notifications import notifications_bp
     flask_app.register_blueprint(auth_bp, url_prefix='/api/auth')
     flask_app.register_blueprint(volunteers_bp, url_prefix='/api/volunteers')
     flask_app.register_blueprint(organizations_bp, url_prefix='/api/organizations')
     flask_app.register_blueprint(events_bp, url_prefix='/api/events')
     flask_app.register_blueprint(applications_bp, url_prefix='/api/applications')
     flask_app.register_blueprint(recommendations_bp, url_prefix='/api/recommendations')
+    flask_app.register_blueprint(favorites_bp, url_prefix='/api/favorites')
+    flask_app.register_blueprint(ai_bp, url_prefix='/api/ai')
+    flask_app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+    flask_app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
 
     # Swagger UI Blueprint
     from flask_swagger_ui import get_swaggerui_blueprint

@@ -19,6 +19,8 @@ class Event(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     organization = db.relationship('Organization', back_populates='events')
     applications = db.relationship('EventApplication', back_populates='event', cascade='all, delete-orphan')
+    favorited_by = db.relationship('Favorite', back_populates='event', cascade='all, delete-orphan')
+    feedbacks = db.relationship('RecommendationFeedback', back_populates='event', cascade='all, delete-orphan')
 
     @property
     def approved_count(self) -> int:
