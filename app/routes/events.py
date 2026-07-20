@@ -7,6 +7,7 @@ from app.models.application import EventApplication
 from app.utils.auth_helpers import get_current_user, organization_required, volunteer_required
 from app.utils.validators import parse_request_json, validate_required_string, validate_optional_string, validate_positive_int, validate_event_status
 from app.utils.ai_analyzer import analyze_event_text, compact_analysis
+from app.routes.notifications import create_notification
 events_bp = Blueprint('events', __name__)
 
 def _parse_datetime(value: str, field_name: str) -> datetime:
@@ -195,6 +196,18 @@ def apply_to_event(event_id: int):
     application = EventApplication(user_id=user.id, event_id=event_id, cover_letter=cover_letter or None)
     db.session.add(application)
     db.session.commit()
+    
+    # STK Yetkilisine Bildirim Gönder (Yeni Gönüllü Başvurusu)
+    if event.organization and event.organization.user_id:
+        volunteer_name = getattr(user, 'volunteer_profile', None) and user.volunteer_profile.full_name or user.email
+        create_notification(
+            user_id=event.organization.user_id,
+            message=f"'{event.title}' etkinliğine '{volunteer_name}' yeni bir başvuru yaptı.",
+            notif_type='new_application',
+            related_event_id=event.id
+        )
+        db.session.commit()
+
     return (jsonify({'message': 'Başvurunuz alındı.', 'application': application.to_dict(include_event=True)}), 201)
 
 @events_bp.route('/<int:event_id>/applications', methods=['GET'])
