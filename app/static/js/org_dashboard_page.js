@@ -1,0 +1,544 @@
+document.addEventListener('DOMContentLoaded', async () => {
+  const loginPrompt = document.getElementById('org-login-prompt');
+  const createOrgPrompt = document.getElementById('org-create-profile-prompt');
+  const dashContent = document.getElementById('org-dashboard-content');
+
+  const doLoginBtn = document.getElementById('org-do-login-btn');
+  if (doLoginBtn) {
+    doLoginBtn.addEventListener('click', async () => {
+      const email = document.getElementById('org-login-email').value.trim();
+      const password = document.getElementById('org-login-pass').value.trim();
+      if (!email || !password) {
+        showToast('E-posta ve şifre gereklidir.', 'error');
+        return;
+      }
+      doLoginBtn.disabled = true;
+      doLoginBtn.textContent = 'Oturum Açılıyor...';
+      const res = await window.authService.login(email, password);
+      doLoginBtn.disabled = false;
+      doLoginBtn.textContent = 'STK Olarak Giriş Yap';
+      if (res && res.error) {
+        showToast(res.error, 'error');
+      } else {
+        showToast('Giriş başarılı!', 'success');
+        window.location.reload();
+      }
+    });
+  }
+
+  const logoutBtn = document.getElementById('org-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      window.authService.logout();
+      window.location.reload();
+    });
+  }
+
+  let meRes = await window.authService.me();
+  let user = meRes && meRes.user ? meRes.user : null;
+
+  if (!user || user.role !== 'organization') {
+    if (loginPrompt) loginPrompt.style.display = 'block';
+    return;
+  }
+
+  let org = await window.organizationsService.findMyOrg(user.id);
+  if (!org) {
+    if (createOrgPrompt) {
+      createOrgPrompt.style.display = 'block';
+      const createBtn = document.getElementById('create-org-btn');
+      createBtn.addEventListener('click', async () => {
+        const name = document.getElementById('new-org-name').value.trim();
+        const city = document.getElementById('new-org-city').value.trim();
+        const description = document.getElementById('new-org-desc').value.trim();
+        if (!name) {
+          showToast('Kuruluş adı zorunludur.', 'error');
+          return;
+        }
+        createBtn.disabled = true;
+        createBtn.textContent = 'Kaydediliyor...';
+        const res = await window.organizationsService.create({ name, city, description });
+        createBtn.disabled = false;
+        createBtn.textContent = 'Profili Kaydet ve Başla';
+        if (res && res.error) {
+          showToast(res.error, 'error');
+        } else {
+          showToast('STK profili başarıyla oluşturuldu.', 'success');
+          window.location.reload();
+        }
+      });
+    }
+    return;
+  }
+
+  if (dashContent) dashContent.style.display = 'block';
+
+  document.getElementById('org-header-name').textContent = org.name;
+  if (org.is_verified) {
+    const vTag = document.getElementById('org-verified-tag');
+    if (vTag) vTag.style.display = 'inline-block';
+  }
+
+  let allEvents = [];
+  let allApps = [];
+
+  const loadDashboardData = async () => {
+    const evRes = await window.eventsService.list({ organization_id: org.id, status: 'all' });
+    allEvents = evRes && evRes.events ? evRes.events : [];
+    allApps = [];
+
+    for (const ev of allEvents) {
+      const appRes = await window.eventsService.getApplications(ev.id);
+      if (appRes && appRes.applications) {
+        appRes.applications.forEach(a => {
+          allApps.push({ ...a, event_title: ev.title });
+        });
+      }
+    }
+
+    renderSummary();
+    renderActiveEvents();
+    renderPendingApps();
+    renderUpcomingEvents();
+    renderAllEvents();
+    renderAllApps();
+    fillProfileForm();
+  };
+
+  const renderSummary = () => {
+    document.getElementById('stat-org-total-events').textContent = window.formatNumber(allEvents.length);
+    const pubCount = allEvents.filter(e => e.status === 'published').length;
+    document.getElementById('stat-org-published-events').textContent = window.formatNumber(pubCount);
+    const pendCount = allApps.filter(a => a.status === 'pending').length;
+    document.getElementById('stat-org-pending-apps').textContent = window.formatNumber(pendCount);
+    const appCount = allApps.filter(a => a.status === 'approved').length;
+    document.getElementById('stat-org-approved-apps').textContent = window.formatNumber(appCount);
+
+    const now = new Date();
+    const upcomingCount = allEvents.filter(e => e.status === 'published' && e.start_date && new Date(e.start_date) > now && (new Date(e.start_date) - now) <= 7 * 24 * 60 * 60 * 1000).length;
+    const nearlyFullCount = allEvents.filter(e => e.status === 'published' && e.max_volunteers && e.max_volunteers > 0 && e.approved_count >= Math.floor(e.max_volunteers * 0.8) && !e.is_full).length;
+
+    const banner = document.getElementById('org-action-required-banner');
+    const list = document.getElementById('org-action-required-list');
+    if (banner && list) {
+      const items = [];
+      if (pendCount > 0) items.push(`<strong>${pendCount} başvuru</strong> değerlendirmeyi bekliyor.`);
+      if (upcomingCount > 0) items.push(`<strong>${upcomingCount} etkinliğin</strong> yaklaşıyor (önümüzdeki 7 gün içinde).`);
+      if (nearlyFullCount > 0) items.push(`<strong>${nearlyFullCount} etkinliğin</strong> kontenjanı dolmak üzere (%80 ve üzeri doluluk).`);
+
+      if (items.length > 0) {
+        list.innerHTML = items.map(it => `<li style="margin-bottom: 4px;">${it}</li>`).join('');
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+  };
+
+  const renderActiveEvents = () => {
+    const skel = document.getElementById('active-events-skeleton');
+    const grid = document.getElementById('active-events-grid');
+    const empty = document.getElementById('active-events-empty');
+    if (skel) skel.style.display = 'none';
+
+    const pub = allEvents.filter(e => e.status === 'published');
+    if (pub.length === 0) {
+      if (grid) grid.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (grid) {
+      grid.style.display = 'grid';
+      grid.innerHTML = pub.map(ev => {
+        const dateStr = window.formatDate(ev.start_date);
+        const loc = ev.city || 'Konum belirtilmedi';
+        const quota = ev.max_volunteers ? `${ev.approved_count} / ${ev.max_volunteers}` : `${ev.approved_count} Onaylı`;
+        return `
+          <div class="event-card">
+            <div class="card-header">
+              <span class="event-category">${ev.category || 'Genel'}</span>
+              <span class="event-status published">Yayında</span>
+            </div>
+            <h3 class="event-title">${ev.title}</h3>
+            <p class="event-meta">
+              <span>${dateStr}</span>
+              <span>•</span>
+              <span>${loc}</span>
+            </p>
+            <div style="margin: var(--space-4) 0; font-size: var(--text-sm); color: var(--text-muted); display: flex; justify-content: space-between; background: var(--bg-subtle); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);">
+              <span>Kontenjan Doluluğu:</span>
+              <strong style="color: var(--text-main);">${quota}</strong>
+            </div>
+            <div class="card-footer" style="justify-content: flex-end;">
+              <a href="#applications" class="btn btn-outline btn-sm org-tab-link" data-tab="applications">Başvuruları İncele</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+      attachTabLinks();
+    }
+  };
+
+  const updateAppStatus = async (appId, newStatus, btnEl) => {
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = 'İşleniyor...';
+    }
+    const res = await window.applicationsService.update(appId, { status: newStatus });
+    if (res && res.error) {
+      showToast(res.error, 'error');
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.textContent = newStatus === 'approved' ? 'Onayla' : 'Reddet';
+      }
+    } else {
+      showToast(`Başvuru ${newStatus === 'approved' ? 'onaylandı' : 'reddedildi'}.`, 'success');
+      await loadDashboardData();
+    }
+  };
+
+  const renderPendingApps = () => {
+    const skel = document.getElementById('pending-apps-skeleton');
+    const container = document.getElementById('pending-apps-container');
+    const empty = document.getElementById('pending-apps-empty');
+    if (skel) skel.style.display = 'none';
+
+    const pend = allApps.filter(a => a.status === 'pending');
+    if (pend.length === 0) {
+      if (container) container.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (container) container.style.display = 'block';
+
+    const tbody = document.getElementById('pending-apps-table-body');
+    if (tbody) {
+      tbody.innerHTML = pend.map(a => {
+        const volName = (a.volunteer && a.volunteer.full_name) ? a.volunteer.full_name : ((a.volunteer && a.volunteer.email) ? a.volunteer.email : `Gönüllü #${a.user_id}`);
+        const evTitle = a.event_title || (a.event ? a.event.title : `Etkinlik #${a.event_id}`);
+        const dateStr = window.formatDate(a.applied_at);
+        const note = a.cover_letter || '-';
+        return `
+          <tr>
+            <td><strong>${volName}</strong></td>
+            <td>${evTitle}</td>
+            <td>${dateStr}</td>
+            <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${note}</div></td>
+            <td>
+              <div class="applicant-actions-group">
+                <button type="button" class="btn btn-primary btn-sm act-approve-btn" data-id="${a.id}">Onayla</button>
+                <button type="button" class="btn btn-outline btn-sm act-reject-btn" data-id="${a.id}">Reddet</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    const mobileList = document.getElementById('pending-apps-mobile-list');
+    if (mobileList) {
+      mobileList.innerHTML = pend.map(a => {
+        const volName = (a.volunteer && a.volunteer.full_name) ? a.volunteer.full_name : ((a.volunteer && a.volunteer.email) ? a.volunteer.email : `Gönüllü #${a.user_id}`);
+        const evTitle = a.event_title || (a.event ? a.event.title : `Etkinlik #${a.event_id}`);
+        const dateStr = window.formatDate(a.applied_at);
+        const note = a.cover_letter || 'Not eklenmedi.';
+        return `
+          <div class="applicant-card-item">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <strong style="font-size: var(--text-base); color: var(--text-main);">${volName}</strong>
+              <span class="event-status pending">Değerlendirmede</span>
+            </div>
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">
+              <div><strong>Etkinlik:</strong> ${evTitle}</div>
+              <div><strong>Tarih:</strong> ${dateStr}</div>
+              <div style="margin-top: var(--space-2); background: var(--bg-subtle); padding: var(--space-2); border-radius: var(--radius-sm); font-style: italic;">"${note}"</div>
+            </div>
+            <div class="applicant-actions-group" style="margin-top: var(--space-2);">
+              <button type="button" class="btn btn-primary btn-sm act-approve-btn" data-id="${a.id}" style="flex: 1;">Onayla</button>
+              <button type="button" class="btn btn-outline btn-sm act-reject-btn" data-id="${a.id}" style="flex: 1;">Reddet</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.querySelectorAll('.act-approve-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appId = e.currentTarget.getAttribute('data-id');
+        updateAppStatus(appId, 'approved', e.currentTarget);
+      });
+    });
+    document.querySelectorAll('.act-reject-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appId = e.currentTarget.getAttribute('data-id');
+        updateAppStatus(appId, 'rejected', e.currentTarget);
+      });
+    });
+  };
+
+  const renderUpcomingEvents = () => {
+    const grid = document.getElementById('upcoming-events-grid');
+    const empty = document.getElementById('upcoming-events-empty');
+    const now = new Date();
+    const up = allEvents.filter(e => new Date(e.start_date) > now).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+    if (up.length === 0) {
+      if (grid) grid.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (grid) {
+      grid.style.display = 'grid';
+      grid.innerHTML = up.map(ev => {
+        const dateStr = window.formatDate(ev.start_date);
+        const loc = ev.city || 'Konum belirtilmedi';
+        return `
+          <div class="event-card">
+            <div class="card-header">
+              <span class="event-category">${ev.category || 'Genel'}</span>
+              <span class="event-status approved">Yaklaşıyor</span>
+            </div>
+            <h3 class="event-title">${ev.title}</h3>
+            <p class="event-meta">
+              <span>${dateStr}</span>
+              <span>•</span>
+              <span>${loc}</span>
+            </p>
+            <div class="card-footer" style="justify-content: flex-end;">
+              <a href="#events" class="btn btn-outline btn-sm org-tab-link" data-tab="events">Yönet</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+      attachTabLinks();
+    }
+  };
+
+  const renderAllEvents = (statusFilter = 'all') => {
+    const grid = document.getElementById('all-events-grid');
+    const empty = document.getElementById('all-events-empty');
+    let filtered = allEvents;
+    if (statusFilter !== 'all') {
+      filtered = allEvents.filter(e => e.status === statusFilter);
+    }
+    if (filtered.length === 0) {
+      if (grid) grid.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (grid) {
+      grid.style.display = 'grid';
+      grid.innerHTML = filtered.map(ev => {
+        const dateStr = window.formatDate(ev.start_date);
+        const loc = ev.city || 'Konum belirtilmedi';
+        const stClass = ev.status === 'published' ? 'published' : (ev.status === 'completed' ? 'approved' : 'pending');
+        const stLabel = ev.status === 'published' ? 'Yayında' : (ev.status === 'completed' ? 'Tamamlandı' : 'Taslak');
+        return `
+          <div class="event-card">
+            <div class="card-header">
+              <span class="event-category">${ev.category || 'Genel'}</span>
+              <span class="event-status ${stClass}">${stLabel}</span>
+            </div>
+            <h3 class="event-title">${ev.title}</h3>
+            <p class="event-meta">
+              <span>${dateStr}</span>
+              <span>•</span>
+              <span>${loc}</span>
+            </p>
+            <p class="event-description" style="margin-bottom: var(--space-4);">${ev.description || 'Açıklama girilmemiş.'}</p>
+            <div class="card-footer" style="justify-content: space-between; align-items: center;">
+              <span style="font-size: var(--text-xs); color: var(--text-muted);">Kontenjan: ${ev.approved_count}/${ev.max_volunteers || '∞'}</span>
+              <a href="/events/${ev.id}" class="btn btn-outline btn-sm" target="_blank">Sayfayı Gör</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  };
+
+  const renderAllApps = (statusFilter = 'all') => {
+    const container = document.getElementById('all-apps-container');
+    const empty = document.getElementById('all-apps-empty');
+    let filtered = allApps;
+    if (statusFilter !== 'all') {
+      filtered = allApps.filter(a => a.status === statusFilter);
+    }
+    if (filtered.length === 0) {
+      if (container) container.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (container) container.style.display = 'block';
+
+    const tbody = document.getElementById('all-apps-table-body');
+    if (tbody) {
+      tbody.innerHTML = filtered.map(a => {
+        const volName = (a.volunteer && a.volunteer.full_name) ? a.volunteer.full_name : ((a.volunteer && a.volunteer.email) ? a.volunteer.email : `Gönüllü #${a.user_id}`);
+        const evTitle = a.event_title || (a.event ? a.event.title : `Etkinlik #${a.event_id}`);
+        const dateStr = window.formatDate(a.applied_at);
+        const note = a.cover_letter || '-';
+        const stClass = a.status === 'approved' ? 'approved' : (a.status === 'rejected' || a.status === 'cancelled' ? 'rejected' : 'pending');
+        const stLabel = a.status === 'approved' ? 'Onaylandı' : (a.status === 'rejected' ? 'Reddedildi' : (a.status === 'cancelled' ? 'İptal' : 'Bekliyor'));
+        let actionsHtml = '-';
+        if (a.status === 'pending') {
+          actionsHtml = `
+            <div class="applicant-actions-group">
+              <button type="button" class="btn btn-primary btn-sm act-all-app-btn" data-id="${a.id}" data-st="approved">Onayla</button>
+              <button type="button" class="btn btn-outline btn-sm act-all-app-btn" data-id="${a.id}" data-st="rejected">Reddet</button>
+            </div>
+          `;
+        }
+        return `
+          <tr>
+            <td><strong>${volName}</strong></td>
+            <td>${evTitle}</td>
+            <td>${dateStr}</td>
+            <td><div style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${note}</div></td>
+            <td><span class="event-status ${stClass}">${stLabel}</span></td>
+            <td>${actionsHtml}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    const mobileList = document.getElementById('all-apps-mobile-list');
+    if (mobileList) {
+      mobileList.innerHTML = filtered.map(a => {
+        const volName = (a.volunteer && a.volunteer.full_name) ? a.volunteer.full_name : ((a.volunteer && a.volunteer.email) ? a.volunteer.email : `Gönüllü #${a.user_id}`);
+        const evTitle = a.event_title || (a.event ? a.event.title : `Etkinlik #${a.event_id}`);
+        const dateStr = window.formatDate(a.applied_at);
+        const note = a.cover_letter || 'Not eklenmedi.';
+        const stClass = a.status === 'approved' ? 'approved' : (a.status === 'rejected' || a.status === 'cancelled' ? 'rejected' : 'pending');
+        const stLabel = a.status === 'approved' ? 'Onaylandı' : (a.status === 'rejected' ? 'Reddedildi' : (a.status === 'cancelled' ? 'İptal' : 'Bekliyor'));
+        let actionsHtml = '';
+        if (a.status === 'pending') {
+          actionsHtml = `
+            <div class="applicant-actions-group" style="margin-top: var(--space-2);">
+              <button type="button" class="btn btn-primary btn-sm act-all-app-btn" data-id="${a.id}" data-st="approved" style="flex: 1;">Onayla</button>
+              <button type="button" class="btn btn-outline btn-sm act-all-app-btn" data-id="${a.id}" data-st="rejected" style="flex: 1;">Reddet</button>
+            </div>
+          `;
+        }
+        return `
+          <div class="applicant-card-item">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <strong style="font-size: var(--text-base); color: var(--text-main);">${volName}</strong>
+              <span class="event-status ${stClass}">${stLabel}</span>
+            </div>
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">
+              <div><strong>Etkinlik:</strong> ${evTitle}</div>
+              <div><strong>Tarih:</strong> ${dateStr}</div>
+              <div style="margin-top: var(--space-2); background: var(--bg-subtle); padding: var(--space-2); border-radius: var(--radius-sm); font-style: italic;">"${note}"</div>
+            </div>
+            ${actionsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.querySelectorAll('.act-all-app-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appId = e.currentTarget.getAttribute('data-id');
+        const newSt = e.currentTarget.getAttribute('data-st');
+        updateAppStatus(appId, newSt, e.currentTarget);
+      });
+    });
+  };
+
+  const fillProfileForm = () => {
+    document.getElementById('up-org-name').value = org.name || '';
+    document.getElementById('up-org-city').value = org.city || '';
+    document.getElementById('up-org-web').value = org.website || '';
+    document.getElementById('up-org-phone').value = org.phone || '';
+    document.getElementById('up-org-address').value = org.address || '';
+    document.getElementById('up-org-desc').value = org.description || '';
+  };
+
+  const profileForm = document.getElementById('org-profile-update-form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('update-profile-btn');
+      btn.disabled = true;
+      btn.textContent = 'Kaydediliyor...';
+      const payload = {
+        name: document.getElementById('up-org-name').value.trim(),
+        city: document.getElementById('up-org-city').value.trim(),
+        website: document.getElementById('up-org-web').value.trim(),
+        phone: document.getElementById('up-org-phone').value.trim(),
+        address: document.getElementById('up-org-address').value.trim(),
+        description: document.getElementById('up-org-desc').value.trim()
+      };
+      const res = await window.organizationsService.update(org.id, payload);
+      btn.disabled = false;
+      btn.textContent = 'Değişiklikleri Kaydet';
+      if (res && res.error) {
+        showToast(res.error, 'error');
+      } else {
+        showToast('STK profiliniz başarıyla güncellendi.', 'success');
+        org = { ...org, ...payload };
+        document.getElementById('org-header-name').textContent = org.name;
+      }
+    });
+  }
+
+  document.querySelectorAll('.filter-ev-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter-ev-btn').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      renderAllEvents(e.currentTarget.getAttribute('data-status'));
+    });
+  });
+
+  document.querySelectorAll('.filter-app-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter-app-btn').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      renderAllApps(e.currentTarget.getAttribute('data-status'));
+    });
+  });
+
+  const switchTab = (tabName) => {
+    document.querySelectorAll('.org-tab-pane').forEach(p => p.style.display = 'none');
+    const pane = document.getElementById(`tab-pane-${tabName}`);
+    if (pane) pane.style.display = 'block';
+
+    document.querySelectorAll('.org-tab-link').forEach(l => {
+      if (l.getAttribute('data-tab') === tabName) {
+        l.classList.add('active');
+      } else {
+        l.classList.remove('active');
+      }
+    });
+  };
+
+  const attachTabLinks = () => {
+    document.querySelectorAll('.org-tab-link').forEach(l => {
+      l.addEventListener('click', (e) => {
+        const t = e.currentTarget.getAttribute('data-tab');
+        if (t) {
+          e.preventDefault();
+          window.location.hash = t;
+          switchTab(t);
+        }
+      });
+    });
+  };
+
+  attachTabLinks();
+
+  window.addEventListener('hashchange', () => {
+    const h = window.location.hash.replace('#', '') || 'overview';
+    switchTab(h);
+  });
+
+  const initHash = window.location.hash.replace('#', '') || 'overview';
+  switchTab(initHash);
+
+  await loadDashboardData();
+});

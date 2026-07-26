@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Yeni Etkinlik Oluştur | Briva{% endblock %}
+
+{% block content %}
+<nav class="org-nav-bar" aria-label="STK Ana Navigasyon">
+  <div class="container">
+    <ul class="org-nav-list">
+      <li class="org-nav-item"><a href="/organization/dashboard#overview">Dashboard</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#events">Etkinlikler</a></li>
+      <li class="org-nav-item"><a href="/organization/events/new" class="active">Yeni Etkinlik</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#applications">Başvurular</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#profile">Profil</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container" style="padding-bottom: var(--space-16); max-width: 768px;">
+  <header style="margin-bottom: var(--space-8);">
+    <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2);">Yeni Gönüllülük Etkinliği</h1>
+    <p style="color: var(--text-muted); font-size: var(--text-base);">4 adımlı sihirbaz ile etkinlik ilanınızı operasyonel gereksinimlere uygun ve eksiksiz bir şekilde yayınlayın.</p>
+  </header>
+
+  <div class="wizard-stepper" aria-label="Etkinlik Oluşturma Adımları">
+    <div class="wizard-step active" id="step-ind-1">
+      <span class="step-number">1</span>
+      <span>Temel Bilgiler</span>
+    </div>
+    <div class="wizard-step" id="step-ind-2">
+      <span class="step-number">2</span>
+      <span>Zaman ve Konum</span>
+    </div>
+    <div class="wizard-step" id="step-ind-3">
+      <span class="step-number">3</span>
+      <span>Gönüllü İhtiyacı</span>
+    </div>
+    <div class="wizard-step" id="step-ind-4">
+      <span class="step-number">4</span>
+      <span>Önizleme ve Yayınla</span>
+    </div>
+  </div>
+
+  <div id="wizard-error-box" style="display: none; background: var(--bg-subtle); border-left: 4px solid var(--accent-red); padding: var(--space-4); border-radius: var(--radius-sm); margin-bottom: var(--space-6); color: var(--text-main); font-size: var(--text-sm);"></div>
+
+  <form id="wizard-form" novalidate>
+    <div class="wizard-pane active" id="pane-step-1">
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+        <div>
+          <label for="event-title" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Etkinlik Başlığı *</label>
+          <input type="text" id="event-title" name="title" required placeholder="Örn: Kadıköy Sahil Temizliği ve Geri Dönüşüm Atölyesi" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+        </div>
+        <div>
+          <label for="event-category" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kategori</label>
+          <input type="text" id="event-category" name="category" placeholder="Örn: Çevre, Eğitim, Afet Destek" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+        </div>
+        <div>
+          <label for="event-description" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Etkinlik Açıklaması</label>
+          <textarea id="event-description" name="description" rows="6" placeholder="Etkinliğin amacı, yapılacak işler ve katılımcı gönüllülere kazanımları..." style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: var(--space-6);">
+        <button type="button" class="btn btn-primary btn-lg wizard-next-btn" data-next="2">İleri: Zaman ve Konum →</button>
+      </div>
+    </div>
+
+    <div class="wizard-pane" id="pane-step-2">
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4);">
+          <div>
+            <label for="event-start" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Başlangıç Tarihi ve Saati *</label>
+            <input type="datetime-local" id="event-start" name="start_date" required style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          </div>
+          <div>
+            <label for="event-end" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Bitiş Tarihi ve Saati</label>
+            <input type="datetime-local" id="event-end" name="end_date" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          </div>
+        </div>
+        <div>
+          <label for="event-city" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şehir</label>
+          <input type="text" id="event-city" name="city" placeholder="Örn: İstanbul" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+        </div>
+        <div>
+          <label for="event-address" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Açık Adres ve Buluşma Noktası</label>
+          <textarea id="event-address" name="address" rows="3" placeholder="Gönüllülerin buluşacağı tam adres veya konum yönlendirmesi..." style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: var(--space-6);">
+        <button type="button" class="btn btn-outline btn-lg wizard-prev-btn" data-prev="1">← Geri</button>
+        <button type="button" class="btn btn-primary btn-lg wizard-next-btn" data-next="3">İleri: Gönüllü İhtiyacı →</button>
+      </div>
+    </div>
+
+    <div class="wizard-pane" id="pane-step-3">
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+        <div>
+          <label for="event-max" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Maksimum Gönüllü Kontenjanı</label>
+          <input type="number" id="event-max" name="max_volunteers" min="1" placeholder="Örn: 50" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+        </div>
+        <div>
+          <label for="event-requirements" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Gereksinimler, Beceriler ve İlgi Alanları</label>
+          <textarea id="event-requirements" name="requirements" rows="4" placeholder="Örn: İlk yardım bilgisi, çevre bilinci, takım çalışmasına yatkınlık..." style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+        </div>
+        <p class="editorial-note">Not: Girdiğiniz gereksinimler, arama ve yapay zeka destekli eşleşme motoru tarafından doğrudan değerlendirilecektir.</p>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: var(--space-6);">
+        <button type="button" class="btn btn-outline btn-lg wizard-prev-btn" data-prev="2">← Geri</button>
+        <button type="button" class="btn btn-primary btn-lg wizard-next-btn" data-next="4">İleri: Önizleme ve Yayınla →</button>
+      </div>
+    </div>
+
+    <div class="wizard-pane" id="pane-step-4">
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+        <h2 style="font-size: var(--text-xl); border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-3);">İlan Önizlemesi</h2>
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-3); font-size: var(--text-sm);">
+          <strong style="color: var(--text-muted);">Başlık:</strong>
+          <span id="prev-title">-</span>
+
+          <strong style="color: var(--text-muted);">Kategori:</strong>
+          <span id="prev-category">-</span>
+
+          <strong style="color: var(--text-muted);">Zaman:</strong>
+          <span id="prev-dates">-</span>
+
+          <strong style="color: var(--text-muted);">Konum:</strong>
+          <span id="prev-location">-</span>
+
+          <strong style="color: var(--text-muted);">Kontenjan:</strong>
+          <span id="prev-max">-</span>
+
+          <strong style="color: var(--text-muted);">Gereksinimler:</strong>
+          <span id="prev-reqs">-</span>
+
+          <strong style="color: var(--text-muted);">Açıklama:</strong>
+          <p id="prev-desc" style="margin: 0; white-space: pre-wrap;">-</p>
+        </div>
+        <p class="editorial-note">Veri Bütünlüğü ve Mimarî Notu: Etkinlik oluşturma API endpoint'i (`POST /api/events`) "Taslak (Draft)" statüsünde kayda izin vermediğinden, veri kaybını önlemek adına form ilerlemeniz tarayıcı yerel hafızasında (`localStorage`) tutulur ve yalnızca aşağıdan "Etkinliği Yayınla" butonuna basıldığında sunucuya aktarılarak yayınlanır.</p>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: var(--space-6); gap: var(--space-4);">
+        <button type="button" class="btn btn-outline btn-lg wizard-prev-btn" data-prev="3">← Geri</button>
+        <button type="submit" id="wizard-submit-btn" class="btn btn-primary btn-lg">Etkinliği Yayınla</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<nav class="org-bottom-nav" aria-label="Mobil STK Alt Navigasyon">
+  <a href="/organization/dashboard#overview">Özet</a>
+  <a href="/organization/dashboard#events">Etkinlikler</a>
+  <a href="/organization/events/new" class="active">Yeni</a>
+  <a href="/organization/dashboard#applications">Başvurular</a>
+  <a href="/organization/dashboard#profile">Profil</a>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/org_event_new_page.js"></script>
+{% endblock %}

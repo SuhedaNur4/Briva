@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <div class="empty-state-icon"></div>
+  <h3 class="empty-state-title">{{ title if title else 'Kayıt Bulunamadı' }}</h3>
+  <p class="empty-state-message">{{ message if message else 'Görüntülenecek herhangi bir içerik bulunmuyor.' }}</p>
+  {% if action_url and action_label %}
+  <a href="{{ action_url }}" class="btn btn-primary empty-state-action">{{ action_label }}</a>
+  {% endif %}
+</div>

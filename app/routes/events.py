@@ -48,6 +48,11 @@ def create_event():
             event.max_volunteers = validate_positive_int(data['max_volunteers'], 'Maksimum gönüllü')
         except ValueError as e:
             return (jsonify({'error': str(e)}), 400)
+    if 'status' in data:
+        try:
+            event.status = validate_event_status(data['status'])
+        except ValueError as e:
+            return (jsonify({'error': str(e)}), 400)
     db.session.add(event)
     db.session.commit()
     # Issue #18: etkinlik oluşturulurken açıklama kalitesi AI ile analiz edilip yanıtla döner
@@ -92,7 +97,8 @@ def list_events():
     if category:
         query = query.filter(Event.category.ilike(f'%{category}%'))
     status = request.args.get('status', 'published')
-    query = query.filter(Event.status == status)
+    if status != 'all':
+        query = query.filter(Event.status == status)
     org_id = request.args.get('organization_id')
     if org_id:
         try:

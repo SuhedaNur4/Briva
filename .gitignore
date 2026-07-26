@@ -29,6 +29,11 @@ instance/
 # Log
 *.log
 
+# Yedek ve gecici dosyalar
+*_original.md
+*.bak
+*.tmp
+
 # OS
 .DS_Store
 Thumbs.db

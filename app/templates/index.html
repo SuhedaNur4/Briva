@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Briva | İyilik ve Yardımlaşma Platformu{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1 class="hero-title">İyilik yapmak isteyenlerle, yardıma ihtiyaç duyanları buluşturuyoruz.</h1>
+      <p class="hero-subtitle">Briva, gönüllüleri ve sivil toplum kuruluşlarını niteliklerine, ilgi alanlarına ve müsaitlik zamanlarına göre en doğru etkinliklerde buluşturan akıllı eşleşme platformudur.</p>
+      <div class="hero-actions">
+        <a href="/events" class="btn btn-primary btn-lg">Gönüllü Olarak Katıl</a>
+        <a href="/organization/dashboard" class="btn btn-outline btn-lg">STK Olarak Başla</a>
+      </div>
+    </div>
+    <div class="hero-preview">
+      <div class="preview-box">
+        <span class="preview-badge">Örnek Platform Görünümü</span>
+        <h2 class="preview-title">Kadıköy Sahil Temizliği ve Geri Dönüşüm Atölyesi</h2>
+        <p class="preview-text">Düzenleyen: Yeşil Gelecek Derneği | Tarih: 15 Ağustos 2026</p>
+        <div class="match-score-box" style="margin-top: 1.5rem;">
+          <div class="match-score-header">
+            <span>Uygunluk Değerlendirmesi</span>
+            <span class="match-score-value">%94 Eşleşme</span>
+          </div>
+          <div class="match-reasons-list">
+            <span class="match-reason-tag">Bu etkinlik sana uygun olabilir</span>
+            <span class="match-reason-tag">İlgi alanlarınla örtüşüyor</span>
+            <span class="match-reason-tag">Konumuna yakın</span>
+            <span class="match-reason-tag">Uygunluk zamanlarınla eşleşiyor</span>
+          </div>
+        </div>
+        <p class="editorial-note">Not: Bu ekran üründeki akıllı eşleşme ve açıklanabilir analiz deneyimini gösteren editoryal bir sunumdur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mission-section">
+  <div class="mission-container">
+    <h2 class="section-title">Toplumsal Etki ve Güvenilir Platform</h2>
+    <div class="mission-grid">
+      <article class="mission-card">
+        <h3 class="mission-title">Akıllı ve Anlamlı Eşleşme</h3>
+        <p class="mission-text">Nitelikleriniz, becerileriniz ve zaman çerçeveniz analiz edilerek sadece size gerçekten hitap eden ve verimli olabileceğiniz sosyal sorumluluk fırsatları önerilir.</p>
+      </article>
+      <article class="mission-card">
+        <h3 class="mission-title">Doğrulanmış Kuruluşlar</h3>
+        <p class="mission-text">Platformda yer alan tüm sivil toplum kuruluşları resmi denetimlerden geçerek onaylanır. İyilik yaparken güvenli ve şeffaf bir süreç yaşarsınız.</p>
+      </article>
+      <article class="mission-card">
+        <h3 class="mission-title">Ölçülebilir Sosyal Katkı</h3>
+        <p class="mission-text">Katıldığınız etkinlikler, harcadığınız gönüllülük saatleri ve topluma sağladığınız fayda profilinizde somut bir katkı geçmişi olarak kayıt altına alınır.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works-section" id="how-it-works">
+  <div class="container">
+    <h2 class="section-title">Nasıl Çalışır?</h2>
+    <div class="how-it-works-grid">
+      <div class="flow-column">
+        <h3 class="flow-title">Gönüllüler İçin 3 Adım</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-number">1</span>
+            <div class="step-content">
+              <h4>Keşfet</h4>
+              <p>İlgi alanlarınıza, yeteneklerinize ve yaşadığınız şehre hitap eden aktif sosyal sorumluluk projelerini inceleyin.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-number">2</span>
+            <div class="step-content">
+              <h4>Eşleş</h4>
+              <p>Müsaitlik zamanlarınızla ve yetkinliklerinizle en yüksek uyumu gösteren ilanları şeffaf nedenleriyle görün.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-number">3</span>
+            <div class="step-content">
+              <h4>Katıl</h4>
+              <p>Tek tıkla başvurunuzu iletin, organizasyon süreçlerini takip edin ve sahada yerinizi alın.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-column">
+        <h3 class="flow-title">STK'lar İçin 3 Adım</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-number">1</span>
+            <div class="step-content">
+              <h4>Etkinlik Oluştur</h4>
+              <p>Projenizin detaylarını, ihtiyaç duyulan yetkinlikleri, kontenjanı ve görev tanımını adım adım tanımlayın.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-number">2</span>
+            <div class="step-content">
+              <h4>Uygun Gönüllüleri Bul</h4>
+              <p>İlanınıza başvuran adayların kriterlerinize ne derece uyduğunu kolayca filtreleyip değerlendirin.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-number">3</span>
+            <div class="step-content">
+              <h4>Birlikte Gerçekleştir</h4>
+              <p>Onayladığınız gönüllü ekibinizle anlık iletişim kurun ve projenizi başarıyla tamamlayın.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ngo-section" id="ngos">
+  <div class="container ngo-layout">
+    <div class="ngo-content">
+      <h2>Doğru gönüllülere daha kolay ulaşın.</h2>
+      <p>Sivil toplum kuruluşlarının en büyük zorluğu, projenin gereksinimlerine gerçekten uyan ve bağlılık gösterecek gönüllüleri zamanında bulabilmektir. Briva ile süreçlerinizi dijitalleştirin.</p>
+      <ul class="feature-list">
+        <li>Nitelik ve beceri tabanlı aday listeleme</li>
+        <li>Kolay başvuru onay ve red yönetimi</li>
+        <li>Katılım geçmişi doğrulanmış gönüllü profilleri</li>
+        <li>Kurumunuza özel doğrulanmış rozet ve güvenilirlik profili</li>
+      </ul>
+      <a href="/organization/dashboard" class="btn btn-primary btn-lg">STK Olarak Başla</a>
+    </div>
+    <div class="ngo-preview">
+      <div class="flow-column">
+        <h3 class="flow-title">STK Akış Özeti</h3>
+        <p class="mission-text" style="margin-bottom: 1rem;">Etkinliklerinizi oluşturun, gönüllü ihtiyacınızı belirleyin, uygun adayları keşfedin ve tüm başvuruları tek panelden yönetin.</p>
+        <a href="/organization/events/new" class="btn btn-outline btn-block">Yeni İlan Oluşturma Sihirbazını İncele</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-section">
+  <div class="container">
+    <h2 class="section-title">Örnek Etkinlik Fırsatları</h2>
+    <div class="events-grid" id="sample-events-grid">
+      <article class="event-card">
+        <div class="event-card-header">
+          <span class="event-category">Çevre &amp; Doğayı Koruma</span>
+          <span class="event-city">İstanbul</span>
+        </div>
+        <div class="event-card-body">
+          <h3 class="event-title">
+            <a href="/events">Belgrad Ormanı Ekolojik Temizlik Hareketi</a>
+          </h3>
+          <p class="event-description">Doğa severlerle birlikte orman içi plastik atıkları topluyor ve geri dönüşüm bilincini destekliyoruz.</p>
+        </div>
+        <div class="event-card-footer">
+          <span class="event-date">20 Ağustos 2026</span>
+          <a href="/events" class="btn btn-secondary">İncele</a>
+        </div>
+      </article>
+
+      <article class="event-card">
+        <div class="event-card-header">
+          <span class="event-category">Eğitim &amp; Mentörlük</span>
+          <span class="event-city">Ankara</span>
+        </div>
+        <div class="event-card-body">
+          <h3 class="event-title">
+            <a href="/events">Köy Okulları İçin Dijital Kodlama Atölyesi</a>
+          </h3>
+          <p class="event-description">Temel bilgisayar ve kodlama becerilerini çocuklara aktarmak isteyen gönüllü eğitmenler arıyoruz.</p>
+        </div>
+        <div class="event-card-footer">
+          <span class="event-date">25 Ağustos 2026</span>
+          <a href="/events" class="btn btn-secondary">İncele</a>
+        </div>
+      </article>
+
+      <article class="event-card">
+        <div class="event-card-header">
+          <span class="event-category">Sosyal Destek</span>
+          <span class="event-city">İzmir</span>
+        </div>
+        <div class="event-card-body">
+          <h3 class="event-title">
+            <a href="/events">Engelsiz Yaşam Merkezi Sanat Etkinliği</a>
+          </h3>
+          <p class="event-description">Özel gereksinimli bireylerle resim ve seramik çalışmalarında asistans sağlayacak gönüllüler davetlidir.</p>
+        </div>
+        <div class="event-card-footer">
+          <span class="event-date">28 Ağustos 2026</span>
+          <a href="/events" class="btn btn-secondary">İncele</a>
+        </div>
+      </article>
+    </div>
+    <p class="editorial-note" style="text-align: center; margin-top: 1.5rem;">Not: Yukarıdaki kartlar platformun arayüzünü örneklendiren editoryal ilanlardır. Canlı etkinlikler API üzerinden listelenecektir.</p>
+  </div>
+</section>
+
+<section class="final-cta-section">
+  <div class="container">
+    <div class="final-cta-grid">
+      <div class="cta-card">
+        <div>
+          <h3>Gönüllü müsün?</h3>
+          <p>Yeteneklerinize ve ilgi alanlarınıza uyan projeleri bulun, toplumsal etki yaratmaya hemen başlayın.</p>
+        </div>
+        <div>
+          <a href="/events" class="btn btn-primary btn-lg btn-block">Katkı Sağlayabileceğin Bir Etkinlik Keşfet</a>
+        </div>
+      </div>
+      <div class="cta-card">
+        <div>
+          <h3>Bir STK mısın?</h3>
+          <p>Projelerinize değer katacak doğru gönüllülere hızla ulaşın, başvuru ve operasyon süreçlerinizi kolaylaştırın.</p>
+        </div>
+        <div>
+          <a href="/organization/dashboard" class="btn btn-outline btn-lg btn-block">İhtiyacın Olan Gönüllülerle Buluş</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

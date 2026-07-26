@@ -19,7 +19,15 @@ class EventApplication(db.Model):
         data = {'id': self.id, 'user_id': self.user_id, 'event_id': self.event_id, 'status': self.status, 'cover_letter': self.cover_letter, 'reviewer_note': self.reviewer_note, 'applied_at': self.applied_at.isoformat(), 'updated_at': self.updated_at.isoformat()}
         if include_user and self.user:
             vp = self.user.volunteer_profile
-            data['volunteer'] = {'user_id': self.user_id, 'email': self.user.email, 'full_name': vp.full_name if vp else None}
+            data['volunteer'] = {
+                'user_id': self.user_id,
+                'email': self.user.email,
+                'full_name': vp.full_name if vp else None,
+                'city': vp.city if vp else None,
+                'bio': vp.bio if vp else None,
+                'skills': vp.skills_list if vp else [],
+                'interests': vp.interests_list if vp else [],
+            }
         if include_event and self.event:
             data['event'] = {'id': self.event.id, 'title': self.event.title, 'start_date': self.event.start_date.isoformat()}
         return data

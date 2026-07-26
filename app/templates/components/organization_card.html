@@ -1,0 +1,17 @@
+<article class="organization-card" data-org-id="{{ org.id if org else '' }}">
+  <div class="org-card-header">
+    <h3 class="org-name">
+      <a href="/organizations/{{ org.id if org else '#' }}">{{ org.name if org else 'STK Adı' }}</a>
+    </h3>
+    {% if org and org.is_verified %}
+    <span class="verified-badge">Doğrulanmış</span>
+    {% endif %}
+  </div>
+  <div class="org-card-body">
+    <p class="org-description">{{ org.description if org else 'Kuruluş açıklaması burada yer alacaktır.' }}</p>
+    <span class="org-city">{{ org.city if org else 'Şehir' }}</span>
+  </div>
+  <div class="org-card-footer">
+    <a href="/organizations/{{ org.id if org else '#' }}" class="btn btn-outline">Profili İncele</a>
+  </div>
+</article>

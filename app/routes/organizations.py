@@ -47,6 +47,15 @@ def list_organizations():
     pagination = query.order_by(Organization.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
     return (jsonify({'organizations': [org.to_dict() for org in pagination.items], 'pagination': {'page': pagination.page, 'per_page': pagination.per_page, 'total': pagination.total, 'pages': pagination.pages}}), 200)
 
+@organizations_bp.route('/me', methods=['GET'])
+@jwt_required()
+@organization_required
+def get_my_organization():
+    user = get_current_user()
+    if not user.organization:
+        return (jsonify({'error': 'STK profiliniz bulunamadı. Önce POST /api/organizations ile kurumsal profilinizi oluşturun.'}), 404)
+    return (jsonify({'organization': user.organization.to_dict(include_events=True)}), 200)
+
 @organizations_bp.route('/<int:org_id>', methods=['GET'])
 def get_organization(org_id: int):
     org = Organization.query.get(org_id)
