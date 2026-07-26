@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Gönüllü Kontrol Paneli | Briva{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
+  <div id="login-prompt-section" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 480px; margin: 0 auto;">
+    <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-3);">Gönüllü Kontrol Paneli</h1>
+
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Başvurularınızı takip etmek, akıllı eşleşme önerileri almak ve favorilerinizi yönetmek için oturum açın.</p>
+    <div style="display: flex; flex-direction: column; gap: var(--space-3); text-align: left; margin-bottom: var(--space-6);">
+      <div>
+        <label for="login-email" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">E-posta Adresi</label>
+        <input type="email" id="login-email" placeholder="ornek@briva.org" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <div>
+        <label for="login-pass" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şifre</label>
+        <input type="password" id="login-pass" placeholder="••••••••" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <button type="button" id="do-login-btn" class="btn btn-primary btn-block">Giriş Yap</button>
+    </div>
+    <div style="font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
+      Hızlı Test Girişi (Tohum Verisi): <strong>ahmet@example.com / pass1234</strong>
+    </div>
+  </div>
+
+  <div id="dashboard-content" style="display: none;">
+    <header style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4);">
+      <div>
+        <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-1);">Tekrar hoş geldin, <span id="user-display-name">Gönüllü</span></h1>
+        <p style="color: var(--text-muted); font-size: var(--text-base);">Sana uygun yeni fırsatlar var. Katkı sağlamaya hemen devam et.</p>
+      </div>
+      <div style="display: flex; gap: var(--space-3);">
+        <a href="/events" class="btn btn-primary btn-lg">Etkinlikleri Keşfet</a>
+        <button type="button" id="logout-btn" class="btn btn-outline">Çıkış Yap</button>
+      </div>
+    </header>
+
+    <section id="summary-section" style="margin-bottom: var(--space-12);">
+      <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Katkı Özeti</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4);">
+        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">TOPLAM BAŞVURU</span>
+          <strong id="stat-total-apps" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
+        </div>
+        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">ONAYLANAN KATILIM</span>
+          <strong id="stat-approved-apps" style="font-size: var(--text-3xl); color: var(--primary-main);">0</strong>
+        </div>
+        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">BEKLEYEN DEĞERLENDİRME</span>
+          <strong id="stat-pending-apps" style="font-size: var(--text-3xl); color: var(--accent-orange);">0</strong>
+        </div>
+      </div>
+      <p class="editorial-note">Not: Katkı özeti sahte XP veya rozet üretilmeden, yalnızca doğrulanmış başvuru ve katılım verilerinizden hesaplanır.</p>
+    </section>
+
+    <div class="dashboard-sections-grid">
+      <section id="recs-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+          <h2 style="font-size: var(--text-xl);">Sana Uygun Fırsatlar</h2>
+          <a href="/events" style="font-size: var(--text-sm); color: var(--primary-main); font-weight: 600; text-decoration: none;">Tümünü Gör →</a>
+        </div>
+        <div id="recs-skeleton" class="events-grid">
+          <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>
+          <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>
+        </div>
+        <div id="recs-grid" class="events-grid" style="display: none;"></div>
+        <div id="recs-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="color: var(--text-muted); font-size: var(--text-sm);">Şu an için profilinize özel yeni bir öneri bulunmuyor.</p>
+        </div>
+      </section>
+
+      <section id="upcoming-section">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Yaklaşan Katılımların</h2>
+        <div id="upcoming-grid" class="events-grid"></div>
+        <div id="upcoming-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="color: var(--text-muted); font-size: var(--text-sm);">Onaylanmış yaklaşan bir etkinliğiniz bulunmuyor.</p>
+        </div>
+      </section>
+
+      <section id="applications" style="scroll-margin-top: 100px;">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Başvurularım</h2>
+        <div id="apps-skeleton" class="events-grid">
+          <div class="skeleton-card"><div class="skeleton-line"></div></div>
+          <div class="skeleton-card"><div class="skeleton-line"></div></div>
+        </div>
+        <div id="apps-grid" style="display: none; display: flex; flex-direction: column; gap: var(--space-3);"></div>
+        <div id="apps-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Henüz hiçbir etkinliğe başvuruda bulunmadınız.</p>
+          <a href="/events" class="btn btn-primary">Fırsatları İncele</a>
+        </div>
+      </section>
+
+      <section id="favorites" style="scroll-margin-top: 100px;">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Kaydedilenler</h2>
+        <div id="favs-grid" class="events-grid"></div>
+        <div id="favs-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="color: var(--text-muted); font-size: var(--text-sm);">Kaydedilmiş etkinliğiniz bulunmuyor.</p>
+        </div>
+      </section>
+
+      <section id="history-section">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Katılım Geçmişim</h2>
+        <div id="history-grid" style="display: flex; flex-direction: column; gap: var(--space-3);"></div>
+        <div id="history-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="color: var(--text-muted); font-size: var(--text-sm);">Geçmişte tamamladığınız bir etkinlik kaydı bulunmamaktadır.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Mobil Alt Navigasyon">
+  <a href="/" class="nav-item">Ana Sayfa</a>
+  <a href="/events" class="nav-item">Keşfet</a>
+  <a href="/dashboard" class="nav-item active">Başvurularım</a>
+  <a href="/dashboard#favorites" class="nav-item">Kaydedilenler</a>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard_page.js"></script>
+{% endblock %}

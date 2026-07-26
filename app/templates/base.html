@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Briva | Gönüllü ve STK Platformu{% endblock %}</title>
+  <meta name="description" content="{% block description %}İyilik yapmak isteyenlerle, yardıma ihtiyaç duyanları buluşturan akıllı eşleşme platformu.{% endblock %}">
+  <link rel="stylesheet" href="/static/css/main.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  {% include "components/navbar.html" %}
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  {% include "components/footer.html" %}
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  <script src="/static/js/services/api.js"></script>
+  <script src="/static/js/utils/formatDate.js"></script>
+  <script src="/static/js/utils/formatNumber.js"></script>
+  <script src="/static/js/services/auth.js"></script>
+  <script src="/static/js/services/events.js"></script>
+  <script src="/static/js/services/volunteers.js"></script>
+  <script src="/static/js/services/organizations.js"></script>
+  <script src="/static/js/services/applications.js"></script>
+  <script src="/static/js/services/recommendations.js"></script>
+  <script src="/static/js/services/favorites.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

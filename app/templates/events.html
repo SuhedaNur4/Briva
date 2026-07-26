@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Gönüllülük Etkinlikleri | Briva{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
+  <header style="margin-bottom: var(--space-8);">
+    <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2);">Gönüllülük Etkinlikleri</h1>
+
+    <p style="color: var(--text-muted); font-size: var(--text-base);">Becerilerinize, ilgi alanlarınıza ve müsaitlik durumunuza en uygun toplumsal fayda projelerini bulun.</p>
+  </header>
+
+  <section class="filter-bar" aria-label="Etkinlik Filtreleri">
+    <div class="filter-input-group">
+      <label for="search-input">Arama</label>
+      <input type="text" id="search-input" placeholder="Etkinlik veya STK adı...">
+    </div>
+    <div class="filter-input-group">
+      <label for="city-filter">Şehir</label>
+      <select id="city-filter">
+        <option value="">Tüm Şehirler</option>
+        <option value="istanbul">İstanbul</option>
+        <option value="ankara">Ankara</option>
+        <option value="izmir">İzmir</option>
+        <option value="bursa">Bursa</option>
+        <option value="antalya">Antalya</option>
+      </select>
+    </div>
+    <div class="filter-input-group">
+      <label for="category-filter">Kategori</label>
+      <select id="category-filter">
+        <option value="">Tüm Kategoriler</option>
+        <option value="çevre">Çevre &amp; Doğayı Koruma</option>
+        <option value="eğitim">Eğitim &amp; Mentörlük</option>
+        <option value="sosyal destek">Sosyal Destek</option>
+        <option value="hayvan hakları">Hayvan Hakları</option>
+        <option value="afet yardımı">Afet Yardımı</option>
+      </select>
+    </div>
+    <div class="filter-input-group">
+      <label for="date-filter">Tarih</label>
+      <input type="date" id="date-filter">
+    </div>
+    <div class="filter-input-group">
+      <label for="skill-filter">Gerekli Beceri</label>
+      <input type="text" id="skill-filter" placeholder="Örn: ilk yardım, kodlama...">
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: var(--space-2);">
+      <button type="button" id="apply-filters-btn" class="btn btn-primary">Filtrele</button>
+      <button type="button" id="clear-filters-btn" class="btn btn-outline">Temizle</button>
+    </div>
+  </section>
+
+  <div id="active-filters-container" class="active-filters" style="display: none;">
+    <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600;">Aktif Filtreler:</span>
+    <div id="filter-chips-list" style="display: flex; flex-wrap: wrap; gap: var(--space-2);"></div>
+  </div>
+
+  <div id="events-skeleton" class="events-grid">
+    <div class="skeleton-card">
+      <div class="skeleton-line short"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line medium"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-line short"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line medium"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-line short"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line medium"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-line short"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line medium"></div>
+    </div>
+  </div>
+
+  <div id="events-grid" class="events-grid" style="display: none;"></div>
+
+  <div id="events-empty" class="empty-state" style="display: none; text-align: center; padding: var(--space-12); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+    <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Aradığınız kriterlere uygun etkinlik bulunamadı.</h3>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Filtreleri değiştirerek veya temizleyerek yeniden arama yapabilirsiniz.</p>
+    <button type="button" id="empty-clear-btn" class="btn btn-secondary">Tüm Filtreleri Temizle</button>
+  </div>
+
+  <div id="events-error" class="error-state" style="display: none; text-align: center; padding: var(--space-12); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+    <h3 style="font-size: var(--text-lg); color: var(--accent-orange); margin-bottom: var(--space-2);">Etkinlikler yüklenirken bir hata oluştu.</h3>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Lütfen bağlantınızı kontrol edin ve sayfayı yenileyin.</p>
+    <button type="button" id="retry-load-btn" class="btn btn-outline">Yeniden Deneyin</button>
+  </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Mobil Alt Navigasyon">
+  <a href="/" class="nav-item">Ana Sayfa</a>
+  <a href="/events" class="nav-item active">Keşfet</a>
+  <a href="/dashboard" class="nav-item">Başvurularım</a>
+  <a href="/dashboard#favorites" class="nav-item">Kaydedilenler</a>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/events_page.js"></script>
+{% endblock %}

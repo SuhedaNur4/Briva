@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}STK Yönetim Paneli | Briva{% endblock %}
+
+{% block content %}
+<nav class="org-nav-bar" aria-label="STK Ana Navigasyon">
+  <div class="container">
+    <ul class="org-nav-list">
+      <li class="org-nav-item"><a href="/organization/dashboard#overview" class="org-tab-link active" data-tab="overview">Dashboard</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#events" class="org-tab-link" data-tab="events">Etkinlikler</a></li>
+      <li class="org-nav-item"><a href="/organization/events/new">Yeni Etkinlik</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#applications" class="org-tab-link" data-tab="applications">Başvurular</a></li>
+      <li class="org-nav-item"><a href="/organization/dashboard#profile" class="org-tab-link" data-tab="profile">Profil</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container" style="padding-bottom: var(--space-16);">
+  <div id="org-login-prompt" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 480px; margin: 0 auto;">
+    <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-3);">STK Yönetim Paneli</h1>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Etkinlik ilanlarınızı oluşturmak ve gönüllü başvurularını yönetmek için STK yetkilisi olarak oturum açın.</p>
+    <div style="display: flex; flex-direction: column; gap: var(--space-3); text-align: left; margin-bottom: var(--space-6);">
+      <div>
+        <label for="org-login-email" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">E-posta Adresi</label>
+        <input type="email" id="org-login-email" placeholder="stk@briva.org" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <div>
+        <label for="org-login-pass" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şifre</label>
+        <input type="password" id="org-login-pass" placeholder="••••••••" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <button type="button" id="org-do-login-btn" class="btn btn-primary btn-block">STK Olarak Giriş Yap</button>
+    </div>
+    <div style="font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
+      Hızlı Test Girişi: <strong>stk@example.com / pass1234</strong>
+    </div>
+  </div>
+
+  <div id="org-create-profile-prompt" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 540px; margin: 0 auto;">
+    <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-3);">STK Profilinizi Oluşturun</h2>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Yönetim paneline erişmek ve etkinlik ilanları yayınlamak için kuruluşunuzun temel bilgilerini kaydedin.</p>
+    <div style="display: flex; flex-direction: column; gap: var(--space-4); text-align: left;">
+      <div>
+        <label for="new-org-name" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Adı *</label>
+        <input type="text" id="new-org-name" placeholder="Örn: Briva Sosyal Etki Derneği" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <div>
+        <label for="new-org-city" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şehir</label>
+        <input type="text" id="new-org-city" placeholder="Örn: İstanbul" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+      </div>
+      <div>
+        <label for="new-org-desc" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kısa Açıklama</label>
+        <textarea id="new-org-desc" rows="3" placeholder="Kuruluşunuzun faaliyet alanları ve amacı..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+      </div>
+      <button type="button" id="create-org-btn" class="btn btn-primary btn-block">Profili Kaydet ve Başla</button>
+    </div>
+  </div>
+
+  <div id="org-dashboard-content" style="display: none;">
+    <header style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4);">
+      <div>
+        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
+          <span id="org-header-name" style="font-size: var(--text-xs); font-weight: 700; color: var(--primary-main); text-transform: uppercase;">Kuruluş</span>
+          <span id="org-verified-tag" style="display: none; background: var(--primary-light); color: var(--primary-main); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: var(--radius-sm);">Doğrulanmış STK</span>
+        </div>
+        <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-1);">STK Yönetim Paneli</h1>
+        <p style="color: var(--text-muted); font-size: var(--text-base);">Etkinlik ilanlarınızı oluşturun, gelen gönüllü başvurularını inceleyin ve operasyonel kararlarınızı verin.</p>
+      </div>
+      <div style="display: flex; gap: var(--space-3);">
+        <a href="/organization/events/new" class="btn btn-primary btn-lg">Etkinlik Oluştur</a>
+        <button type="button" id="org-logout-btn" class="btn btn-outline">Çıkış</button>
+      </div>
+    </header>
+
+    <div id="tab-pane-overview" class="org-tab-pane">
+      <section id="org-summary-section" style="margin-bottom: var(--space-12);">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Operasyonel Özet</h2>
+        <div id="org-action-required-banner" style="background: var(--bg-surface-alt); border: 1px solid var(--primary-main); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-6); display: none;">
+          <h3 style="font-size: var(--text-base); color: var(--primary-main); font-weight: 700; margin-bottom: var(--space-2);">Bugün Ne Yapman Gerekiyor?</h3>
+          <ul id="org-action-required-list" style="margin: 0; padding-left: var(--space-5); font-size: var(--text-sm); color: var(--text-main);"></ul>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">TOPLAM ETKİNLİK</span>
+            <strong id="stat-org-total-events" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
+          </div>
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">YAYINDAKİ İLANLAR</span>
+            <strong id="stat-org-published-events" style="font-size: var(--text-3xl); color: var(--primary-main);">0</strong>
+          </div>
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">BEKLEYEN BAŞVURU</span>
+            <strong id="stat-org-pending-apps" style="font-size: var(--text-3xl); color: var(--accent-orange);">0</strong>
+          </div>
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">ONAYLANAN GÖNÜLLÜ</span>
+            <strong id="stat-org-approved-apps" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
+          </div>
+        </div>
+        <p class="editorial-note">Not: Operasyonel özet, sahte etki skoru veya yapay metrikler üretilmeden yalnızca veritabanındaki gerçek etkinlik ve başvuru kayıtlarınızdan hesaplanır.</p>
+      </section>
+
+      <div class="dashboard-sections-grid">
+        <section id="section-active-events">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+            <h2 style="font-size: var(--text-xl);">Aktif Etkinlikler</h2>
+            <a href="#events" class="org-tab-link" data-tab="events" style="font-size: var(--text-sm); color: var(--primary-main); font-weight: 600; text-decoration: none;">Tümünü Yönet →</a>
+          </div>
+          <div id="active-events-skeleton" class="events-grid">
+            <div class="skeleton-card"><div class="skeleton-line"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line"></div></div>
+          </div>
+          <div id="active-events-grid" class="events-grid" style="display: none;"></div>
+          <div id="active-events-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Şu an yayında olan aktif bir etkinliğiniz bulunmuyor.</p>
+            <a href="/organization/events/new" class="btn btn-primary">Hemen İlk Etkinliği Oluştur</a>
+          </div>
+        </section>
+
+        <section id="section-pending-apps">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+            <h2 style="font-size: var(--text-xl);">Bekleyen Başvurular (Hızlı Değerlendirme)</h2>
+            <a href="#applications" class="org-tab-link" data-tab="applications" style="font-size: var(--text-sm); color: var(--primary-main); font-weight: 600; text-decoration: none;">Tüm Başvurular →</a>
+          </div>
+          <div id="pending-apps-skeleton" class="events-grid">
+            <div class="skeleton-card"><div class="skeleton-line"></div></div>
+          </div>
+          <div id="pending-apps-container" style="display: none;">
+            <div class="applicant-table-container">
+              <table class="applicant-table" aria-label="Bekleyen Gönüllü Başvuruları">
+                <thead>
+                  <tr>
+                    <th>Gönüllü</th>
+                    <th>Etkinlik</th>
+                    <th>Tarih</th>
+                    <th>Not / Gerekçe</th>
+                    <th>Aksiyon</th>
+                  </tr>
+                </thead>
+                <tbody id="pending-apps-table-body"></tbody>
+              </table>
+            </div>
+            <div class="applicant-cards-mobile" id="pending-apps-mobile-list"></div>
+          </div>
+          <div id="pending-apps-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <p style="color: var(--text-muted); font-size: var(--text-sm);">Değerlendirme bekleyen yeni bir başvuru bulunmuyor.</p>
+          </div>
+        </section>
+
+        <section id="section-upcoming-events">
+          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Yaklaşan Etkinlikler (Tarih Sıralı)</h2>
+          <div id="upcoming-events-grid" class="events-grid"></div>
+          <div id="upcoming-events-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <p style="color: var(--text-muted); font-size: var(--text-sm);">Yakın tarihte gerçekleşecek bir etkinlik bulunmuyor.</p>
+          </div>
+        </section>
+
+        <section id="section-recent-activities">
+          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Son Aktiviteler</h2>
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-2);">Sistemde tüm etkinlik ve başvuru durum değişiklikleriniz anlık olarak güncellenir.</p>
+            <p class="editorial-note">Veri Bütünlüğü Raporu: Mevcut backend mimarisi bağımsız bir "Activity Feed" API endpoint'i sağlamamaktadır. Sahte aktivite akışı (fake activity feed) kural gereği kesinlikle oluşturulmamış; tüm operasyonel takip gerçek başvurular ve etkinlikler bölümlerine ayrıştırılmıştır.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="tab-pane-events" class="org-tab-pane" style="display: none;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); gap: var(--space-4);">
+        <h2 style="font-size: var(--text-2xl);">Etkinlik Yönetimi</h2>
+        <div style="display: flex; gap: var(--space-2);">
+          <button type="button" class="btn btn-outline filter-ev-btn active" data-status="all">Tümü</button>
+          <button type="button" class="btn btn-outline filter-ev-btn" data-status="published">Yayınlananlar</button>
+          <button type="button" class="btn btn-outline filter-ev-btn" data-status="draft">Taslaklar</button>
+          <button type="button" class="btn btn-outline filter-ev-btn" data-status="completed">Tamamlananlar</button>
+        </div>
+      </div>
+      <div id="all-events-grid" class="events-grid"></div>
+      <div id="all-events-empty" class="empty-state" style="display: none; padding: var(--space-12); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+        <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Bu kritere uygun etkinlik kaydınız bulunmuyor.</p>
+        <a href="/organization/events/new" class="btn btn-primary">Yeni Etkinlik Oluştur</a>
+      </div>
+    </div>
+
+    <div id="tab-pane-applications" class="org-tab-pane" style="display: none;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); gap: var(--space-4);">
+        <h2 style="font-size: var(--text-2xl);">Tüm Gönüllü Başvuruları</h2>
+        <div style="display: flex; gap: var(--space-2);">
+          <button type="button" class="btn btn-outline filter-app-btn active" data-status="all">Tümü</button>
+          <button type="button" class="btn btn-outline filter-app-btn" data-status="pending">Bekleyenler</button>
+          <button type="button" class="btn btn-outline filter-app-btn" data-status="approved">Onaylananlar</button>
+          <button type="button" class="btn btn-outline filter-app-btn" data-status="rejected">Reddedilenler</button>
+        </div>
+      </div>
+      <div id="all-apps-container" style="display: none;">
+        <div class="applicant-table-container">
+          <table class="applicant-table" aria-label="Tüm Gönüllü Başvuruları">
+            <thead>
+              <tr>
+                <th>Gönüllü</th>
+                <th>Etkinlik</th>
+                <th>Başvuru Tarihi</th>
+                <th>Başvuru Notu</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="all-apps-table-body"></tbody>
+          </table>
+        </div>
+        <div class="applicant-cards-mobile" id="all-apps-mobile-list"></div>
+      </div>
+      <div id="all-apps-empty" class="empty-state" style="display: none; padding: var(--space-12); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+        <p style="color: var(--text-muted); font-size: var(--text-sm);">Görüntülenecek başvuru bulunmamaktadır.</p>
+      </div>
+    </div>
+
+    <div id="tab-pane-profile" class="org-tab-pane" style="display: none;">
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); max-width: 640px;">
+        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-6);">STK Profil Ayarları</h2>
+        <form id="org-profile-update-form">
+          <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+            <div>
+              <label for="up-org-name" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Adı *</label>
+              <input type="text" id="up-org-name" required style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            </div>
+            <div>
+              <label for="up-org-city" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şehir</label>
+              <input type="text" id="up-org-city" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            </div>
+            <div>
+              <label for="up-org-web" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Web Sitesi</label>
+              <input type="url" id="up-org-web" placeholder="https://..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            </div>
+            <div>
+              <label for="up-org-phone" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Telefon</label>
+              <input type="tel" id="up-org-phone" placeholder="0212..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            </div>
+            <div>
+              <label for="up-org-address" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Adres</label>
+              <textarea id="up-org-address" rows="2" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+            </div>
+            <div>
+              <label for="up-org-desc" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Açıklaması</label>
+              <textarea id="up-org-desc" rows="4" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+            </div>
+            <button type="submit" id="update-profile-btn" class="btn btn-primary">Değişiklikleri Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="org-bottom-nav" aria-label="Mobil STK Alt Navigasyon">
+  <a href="/organization/dashboard#overview" class="org-tab-link active" data-tab="overview">Özet</a>
+  <a href="/organization/dashboard#events" class="org-tab-link" data-tab="events">Etkinlikler</a>
+  <a href="/organization/events/new">Yeni</a>
+  <a href="/organization/dashboard#applications" class="org-tab-link" data-tab="applications">Başvurular</a>
+  <a href="/organization/dashboard#profile" class="org-tab-link" data-tab="profile">Profil</a>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/org_dashboard_page.js"></script>
+{% endblock %}
