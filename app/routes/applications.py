@@ -5,6 +5,7 @@ from app.models.application import EventApplication
 from app.utils.auth_helpers import get_current_user
 from app.utils.validators import parse_request_json, validate_application_status, validate_optional_string
 from app.routes.notifications import create_notification
+from app.services.gamification import award_xp
 applications_bp = Blueprint('applications', __name__)
 
 @applications_bp.route('/my', methods=['GET'])
@@ -40,6 +41,8 @@ def update_application(application_id: int):
         if application.status in ('approved', 'rejected'):
             return (jsonify({'error': 'Onaylanan veya reddedilen başvuru iptal edilemez.'}), 400)
     if is_org_owner:
+        if new_status == 'completed' and application.status != 'approved':
+            return (jsonify({'error': "Yalnızca onaylanmış başvurular 'completed' yapılabilir."}), 400)
         if new_status == 'cancelled':
             return (jsonify({'error': 'STK kullanıcıları başvuruyu iptal edemez.'}), 400)
         if application.status == 'cancelled':
@@ -51,7 +54,20 @@ def update_application(application_id: int):
                 application.reviewer_note = validate_optional_string(data['reviewer_note'], 'İnceleyici notu', max_length=1000)
             except ValueError as e:
                 return (jsonify({'error': str(e)}), 400)
+    previous_status = application.status
     application.status = new_status
+    # Gamification (#38): XP yalnızca gerçek statü geçişinde üretilir
+    # (approved→approved gibi tekrarlar award_xp içindeki idempotency ile de engellenir)
+    if is_org_owner and new_status == 'approved' and previous_status != 'approved':
+        award_xp(application.user_id, 'APPLICATION_ACCEPTED', 'application', application.id)
+    if is_org_owner and new_status == 'completed' and previous_status != 'completed':
+        award_xp(application.user_id, 'EVENT_COMPLETED', 'event', application.event_id)
+        create_notification(
+            user_id=application.user_id,
+            message=f"'{application.event.title}' etkinliğine katılımınız tamamlandı olarak işaretlendi. +50 XP kazandınız!",
+            notif_type='application_status',
+            related_event_id=application.event_id,
+        )
     if is_org_owner and new_status in ('approved', 'rejected'):
         status_tr = 'onaylandı' if new_status == 'approved' else 'reddedildi'
         create_notification(

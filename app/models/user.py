@@ -17,6 +17,8 @@ class User(db.Model):
     favorites = db.relationship('Favorite', back_populates='user', cascade='all, delete-orphan')
     feedbacks = db.relationship('RecommendationFeedback', back_populates='user', cascade='all, delete-orphan')
     notifications = db.relationship('Notification', back_populates='user', cascade='all, delete-orphan')
+    xp_transactions = db.relationship('XPTransaction', back_populates='user', cascade='all, delete-orphan')
+    badges = db.relationship('UserBadge', back_populates='user', cascade='all, delete-orphan')
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)

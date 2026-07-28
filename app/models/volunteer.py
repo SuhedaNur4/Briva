@@ -13,6 +13,7 @@ class VolunteerProfile(db.Model):
     bio = db.Column(db.Text, nullable=True)
     interests = db.Column(db.Text, nullable=True)
     skills = db.Column(db.Text, nullable=True)
+    xp_points = db.Column(db.Integer, nullable=False, default=0)  # cache; doğruluk kaynağı XPTransaction toplamıdır (#38)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     user = db.relationship('User', back_populates='volunteer_profile')
@@ -34,7 +35,7 @@ class VolunteerProfile(db.Model):
         return [s.strip() for s in self.skills.split(',') if s.strip()]
 
     def to_dict(self) -> dict:
-        return {'id': self.id, 'user_id': self.user_id, 'first_name': self.first_name, 'last_name': self.last_name, 'full_name': self.full_name, 'phone': self.phone, 'birth_date': self.birth_date.isoformat() if self.birth_date else None, 'city': self.city, 'bio': self.bio, 'interests': self.interests_list, 'skills': self.skills_list, 'created_at': self.created_at.isoformat()}
+        return {'id': self.id, 'user_id': self.user_id, 'first_name': self.first_name, 'last_name': self.last_name, 'full_name': self.full_name, 'phone': self.phone, 'birth_date': self.birth_date.isoformat() if self.birth_date else None, 'city': self.city, 'bio': self.bio, 'interests': self.interests_list, 'skills': self.skills_list, 'xp_points': self.xp_points or 0, 'created_at': self.created_at.isoformat()}
 
     def __repr__(self) -> str:
         return f'<VolunteerProfile id={self.id} user_id={self.user_id} name={self.full_name}>'
