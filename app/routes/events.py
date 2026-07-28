@@ -201,6 +201,10 @@ def apply_to_event(event_id: int):
         return (jsonify({'error': 'Başvuru notu en fazla 2000 karakter olabilir.'}), 400)
     application = EventApplication(user_id=user.id, event_id=event_id, cover_letter=cover_letter or None)
     db.session.add(application)
+    db.session.flush()
+    # Gamification (#38): gerçek başvuru olayı → +5 XP (idempotent)
+    from app.services.gamification import award_xp
+    award_xp(user.id, 'APPLICATION_CREATED', 'application', application.id)
     db.session.commit()
     
     # STK Yetkilisine Bildirim Gönder (Yeni Gönüllü Başvurusu)

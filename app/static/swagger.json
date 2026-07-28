@@ -533,6 +533,96 @@
           }
         }
       }
+    },
+    "/api/gamification/me": {
+      "get": {
+        "summary": "Gönüllünün XP, seviye, ilerleme ve rozetleri (Sprint 3 #38)",
+        "description": "Tüm değerler backend'de gerçek veritabanı verisinden hesaplanır. Yanıt: xp, level, current_level_xp, next_level_xp, progress, completed_events, applications, badges[].",
+        "tags": [
+          "Gamification"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gamification özeti"
+          },
+          "401": {
+            "description": "Kimlik doğrulanmadı"
+          },
+          "403": {
+            "description": "Yalnızca gönüllüler"
+          }
+        }
+      }
+    },
+    "/api/gamification/me/history": {
+      "get": {
+        "summary": "Sayfalanmış XP geçmişi (Sprint 3 #38)",
+        "tags": [
+          "Gamification"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "items, page, per_page, total"
+          },
+          "401": {
+            "description": "Kimlik doğrulanmadı"
+          },
+          "403": {
+            "description": "Yalnızca gönüllüler"
+          }
+        }
+      }
+    },
+    "/api/gamification/leaderboard": {
+      "get": {
+        "summary": "All-time XP liderlik tablosu — ilk 10 + mevcut kullanıcının sırası (Sprint 3 #38)",
+        "description": "Yalnızca public bilgiler döner: rank, user_id, display_name, xp. Hassas veri (email vb.) dönmez.",
+        "tags": [
+          "Gamification"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "entries[] + current_user"
+          },
+          "401": {
+            "description": "Kimlik doğrulanmadı"
+          }
+        }
+      }
     }
   }
 }

@@ -52,7 +52,7 @@ def validate_event_status(status: Any) -> str:
     return status
 
 def validate_application_status(status: Any) -> str:
-    allowed = {'approved', 'rejected', 'cancelled'}
+    allowed = {'approved', 'rejected', 'cancelled', 'completed'}
     if status not in allowed:
         raise ValueError(f"Geçersiz başvuru durumu. İzin verilenler: {', '.join(allowed)}")
     return status

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from app.extensions import db
 from app.models.volunteer import VolunteerProfile
+from app.services.gamification import award_xp, is_profile_complete
 from app.utils.auth_helpers import get_current_user, volunteer_required
 from app.utils.validators import parse_request_json, validate_required_string, validate_optional_string
 volunteers_bp = Blueprint('volunteers', __name__)
@@ -59,6 +60,10 @@ def upsert_my_profile():
             profile.birth_date = date.fromisoformat(data['birth_date'])
         except ValueError:
             return (jsonify({'error': 'birth_date YYYY-MM-DD formatında olmalıdır.'}), 400)
+    db.session.flush()
+    # Gamification (#38): minimum profil tamamlandıysa +20 XP (idempotent, bir kez verilir)
+    if is_profile_complete(profile):
+        award_xp(user.id, 'PROFILE_COMPLETED', 'profile', profile.id)
     db.session.commit()
     return (jsonify({'message': 'Profil oluşturuldu.' if is_new else 'Profil güncellendi.', 'volunteer': profile.to_dict()}), 201 if is_new else 200)
 
