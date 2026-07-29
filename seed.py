@@ -22,6 +22,7 @@ def seed():
         VolunteerProfile.query.delete()
         User.query.delete()
         db.session.commit()
+
         print('[*] Kullaniciler olusturuluyor...')
         volunteer1 = User(email='ali@example.com', role='volunteer')
         volunteer1.set_password('password123')
@@ -29,51 +30,239 @@ def seed():
         volunteer2.set_password('password123')
         volunteer3 = User(email='mehmet@example.com', role='volunteer')
         volunteer3.set_password('password123')
-        org_user1 = User(email='stk1@briva.com', role='organization')
-        org_user1.set_password('password123')
-        org_user2 = User(email='stk2@briva.com', role='organization')
-        org_user2.set_password('password123')
+
+        # 15 STK kullanıcısı
+        org_users = []
+        for i in range(1, 21):
+            u = User(email=f'stk{i}@briva.com', role='organization')
+            u.set_password('password123')
+            org_users.append(u)
+
         admin = User(email='admin@briva.com', role='admin')
         admin.set_password('admin123456')
-        db.session.add_all([volunteer1, volunteer2, volunteer3, org_user1, org_user2, admin])
+
+        db.session.add_all([volunteer1, volunteer2, volunteer3] + org_users + [admin])
         db.session.flush()
+
         print('[*] Gonullu profilleri olusturuluyor...')
-        profile1 = VolunteerProfile(user_id=volunteer1.id, first_name='Ali', last_name='Yılmaz', phone='0532 111 22 33', birth_date=date(1995, 3, 15), city='İstanbul', bio='Çevre ve eğitim alanında gönüllü çalışmalar yapmak istiyorum.', interests='çevre,eğitim,teknoloji', skills='Python,İngilizce,iletişim')
-        profile2 = VolunteerProfile(user_id=volunteer2.id, first_name='Ayşe', last_name='Kaya', phone='0533 444 55 66', birth_date=date(1998, 7, 22), city='Ankara', bio='Sağlık ve sosyal yardım projelerinde aktif olmak istiyorum.', interests='sağlık,sosyal yardım,çocuk', skills='hemşirelik,ilk yardım,Fransızca')
-        profile3 = VolunteerProfile(user_id=volunteer3.id, first_name='Mehmet', last_name='Demir', city='İzmir', interests='hayvan hakları,çevre', skills='fotoğrafçılık,sosyal medya')
+        profile1 = VolunteerProfile(user_id=volunteer1.id, first_name='Ali', last_name='Yılmaz',
+            phone='0532 111 22 33', birth_date=date(1995, 3, 15), city='İstanbul',
+            bio='Çevre ve eğitim alanında gönüllü çalışmalar yapmak istiyorum.',
+            interests='çevre,eğitim,teknoloji', skills='Python,İngilizce,iletişim')
+        profile2 = VolunteerProfile(user_id=volunteer2.id, first_name='Ayşe', last_name='Kaya',
+            phone='0533 444 55 66', birth_date=date(1998, 7, 22), city='Ankara',
+            bio='Sağlık ve sosyal yardım projelerinde aktif olmak istiyorum.',
+            interests='sağlık,sosyal destek,çocuk', skills='hemşirelik,ilk yardım,Fransızca')
+        profile3 = VolunteerProfile(user_id=volunteer3.id, first_name='Mehmet', last_name='Demir',
+            city='İzmir', interests='hayvan hakları,çevre', skills='fotoğrafçılık,sosyal medya')
         db.session.add_all([profile1, profile2, profile3])
-        print('[*] STK profilleri olusturuluyor...')
-        org1 = Organization(user_id=org_user1.id, name='Yeşil Gelecek Derneği', description='Çevre koruma ve sürdürülebilirlik alanında faaliyet gösteren sivil toplum kuruluşu.', website='https://yesilgelecek.org', phone='0212 555 11 22', address='Kadıköy, İstanbul', city='İstanbul', is_verified=True)
-        org2 = Organization(user_id=org_user2.id, name='Umut Çocuk Vakfı', description='Dezavantajlı çocuklara eğitim ve sosyal destek sağlayan vakıf.', website='https://umutcocuk.org', phone='0312 444 77 88', address='Çankaya, Ankara', city='Ankara', is_verified=True)
-        db.session.add_all([org1, org2])
+
+        print('[*] 15 STK profili olusturuluyor...')
+        orgs_data = [
+    dict(name='Türk Eğitim Vakfı (TEV)', description='Eğitimde fırsat eşitliği için öğrencilere burs ve eğitim destekleri sunan Türkiye\'nin köklü eğitim vakfı.', website='tev.org.tr', logo_url='https://logo.clearbit.com/tev.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='AKUT Arama Kurtarma Derneği', description='Doğal afetlerde, kazalarda arama kurtarma çalışmaları yapan, alanında öncü gönüllü kuruluş.', website='akut.org.tr', logo_url='https://logo.clearbit.com/akut.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='TEMA Vakfı', description='Türkiye\'nin çöl olmasını engellemek, erozyonla mücadele ve doğa koruma çalışmaları yürüten vakıf.', website='tema.org.tr', logo_url='https://logo.clearbit.com/tema.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Darüşşafaka Cemiyeti', description='Babası veya annesi hayatta olmayan, maddi olanakları yetersiz yetenekli çocuklara nitelikli eğitim veren cemiyet.', website='darussafaka.org', logo_url='https://logo.clearbit.com/darussafaka.org', phone='', address='', city='', is_verified=True),
+    dict(name='Türk Kızılay', description='Afet müdahalesi, kan hizmetleri ve insani yardımlar konusunda ulusal ve uluslararası ölçekte çalışan kurum.', website='kizilay.org.tr', logo_url='https://logo.clearbit.com/kizilay.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='LÖSEV', description='Lösemili çocukların sağlık ve eğitim başta olmak üzere her türlü ihtiyaçlarının sağlanması için çalışan vakıf.', website='losev.org.tr', logo_url='https://logo.clearbit.com/losev.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Hayvan Hakları Federasyonu (HAYTAP)', description='Hayvan haklarının yasalarla güvence altına alınması ve toplumda farkındalık yaratılması için çalışan federasyon.', website='haytap.org', logo_url='https://logo.clearbit.com/haytap.org', phone='', address='', city='', is_verified=True),
+    dict(name='Türkiye Spastik Çocuklar Vakfı', description='Cerebral Palsy\'li çocuk ve erişkinlere teşhis, tedavi ve özel eğitim hizmeti veren vakıf.', website='tscv.org.tr', logo_url='https://logo.clearbit.com/tscv.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='KAÇUV', description='Kanserli çocukların tedavilerinin sürekliliğini sağlamak ve ailelerine psikolojik, sosyal destek veren vakıf.', website='kacuv.org', logo_url='https://logo.clearbit.com/kacuv.org', phone='', address='', city='', is_verified=True),
+    dict(name='Türkiye Down Sendromu Derneği', description='Down sendromlu bireylerin toplumda bağımsız ve eşit yaşam sürmeleri için projeler üreten dernek.', website='dsd.org.tr', logo_url='https://logo.clearbit.com/dsd.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Toplum Gönüllüleri Vakfı (TOG)', description='Gençlerin öncülüğünde sivil toplum projeleri yaratarak gençlerin kişisel gelişimlerini destekleyen vakıf.', website='tog.org.tr', logo_url='https://logo.clearbit.com/tog.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Kadın Emeğini Değerlendirme Vakfı (KEDV)', description='Dar gelirli kadınların ekonomik ve sosyal olarak güçlenmelerini, yerel kalkınmaya liderlik etmelerini destekleyen vakıf.', website='kedv.org.tr', logo_url='https://logo.clearbit.com/kedv.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Türkiye Korunmaya Muhtaç Çocuklar Vakfı (KORUNCUK)', description='Çocukların sevgi ve şefkatle büyüdüğü, eğitimlerinden mahrum kalmadığı bir yaşam kurmak için çalışan vakıf.', website='koruncuk.org', logo_url='https://logo.clearbit.com/koruncuk.org', phone='', address='', city='', is_verified=True),
+    dict(name='AÇEV', description='Erken çocukluk, anne-baba ve kadın destek eğitimleriyle toplumsal gelişime katkı sağlayan vakıf.', website='acev.org', logo_url='https://logo.clearbit.com/acev.org', phone='', address='', city='', is_verified=True),
+    dict(name='Türkiye Sakatlar Derneği', description='Engelli bireylerin haklarını savunan, onların sosyal ve ekonomik hayata entegrasyonu için çalışan dernek.', website='tsd.org.tr', logo_url='https://logo.clearbit.com/tsd.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Yeşilay', description='Toplumu başta sigara, alkol, uyuşturucu olmak üzere her türlü bağımlılıktan korumak için çalışan kurum.', website='yesilay.org.tr', logo_url='https://logo.clearbit.com/yesilay.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Türk Kanser Derneği', description='Kanser hastalıklarıyla ilgili farkındalık yaratma, erken teşhis ve tedavi süreçlerinde hastalara destek olan dernek.', website='turkkanserdernegi.org', logo_url='https://logo.clearbit.com/turkkanserdernegi.org', phone='', address='', city='', is_verified=True),
+    dict(name='Mor Çatı Kadın Sığınağı Vakfı', description='Erkek şiddetine maruz kalan kadınlara psikolojik, hukuki destek veren ve sığınak çalışması yürüten vakıf.', website='morcati.org.tr', logo_url='https://logo.clearbit.com/morcati.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='DenizTemiz Derneği (TURMEPA)', description='Türkiye\'nin denizlerinin ve su yollarının temizliğini sağlamak, korumak ve gelecek nesillere aktarmak için çalışan dernek.', website='turmepa.org.tr', logo_url='https://logo.clearbit.com/turmepa.org.tr', phone='', address='', city='', is_verified=True),
+    dict(name='Türkiye Tabiatını Koruma Derneği (TTKD)', description='Türkiye\'nin doğal zenginliklerini, flora ve faunasını korumak için bilimsel ve eğitimsel çalışmalar yapan dernek.', website='ttkd.org.tr', logo_url='https://logo.clearbit.com/ttkd.org.tr', phone='', address='', city='', is_verified=True),
+]
+
+        orgs = []
+        for i, od in enumerate(orgs_data):
+            o = Organization(user_id=org_users[i].id, **od)
+            orgs.append(o)
+
+        db.session.add_all(orgs)
         db.session.flush()
+
         print('[*] Etkinlikler olusturuluyor...')
         now = datetime.now(timezone.utc)
-        event1 = Event(organization_id=org1.id, title='Sahil Temizleme Etkinliği', description='İstanbul sahillerindeki plastik kirliliğini azaltmak için gerçekleştireceğimiz büyük temizlik etkinliğine davet ediliyorsunuz. Eldiven ve poşetler tarafımızca sağlanacaktır.', category='çevre', city='İstanbul', address='Kadıköy Sahili, İstanbul', start_date=now + timedelta(days=7), end_date=now + timedelta(days=7, hours=4), max_volunteers=50, status='published', requirements='Fiziksel olarak aktif olabilmek. 18 yaş ve üzeri.')
-        event2 = Event(organization_id=org1.id, title='Fidan Dikme Kampanyası', description="Belgrad Ormanı'nda 1000 fidan dikme kampanyasına katılın. Gönüllülerimizle birlikte geleceğe yeşil bir dokunuş bırakıyoruz.", category='çevre', city='İstanbul', address='Belgrad Ormanı, Sarıyer', start_date=now + timedelta(days=14), end_date=now + timedelta(days=14, hours=6), max_volunteers=100, status='published')
-        event3 = Event(organization_id=org2.id, title='Ücretsiz Matematik Dersi Gönüllüleri', description="Ankara'daki dezavantajlı ilkokul öğrencilerine matematik dersi verecek gönüllü öğretmenler arıyoruz. Haftada 2 saat yeterlidir.", category='eğitim', city='Ankara', address='Çankaya Kültür Merkezi, Ankara', start_date=now + timedelta(days=3), end_date=now + timedelta(days=3, hours=2), max_volunteers=20, status='published', requirements='Matematik lisans öğrencisi veya mezunu olmak.')
-        event4 = Event(organization_id=org2.id, title='Yaz Kampı Aktivite Lideri', description='Yaz kampımızda çocuklara eşlik edecek enerjik gönüllüler arıyoruz.', category='çocuk', city='Ankara', start_date=now + timedelta(days=30), end_date=now + timedelta(days=37), max_volunteers=15, status='published')
-        db.session.add_all([event1, event2, event3, event4])
+
+        events_data = [
+            # Yeşil Gelecek (orgs[0])
+            dict(organization_id=orgs[0].id, title='Sahil Temizleme Etkinliği',
+                 description='İstanbul sahillerindeki plastik kirliliğini azaltmak için gerçekleştireceğimiz büyük temizlik etkinliğine davet ediliyorsunuz.',
+                 category='çevre', city='İstanbul', address='Kadıköy Sahili',
+                 start_date=now + timedelta(days=7), end_date=now + timedelta(days=7, hours=4),
+                 max_volunteers=50, status='published', requirements='18 yaş ve üzeri.'),
+            dict(organization_id=orgs[0].id, title='Fidan Dikme Kampanyası',
+                 description="Belgrad Ormanı'nda 1000 fidan dikme kampanyasına katılın.",
+                 category='çevre', city='İstanbul', address='Belgrad Ormanı, Sarıyer',
+                 start_date=now + timedelta(days=14), end_date=now + timedelta(days=14, hours=6),
+                 max_volunteers=100, status='published'),
+            dict(organization_id=orgs[0].id, title='Sokak Hayvanları İçin Mama Dağıtımı',
+                 description='Kış aylarında yiyecek bulmakta zorlanan sokak hayvanları için mama dağıtıyoruz.',
+                 category='hayvan hakları', city='İstanbul', address='Beşiktaş',
+                 start_date=now + timedelta(days=2), end_date=now + timedelta(days=2, hours=3),
+                 max_volunteers=15, status='published'),
+            # Umut Çocuk (orgs[1])
+            dict(organization_id=orgs[1].id, title='Ücretsiz Matematik Dersi Gönüllüleri',
+                 description='Dezavantajlı ilkokul öğrencilerine matematik dersi verecek gönüllü öğretmenler arıyoruz.',
+                 category='eğitim', city='Ankara', address='Çankaya Kültür Merkezi',
+                 start_date=now + timedelta(days=3), end_date=now + timedelta(days=3, hours=2),
+                 max_volunteers=20, status='published', requirements='Matematik lisans öğrencisi.'),
+            dict(organization_id=orgs[1].id, title='Yaz Kampı Aktivite Lideri',
+                 description='Yaz kampımızda çocuklara eşlik edecek enerjik gönüllüler arıyoruz.',
+                 category='çocuk', city='Ankara',
+                 start_date=now + timedelta(days=30), end_date=now + timedelta(days=37),
+                 max_volunteers=15, status='published'),
+            dict(organization_id=orgs[1].id, title='Huzurevi Ziyareti ve Müzik Dinletisi',
+                 description='Yaşlılarımıza moral vermek amacıyla düzenlenen müzik dinletisi ve sohbet.',
+                 category='sosyal destek', city='Ankara', address='Çankaya Huzurevi',
+                 start_date=now + timedelta(days=8), end_date=now + timedelta(days=8, hours=4),
+                 max_volunteers=10, status='published'),
+            dict(organization_id=orgs[1].id, title='Otizmli Çocuklar İçin Spor Şenliği',
+                 description='Otizmli çocukların motor becerilerini geliştirmek için spor etkinlikleri.',
+                 category='çocuk', city='Ankara', address='Yenimahalle Spor Kompleksi',
+                 start_date=now + timedelta(days=18), end_date=now + timedelta(days=18, hours=6),
+                 max_volunteers=30, status='published'),
+            # Pati Dostları (orgs[2])
+            dict(organization_id=orgs[2].id, title='Barınak Yenileme ve Boyama',
+                 description='İzmir Bornova barınağının kışa hazırlık boyama ve tamirat işleri.',
+                 category='hayvan hakları', city='İzmir', address='Bornova Barınağı',
+                 start_date=now + timedelta(days=10), end_date=now + timedelta(days=10, hours=8),
+                 max_volunteers=30, status='published'),
+            dict(organization_id=orgs[2].id, title='Barınak Ziyareti ve Bakım',
+                 description='Barınakta kalan hayvanlara sevgi ve bakım götürüyoruz.',
+                 category='hayvan hakları', city='İzmir', address='Bornova Barınağı',
+                 start_date=now + timedelta(days=5), end_date=now + timedelta(days=5, hours=3),
+                 max_volunteers=20, status='published'),
+            # Kodla Büyü (orgs[3])
+            dict(organization_id=orgs[3].id, title='Hafta Sonu Python Atölyesi',
+                 description='Lise öğrencilerine temel Python programlama eğitimi.',
+                 category='eğitim', city='İstanbul', address='Şişli',
+                 start_date=now + timedelta(days=5), end_date=now + timedelta(days=6, hours=4),
+                 max_volunteers=10, status='published', requirements='Python bilgisi.'),
+            dict(organization_id=orgs[3].id, title='Çocuklar İçin Temel Robotik Kodlama',
+                 description='İlkokul çağındaki çocuklara robotik kodlamanın temellerini oyunlarla öğretiyoruz.',
+                 category='eğitim', city='İstanbul', address='Şişli Gençlik Merkezi',
+                 start_date=now + timedelta(days=20), end_date=now + timedelta(days=21),
+                 max_volunteers=12, status='published', requirements='Temel kodlama bilgisi.'),
+            # Deniz Temiz (orgs[4])
+            dict(organization_id=orgs[4].id, title='Bodrum Sualtı Temizliği',
+                 description='Dalış ekipmanıyla Bodrum koylarında sualtı çöp temizliği yapıyoruz.',
+                 category='çevre', city='Muğla', address='Bodrum Merkezi İskele',
+                 start_date=now + timedelta(days=12), end_date=now + timedelta(days=12, hours=5),
+                 max_volunteers=25, status='published', requirements='Açık su dalış sertifikası.'),
+            # Tohum ve Toprak (orgs[5])
+            dict(organization_id=orgs[5].id, title='Kentsel Bahçe Kurulum Etkinliği',
+                 description='Gaziantep\'in boş alanlarına topluluk bahçeleri kuruyoruz, toprağı birlikte işliyoruz.',
+                 category='çevre', city='Gaziantep', address='Şehitkamil Parkı',
+                 start_date=now + timedelta(days=9), end_date=now + timedelta(days=9, hours=6),
+                 max_volunteers=40, status='published'),
+            # Yaşlı Dostu İzmir (orgs[6])
+            dict(organization_id=orgs[6].id, title='Yaşlı Ziyareti ve Sohbet Gönüllüsü',
+                 description='Yalnız yaşayan yaşlı bireylerin evlerini ziyaret ederek moral kaynağı oluyoruz.',
+                 category='sosyal destek', city='İzmir', address='Konak',
+                 start_date=now + timedelta(days=4), end_date=now + timedelta(days=4, hours=3),
+                 max_volunteers=20, status='published'),
+            # Genç Liderler Ağı (orgs[7])
+            dict(organization_id=orgs[7].id, title='Gençlik Liderlik Kampı',
+                 description='18-25 yaş gençlerin sivil toplum liderliği konusunda beceri geliştireceği haftalık kamp.',
+                 category='eğitim', city='Ankara', address='Bolu Ormanları',
+                 start_date=now + timedelta(days=25), end_date=now + timedelta(days=32),
+                 max_volunteers=30, status='published'),
+            # Bursa Afet Gönüllüleri (orgs[8])
+            dict(organization_id=orgs[8].id, title='Afet Hazırlık ve İlk Yardım Eğitimi',
+                 description='Deprem ve sel senaryolarında ilk yardım ve toplanma noktası uygulamaları.',
+                 category='afet yardımı', city='Bursa', address='Osmangazi Toplantı Salonu',
+                 start_date=now + timedelta(days=6), end_date=now + timedelta(days=6, hours=8),
+                 max_volunteers=50, status='published'),
+            # Mülteci Dayanışma (orgs[9])
+            dict(organization_id=orgs[9].id, title='Türkçe Dil Sınıfı Gönüllü Öğretmeni',
+                 description='İstanbul\'daki mülteci ve göçmenlere temel Türkçe öğretecek gönüllü öğretmenler arıyoruz.',
+                 category='eğitim', city='İstanbul', address='Fatih Kültür Merkezi',
+                 start_date=now + timedelta(days=3), end_date=now + timedelta(days=3, hours=3),
+                 max_volunteers=15, status='published'),
+            # Kültür ve Sanat Köprüsü (orgs[10])
+            dict(organization_id=orgs[10].id, title='Çocuk Tiyatro Atölyesi',
+                 description='7-14 yaş çocuklara tiyatro, drama ve sahne sanatları eğitimi.',
+                 category='kültür sanat', city='Eskişehir', address='Odunpazarı Kültür Evi',
+                 start_date=now + timedelta(days=11), end_date=now + timedelta(days=11, hours=4),
+                 max_volunteers=10, status='published'),
+            # Sağlıklı Toplum (orgs[11])
+            dict(organization_id=orgs[11].id, title='Kırsal Sağlık Taraması Seferberliği',
+                 description='Gaziantep köylerinde ücretsiz kan tahlili, tansiyon ve şeker ölçüm taraması.',
+                 category='sağlık', city='Gaziantep', address='Şahinbey İlçe Merkezi',
+                 start_date=now + timedelta(days=15), end_date=now + timedelta(days=15, hours=6),
+                 max_volunteers=20, status='published', requirements='Tıp, hemşirelik veya eczacılık öğrencisi olmak.'),
+            # Tarih ve Bellek (orgs[12])
+            dict(organization_id=orgs[12].id, title='Şehir Tarihi Belgeleme Yürüyüşü',
+                 description='Trabzon\'un tarihi alanlarını fotoğraflayarak dijital arşiv oluşturuyoruz.',
+                 category='kültür sanat', city='Trabzon', address='Ortahisar Kalesi Çevresi',
+                 start_date=now + timedelta(days=13), end_date=now + timedelta(days=13, hours=4),
+                 max_volunteers=15, status='published'),
+            # Engelsiz Erişim (orgs[13])
+            dict(organization_id=orgs[13].id, title='Görme Engelliler İçin Sesli Kitap Okuma',
+                 description='Görme engelli bireyler için klasik eserleri seslendireceğiz, gönüllü seslendirici arıyoruz.',
+                 category='sosyal destek', city='Ankara', address='Mamak Kültür Evi',
+                 start_date=now + timedelta(days=7), end_date=now + timedelta(days=7, hours=3),
+                 max_volunteers=12, status='published'),
+            # İklim Gençlik (orgs[14])
+            dict(organization_id=orgs[14].id, title='Okullarda İklim Bilinci Atölyesi',
+                 description='İlk ve ortaokullarda iklim değişikliği farkındalığı için interaktif atölyeler düzenliyoruz.',
+                 category='çevre', city='İstanbul', address='Beşiktaş Anadolu Lisesi',
+                 start_date=now + timedelta(days=6), end_date=now + timedelta(days=6, hours=2),
+                 max_volunteers=8, status='published'),
+            dict(organization_id=orgs[14].id, title='Orman Yangınlarını Önleme Eğitimi',
+                 description='Yaz ayları öncesi orman yangınlarına karşı alınabilecek önlemler hakkında bilinçlendirme.',
+                 category='çevre', city='Muğla', address='Marmaris Orman Bölge Müdürlüğü',
+                 start_date=now + timedelta(days=40), end_date=now + timedelta(days=41),
+                 max_volunteers=50, status='published'),
+        ]
+
+        events = []
+        for ed in events_data:
+            e = Event(**ed)
+            events.append(e)
+
+        db.session.add_all(events)
         db.session.flush()
+
         print('[*] Basvurular olusturuluyor...')
-        app1 = EventApplication(user_id=volunteer1.id, event_id=event1.id, status='approved', cover_letter='Çevre konusunda duyarlıyım ve bu etkinliğe katılmak istiyorum.', reviewer_note='Başvurunuz onaylandı. Sizi aramızda görmekten mutluluk duyarız!')
-        app2 = EventApplication(user_id=volunteer2.id, event_id=event3.id, status='pending', cover_letter='Matematik öğretmenliği mezunuyum, destek olmak isterim.')
-        app3 = EventApplication(user_id=volunteer1.id, event_id=event3.id, status='pending', cover_letter='Üniversitede matematik okuyorum. Haftasonları uygunum.')
-        app4 = EventApplication(user_id=volunteer3.id, event_id=event1.id, status='pending', cover_letter='Sahil temizliğine katkıda bulunmak istiyorum.')
-        db.session.add_all([app1, app2, app3, app4])
+        app1 = EventApplication(user_id=volunteer1.id, event_id=events[0].id, status='approved',
+            cover_letter='Çevre konusunda duyarlıyım.', reviewer_note='Onaylandı!')
+        app2 = EventApplication(user_id=volunteer2.id, event_id=events[3].id, status='pending',
+            cover_letter='Matematik öğretmenliği mezunuyum.')
+        app3 = EventApplication(user_id=volunteer1.id, event_id=events[3].id, status='pending',
+            cover_letter='Üniversitede matematik okuyorum.')
+        app4 = EventApplication(user_id=volunteer3.id, event_id=events[0].id, status='pending',
+            cover_letter='Sahil temizliğine katkıda bulunmak istiyorum.')
+        app5 = EventApplication(user_id=volunteer3.id, event_id=events[7].id, status='approved',
+            cover_letter='Hayvanları çok seviyorum.', reviewer_note='Bekliyoruz!')
+        app6 = EventApplication(user_id=volunteer1.id, event_id=events[9].id, status='pending',
+            cover_letter='Python geliştiricisiyim.')
+        db.session.add_all([app1, app2, app3, app4, app5, app6])
         db.session.commit()
+
         print('\n[OK] Seed tamamlandi!\n')
         print('=' * 50)
         print('Test kullanicilari (parola: password123):')
         print('  Gonullu 1 : ali@example.com')
         print('  Gonullu 2 : ayse@example.com')
         print('  Gonullu 3 : mehmet@example.com')
-        print('  STK 1     : stk1@briva.com')
-        print('  STK 2     : stk2@briva.com')
+        for i in range(1, 21):
+            print(f'  STK {i:<2}    : stk{i}@briva.com')
         print('  Admin     : admin@briva.com (parola: admin123456)')
         print('=' * 50)
-        print(f'  Etkinlikler: {Event.query.count()} adet')
-        print(f'  Başvurular : {EventApplication.query.count()} adet')
+        print(f'  Organizasyonlar: {Organization.query.count()} adet')
+        print(f'  Etkinlikler    : {Event.query.count()} adet')
+        print(f'  Basvurular     : {EventApplication.query.count()} adet')
         print('=' * 50)
+
 if __name__ == '__main__':
     seed()
