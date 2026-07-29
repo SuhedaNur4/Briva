@@ -1,5 +1,5 @@
 class UIUtils {
-  window.ui.showToast(message, type = 'success') {
+  showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
     if (!container) return;
     const item = document.createElement('div');

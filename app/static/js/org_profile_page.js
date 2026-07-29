@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!orgId) return;
 
   const res = await window.organizationsService.getById(orgId);
-  const org = res && res.organization ? res.organization : null;
+  const org = res && res.data && res.data.organization ? res.data.organization : (res && res.organization ? res.organization : null);
 
   if (!org) {
     document.getElementById('profile-org-name').textContent = 'Kuruluş Bulunamadı';
@@ -29,7 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (webEl) {
     if (org.website) {
       let webUrl = org.website.startsWith('http') ? org.website : 'https://' + org.website;
-      webEl.innerHTML = `<a href="${webUrl}" target="_blank" rel="noopener noreferrer">${org.website}</a>`;
+      let displayDomain = webUrl;
+      try {
+        displayDomain = new URL(webUrl).hostname.replace('www.', '');
+      } catch(e) {}
+      
+      webEl.innerHTML = `<a href="${webUrl}" target="_blank" rel="noopener noreferrer">${displayDomain}</a>`;
       if (membershipBtn) {
         membershipBtn.href = webUrl;
         membershipBtn.style.display = 'inline-block';

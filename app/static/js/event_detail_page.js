@@ -115,34 +115,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await window.recommendationsService.explain(id, {});
       const exp = res.data.explanation || {};
+      const expText = exp.text || '';
+      const isEmpty = exp.is_empty_profile || false;
       const totalScore = exp.total_score !== undefined ? exp.total_score : 0;
       const details = exp.matching_details || {};
 
+      if (isEmpty || totalScore < 70) {
+        document.getElementById('ai-match-title').style.display = 'none';
+        aiScoreText.style.display = 'none';
+        aiReasonsList.innerHTML = `<li style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.6;">${expText}</li>`;
+        return;
+      }
+
+      document.getElementById('ai-match-title').style.display = 'block';
+      aiScoreText.style.display = 'block';
       const badgeText = window.formatRecommendationBadge(exp, '');
-      aiScoreText.textContent = badgeText ? `Bu etkinlik sana uygun olabilir: ${badgeText}` : 'Sana Uygun Fırsat';
-      aiReasonsList.innerHTML = '';
-
-      let hasReasons = false;
-      if (details.city_matched) {
-        hasReasons = true;
-        addReason('Konumuna yakın (Şehrinle eşleşiyor)');
-      }
-      if (details.matching_interests && details.matching_interests.length) {
-        hasReasons = true;
-        addReason(`İlgi alanlarınla örtüşüyor (${details.matching_interests.join(', ')})`);
-      }
-      if (details.matching_skills && details.matching_skills.length) {
-        hasReasons = true;
-        addReason(`Beceri setinle uyumlu (${details.matching_skills.join(', ')})`);
-      }
-      if (details.day_matched) {
-        hasReasons = true;
-        addReason('Uygunluk zamanlarınla örtüşüyor');
-      }
-
-      if (!hasReasons) {
-        addReason('Bu etkinlik genel profil kriterlerinize temel düzeyde uyum sağlamaktadır.');
-      }
+      aiScoreText.textContent = badgeText ? `Eşleşme: ${badgeText}` : 'Sana Uygun Fırsat';
+      aiReasonsList.innerHTML = `<li style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.6;">${expText}</li>`;
+      
     } catch (e) {
       aiScoreText.textContent = 'Analiz Edilemedi';
       aiReasonsList.innerHTML = '<li style="font-size: var(--text-xs); color: var(--text-muted);">Öneri motoru verisine ulaşılamadı.</li>';

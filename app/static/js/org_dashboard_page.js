@@ -613,16 +613,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         intCont.innerHTML = '-';
       }
       
-      document.getElementById('am-ai-summary').textContent = ev.summary || 'Değerlendirme yapılamadı.';
-      const resCont = document.getElementById('am-ai-reasons');
-      let combined = [];
-      if (ev.reasons) combined = combined.concat(ev.reasons);
-      if (ev.missing_info) combined = combined.concat(ev.missing_info.map(m => `⚠️ ${m}`));
+      const scoreElem = document.getElementById('am-ai-score');
+      if (scoreElem) {
+        scoreElem.textContent = `${ev.match_score || 0} / 100`;
+        const score = ev.match_score || 0;
+        if (score >= 80) scoreElem.style.color = 'var(--primary-main)';
+        else if (score >= 50) scoreElem.style.color = 'var(--accent-orange)';
+        else scoreElem.style.color = 'var(--accent-red)';
+      }
       
-      if (combined.length > 0) {
-        resCont.innerHTML = combined.map(r => `<li style="margin-bottom: 4px;">${r}</li>`).join('');
-      } else {
-        resCont.innerHTML = '<li>Ek bilgi bulunmuyor.</li>';
+      const summaryElem = document.getElementById('am-ai-summary');
+      if (summaryElem) {
+        summaryElem.textContent = ev.summary || 'Değerlendirme yapılamadı.';
+      }
+      
+      const strengthsCont = document.getElementById('am-ai-strengths');
+      if (strengthsCont) {
+        if (ev.strengths && ev.strengths.length > 0) {
+          strengthsCont.innerHTML = ev.strengths.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('');
+        } else {
+          strengthsCont.innerHTML = '<li>Belirgin bir güçlü yön bulunamadı.</li>';
+        }
+      }
+      
+      const gapsCont = document.getElementById('am-ai-gaps');
+      if (gapsCont) {
+        if (ev.gaps && ev.gaps.length > 0) {
+          gapsCont.innerHTML = ev.gaps.map(g => `<li style="margin-bottom: 4px;">${g}</li>`).join('');
+        } else {
+          gapsCont.innerHTML = '<li>Belirgin bir eksiklik tespit edilmedi.</li>';
+        }
       }
 
       const appRecord = allApps.find(a => a.id == appId);

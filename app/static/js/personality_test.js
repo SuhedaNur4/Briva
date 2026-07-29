@@ -185,19 +185,41 @@
     document.getElementById('quiz-loading').classList.remove('visible');
 
     const resultsEl = document.getElementById('quiz-results');
-    const interestsEl = document.getElementById('results-interests');
+    const insightsEl = document.getElementById('results-insights');
     const recsEl = document.getElementById('results-recs');
 
-    // İlgi alanlarını göster
+    // İlgi alanlarını göster (Insights)
     const interests = data.user_context?.interests || [];
-    interestsEl.innerHTML = '';
-    if (interests.length) {
-      interests.forEach(interest => {
-        const tag = document.createElement('span');
-        tag.className = 'quiz-interest-tag';
-        tag.textContent = interest.charAt(0).toUpperCase() + interest.slice(1);
-        interestsEl.appendChild(tag);
-      });
+    
+    const categoryInsights = {
+      'çevre': { icon: '🌍', title: 'Çevre', desc: 'İklim değişikliği ve doğa koruma projeleri senin için öne çıkıyor. Doğaya doğrudan katkı sağlayacağın etkinlikler sana uygun.' },
+      'eğitim': { icon: '📚', title: 'Eğitim', desc: 'Bilgi paylaşımı ve başkalarının öğrenmesine destek olabileceğin, fırsat eşitliği odaklı etkinlikler tam sana göre.' },
+      'sosyal destek': { icon: '🤝', title: 'Sosyal Etki', desc: 'Topluma doğrudan dokunan, dezavantajlı gruplara yardım edebileceğin sosyal destek projelerine yatkınsın.' },
+      'hayvan hakları': { icon: '🐾', title: 'Hayvan Hakları', desc: 'Can dostlarımızın yaşam haklarını savunmak ve onlara bakım sağlamak senin için önemli bir motivasyon kaynağı.' }
+    };
+
+    if (insightsEl) {
+      insightsEl.innerHTML = '';
+      if (interests.length) {
+        interests.forEach(interest => {
+          const cat = categoryInsights[interest.toLowerCase()] || { icon: '✨', title: interest.charAt(0).toUpperCase() + interest.slice(1), desc: 'Bu alandaki etkinlikler beceri ve ilgi alanlarınla örtüşüyor.' };
+          const div = document.createElement('div');
+          div.style.padding = '12px 16px';
+          div.style.background = 'white';
+          div.style.border = '1px solid var(--border-subtle)';
+          div.style.borderRadius = 'var(--radius-md)';
+          div.style.marginBottom = '8px';
+          div.innerHTML = `
+            <strong style="display: flex; align-items: center; gap: 8px; font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">
+              <span>${cat.icon}</span> ${cat.title}
+            </strong>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;">${cat.desc}</p>
+          `;
+          insightsEl.appendChild(div);
+        });
+      } else {
+        insightsEl.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Genel gönüllülük etkinliklerine uyum sağlayabilecek esnek bir profilin var.</p>';
+      }
     }
 
     // Önerileri göster
@@ -224,8 +246,8 @@
 
     // Profil güncellendiyse mesaj göster
     if (data.profile_updated) {
-      document.getElementById('results-desc').textContent =
-        'Smart-Match motorumuz cevaplarına göre sana en uygun etkinlikleri belirledi. Profil ilgi alanlarını da güncelledik!';
+      const descEl = document.getElementById('results-desc');
+      if (descEl) descEl.textContent = 'Seni biraz daha tanıdık. Profil ilgi alanlarını da cevaplarına göre güncelledik!';
     }
 
     resultsEl.classList.add('visible');
