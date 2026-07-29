@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const meRes = await window.authService.me();
   const user = meRes && meRes.user ? meRes.user : null;
   if (!user || user.role !== 'organization') {
-    showToast('Bu sayfaya erişim için STK yetkilisi olarak oturum açmalısınız.', 'error');
+    window.ui.showToast('Bu sayfaya erişim için STK yetkilisi olarak oturum açmalısınız.', 'error');
     window.location.href = '/organization/dashboard';
     return;
   }
@@ -133,19 +133,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('prev-desc').textContent = document.getElementById('event-description').value || 'Açıklama girilmedi.';
   };
 
+    let currentStatus = 'published';
+    
+    const draftBtn = document.getElementById('wizard-draft-btn');
+    if (draftBtn) {
+      draftBtn.addEventListener('click', () => {
+        currentStatus = 'draft';
+        if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      });
+    }
+
+    const submitBtn = document.getElementById('wizard-submit-btn');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        currentStatus = 'published';
+      });
+    }
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!validateStep(1) || !validateStep(2)) {
         return;
       }
-      const submitBtn = document.getElementById('wizard-submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Yayınlanıyor ve AI ile Analiz Ediliyor...';
+      
+      const prevSubmitText = submitBtn ? submitBtn.textContent : '';
+      const prevDraftText = draftBtn ? draftBtn.textContent : '';
+      
+      if (currentStatus === 'published' && submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Yayınlanıyor...';
+        if (draftBtn) draftBtn.disabled = true;
+      } else if (currentStatus === 'draft' && draftBtn) {
+        draftBtn.disabled = true;
+        draftBtn.textContent = 'Kaydediliyor...';
+        if (submitBtn) submitBtn.disabled = true;
+      }
 
       const payload = {
         title: document.getElementById('event-title').value.trim(),
-        start_date: document.getElementById('event-start').value
+        start_date: document.getElementById('event-start').value,
+        status: currentStatus
       };
 
       const cat = document.getElementById('event-category').value.trim();
@@ -170,18 +198,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (reqs) payload.requirements = reqs;
 
       const res = await window.eventsService.create(payload);
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Etkinliği Yayınla';
+      
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = prevSubmitText;
+      }
+      if (draftBtn) {
+        draftBtn.disabled = false;
+        draftBtn.textContent = prevDraftText;
+      }
 
       if (res && res.error) {
-        showToast(res.error, 'error');
+        window.ui.showToast(res.error, 'error');
         if (errBox) {
           errBox.textContent = res.error;
           errBox.style.display = 'block';
         }
       } else {
         localStorage.removeItem('briva_wizard_draft');
-        showToast('Etkinliğiniz başarıyla yayınlandı!', 'success');
+        const msg = currentStatus === 'draft' ? 'Etkinliğiniz taslak olarak kaydedildi.' : 'Etkinliğiniz başarıyla yayınlandı!';
+        window.ui.showToast(msg, 'success');
         setTimeout(() => {
           window.location.href = '/organization/dashboard#events';
         }, 1200);

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const email = document.getElementById('org-login-email').value.trim();
       const password = document.getElementById('org-login-pass').value.trim();
       if (!email || !password) {
-        showToast('E-posta ve şifre gereklidir.', 'error');
+        window.ui.showToast('E-posta ve şifre gereklidir.', 'error');
         return;
       }
       doLoginBtn.disabled = true;
@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       doLoginBtn.disabled = false;
       doLoginBtn.textContent = 'STK Olarak Giriş Yap';
       if (res && res.error) {
-        showToast(res.error, 'error');
+        window.ui.showToast(res.error, 'error');
       } else {
-        showToast('Giriş başarılı!', 'success');
+        window.ui.showToast('Giriş başarılı!', 'success');
         window.location.reload();
       }
     });
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const city = document.getElementById('new-org-city').value.trim();
         const description = document.getElementById('new-org-desc').value.trim();
         if (!name) {
-          showToast('Kuruluş adı zorunludur.', 'error');
+          window.ui.showToast('Kuruluş adı zorunludur.', 'error');
           return;
         }
         createBtn.disabled = true;
@@ -61,9 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         createBtn.disabled = false;
         createBtn.textContent = 'Profili Kaydet ve Başla';
         if (res && res.error) {
-          showToast(res.error, 'error');
+          window.ui.showToast(res.error, 'error');
         } else {
-          showToast('STK profili başarıyla oluşturuldu.', 'success');
+          window.ui.showToast('STK profili başarıyla oluşturuldu.', 'success');
           window.location.reload();
         }
       });
@@ -187,13 +187,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const res = await window.applicationsService.update(appId, { status: newStatus });
     if (res && res.error) {
-      showToast(res.error, 'error');
+      window.ui.showToast(res.error, 'error');
       if (btnEl) {
         btnEl.disabled = false;
         btnEl.textContent = newStatus === 'approved' ? 'Onayla' : 'Reddet';
       }
     } else {
-      showToast(`Başvuru ${newStatus === 'approved' ? 'onaylandı' : 'reddedildi'}.`, 'success');
+      window.ui.showToast(`Başvuru ${newStatus === 'approved' ? 'onaylandı' : 'reddedildi'}.`, 'success');
       await loadDashboardData();
     }
   };
@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${note}</div></td>
             <td>
               <div class="applicant-actions-group">
+                <button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}">İncele</button>
                 <button type="button" class="btn btn-primary btn-sm act-approve-btn" data-id="${a.id}">Onayla</button>
                 <button type="button" class="btn btn-outline btn-sm act-reject-btn" data-id="${a.id}">Reddet</button>
               </div>
@@ -256,6 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div style="margin-top: var(--space-2); background: var(--bg-subtle); padding: var(--space-2); border-radius: var(--radius-sm); font-style: italic;">"${note}"</div>
             </div>
             <div class="applicant-actions-group" style="margin-top: var(--space-2);">
+              <button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}" style="flex: 1;">İncele</button>
               <button type="button" class="btn btn-primary btn-sm act-approve-btn" data-id="${a.id}" style="flex: 1;">Onayla</button>
               <button type="button" class="btn btn-outline btn-sm act-reject-btn" data-id="${a.id}" style="flex: 1;">Reddet</button>
             </div>
@@ -274,6 +276,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.addEventListener('click', (e) => {
         const appId = e.currentTarget.getAttribute('data-id');
         updateAppStatus(appId, 'rejected', e.currentTarget);
+      });
+    });
+    document.querySelectorAll('.act-view-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appId = e.currentTarget.getAttribute('data-id');
+        openApplicantModal(appId);
       });
     });
   };
@@ -384,10 +392,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const note = a.cover_letter || '-';
         const stClass = a.status === 'approved' ? 'approved' : (a.status === 'rejected' || a.status === 'cancelled' ? 'rejected' : 'pending');
         const stLabel = a.status === 'approved' ? 'Onaylandı' : (a.status === 'rejected' ? 'Reddedildi' : (a.status === 'cancelled' ? 'İptal' : 'Bekliyor'));
-        let actionsHtml = '-';
+        let actionsHtml = `<button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}">İncele</button>`;
         if (a.status === 'pending') {
           actionsHtml = `
             <div class="applicant-actions-group">
+              <button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}">İncele</button>
               <button type="button" class="btn btn-primary btn-sm act-all-app-btn" data-id="${a.id}" data-st="approved">Onayla</button>
               <button type="button" class="btn btn-outline btn-sm act-all-app-btn" data-id="${a.id}" data-st="rejected">Reddet</button>
             </div>
@@ -415,10 +424,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const note = a.cover_letter || 'Not eklenmedi.';
         const stClass = a.status === 'approved' ? 'approved' : (a.status === 'rejected' || a.status === 'cancelled' ? 'rejected' : 'pending');
         const stLabel = a.status === 'approved' ? 'Onaylandı' : (a.status === 'rejected' ? 'Reddedildi' : (a.status === 'cancelled' ? 'İptal' : 'Bekliyor'));
-        let actionsHtml = '';
+        let actionsHtml = `<div class="applicant-actions-group" style="margin-top: var(--space-2);"><button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}" style="flex: 1;">İncele</button></div>`;
         if (a.status === 'pending') {
           actionsHtml = `
             <div class="applicant-actions-group" style="margin-top: var(--space-2);">
+              <button type="button" class="btn btn-outline btn-sm act-view-btn" data-id="${a.id}" style="flex: 1;">İncele</button>
               <button type="button" class="btn btn-primary btn-sm act-all-app-btn" data-id="${a.id}" data-st="approved" style="flex: 1;">Onayla</button>
               <button type="button" class="btn btn-outline btn-sm act-all-app-btn" data-id="${a.id}" data-st="rejected" style="flex: 1;">Reddet</button>
             </div>
@@ -446,6 +456,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const appId = e.currentTarget.getAttribute('data-id');
         const newSt = e.currentTarget.getAttribute('data-st');
         updateAppStatus(appId, newSt, e.currentTarget);
+      });
+    });
+    document.querySelectorAll('.act-view-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appId = e.currentTarget.getAttribute('data-id');
+        openApplicantModal(appId);
       });
     });
   };
@@ -478,9 +494,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.disabled = false;
       btn.textContent = 'Değişiklikleri Kaydet';
       if (res && res.error) {
-        showToast(res.error, 'error');
+        window.ui.showToast(res.error, 'error');
       } else {
-        showToast('STK profiliniz başarıyla güncellendi.', 'success');
+        window.ui.showToast('STK profiliniz başarıyla güncellendi.', 'success');
         org = { ...org, ...payload };
         document.getElementById('org-header-name').textContent = org.name;
       }
@@ -539,6 +555,107 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const initHash = window.location.hash.replace('#', '') || 'overview';
   switchTab(initHash);
+
+  const amModal = document.getElementById('applicant-modal');
+  const amClose = document.getElementById('close-applicant-modal');
+  const amSkel = document.getElementById('applicant-modal-skeleton');
+  const amErr = document.getElementById('applicant-modal-error');
+  const amContent = document.getElementById('applicant-modal-content');
+  
+  if (amClose) {
+    amClose.addEventListener('click', () => {
+      if (amModal) amModal.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && amModal && amModal.style.display === 'flex') {
+      amModal.style.display = 'none';
+    }
+  });
+
+  let currentAppId = null;
+
+  window.openApplicantModal = async (appId) => {
+    currentAppId = appId;
+    if (amModal) amModal.style.display = 'flex';
+    if (amSkel) amSkel.style.display = 'flex';
+    if (amErr) amErr.style.display = 'none';
+    if (amContent) amContent.style.display = 'none';
+
+    const res = await window.recommendationsService.evaluateApplicant({ application_id: Number(appId) });
+    if (amSkel) amSkel.style.display = 'none';
+    
+    if (res && res.error) {
+      if (amErr) {
+        amErr.textContent = res.error;
+        amErr.style.display = 'block';
+      }
+    } else {
+      if (amContent) amContent.style.display = 'block';
+      const ev = res.evaluation || {};
+      const ap = res.applicant || {};
+      document.getElementById('am-name').textContent = ap.full_name || 'İsimsiz Aday';
+      document.getElementById('am-city').textContent = ap.city || 'Şehir Belirtilmemiş';
+      document.getElementById('am-bio').textContent = ap.bio || 'Hakkında bilgi yok.';
+      
+      const skillCont = document.getElementById('am-skills');
+      if (ap.skills && ap.skills.length > 0) {
+        skillCont.innerHTML = ap.skills.map(s => `<span style="background: var(--bg-subtle); padding: 2px 8px; border-radius: 12px; font-size: 11px;">${s}</span>`).join('');
+      } else {
+        skillCont.innerHTML = '-';
+      }
+      
+      const intCont = document.getElementById('am-interests');
+      if (ap.interests && ap.interests.length > 0) {
+        intCont.innerHTML = ap.interests.map(i => `<span style="background: var(--bg-subtle); padding: 2px 8px; border-radius: 12px; font-size: 11px;">${i}</span>`).join('');
+      } else {
+        intCont.innerHTML = '-';
+      }
+      
+      document.getElementById('am-ai-summary').textContent = ev.summary || 'Değerlendirme yapılamadı.';
+      const resCont = document.getElementById('am-ai-reasons');
+      let combined = [];
+      if (ev.reasons) combined = combined.concat(ev.reasons);
+      if (ev.missing_info) combined = combined.concat(ev.missing_info.map(m => `⚠️ ${m}`));
+      
+      if (combined.length > 0) {
+        resCont.innerHTML = combined.map(r => `<li style="margin-bottom: 4px;">${r}</li>`).join('');
+      } else {
+        resCont.innerHTML = '<li>Ek bilgi bulunmuyor.</li>';
+      }
+
+      const appRecord = allApps.find(a => a.id == appId);
+      const approveBtn = document.getElementById('am-approve-btn');
+      const rejectBtn = document.getElementById('am-reject-btn');
+      
+      if (appRecord && appRecord.status !== 'pending') {
+        if (approveBtn) approveBtn.parentElement.style.display = 'none';
+      } else {
+        if (approveBtn) approveBtn.parentElement.style.display = 'flex';
+      }
+    }
+  };
+
+  const amApproveBtn = document.getElementById('am-approve-btn');
+  if (amApproveBtn) {
+    amApproveBtn.addEventListener('click', async (e) => {
+      if (currentAppId) {
+        await updateAppStatus(currentAppId, 'approved', e.currentTarget);
+        if (amModal) amModal.style.display = 'none';
+      }
+    });
+  }
+
+  const amRejectBtn = document.getElementById('am-reject-btn');
+  if (amRejectBtn) {
+    amRejectBtn.addEventListener('click', async (e) => {
+      if (currentAppId) {
+        await updateAppStatus(currentAppId, 'rejected', e.currentTarget);
+        if (amModal) amModal.style.display = 'none';
+      }
+    });
+  }
 
   await loadDashboardData();
 });

@@ -4,8 +4,8 @@
 
 {% block content %}
 <div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
-  <div id="login-prompt-section" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 480px; margin: 0 auto;">
-    <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-3);">Gönüllü Kontrol Paneli</h1>
+  <div id="login-prompt-section" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 24px; max-width: 480px; margin: 0 auto; box-shadow: 0 12px 40px rgba(15,82,56,0.1);">
+    <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-3); color: var(--text-main);">Gönüllü Kontrol Paneli</h1>
 
     <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Başvurularınızı takip etmek, akıllı eşleşme önerileri almak ve favorilerinizi yönetmek için oturum açın.</p>
     <div style="display: flex; flex-direction: column; gap: var(--space-3); text-align: left; margin-bottom: var(--space-6);">
@@ -25,34 +25,34 @@
   </div>
 
   <div id="dashboard-content" style="display: none;">
-    <header style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4);">
+    <header style="background: #093424; color: white; border-radius: 24px; padding: 40px; margin-bottom: 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; box-shadow: 0 12px 40px rgba(9,52,36,0.2);">
       <div>
-        <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-1);">Tekrar hoş geldin, <span id="user-display-name">Gönüllü</span></h1>
-        <p style="color: var(--text-muted); font-size: var(--text-base);">Sana uygun yeni fırsatlar var. Katkı sağlamaya hemen devam et.</p>
+        <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-1); color: white;">Tekrar hoş geldin, <span id="user-display-name" style="color: #a8e6cf;">Gönüllü</span></h1>
+        <p style="color: rgba(255,255,255,0.7); font-size: var(--text-base);">Sana uygun yeni fırsatlar var. Katkı sağlamaya hemen devam et.</p>
       </div>
       <div style="display: flex; gap: var(--space-3);">
-        <a href="/events" class="btn btn-primary btn-lg">Etkinlikleri Keşfet</a>
-        <button type="button" id="logout-btn" class="btn btn-outline">Çıkış Yap</button>
+        <a href="/events" class="btn" style="background: #a8e6cf; color: #093424; border-radius: 99px; font-weight: 700; padding: 12px 24px;">Etkinlikleri Keşfet</a>
+        <button type="button" id="logout-btn" class="btn" style="background: rgba(255,255,255,0.1); color: white; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2);">Çıkış Yap</button>
       </div>
     </header>
 
     <section id="summary-section" style="margin-bottom: var(--space-12);">
       <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Katkı Özeti</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4);">
-        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">TOPLAM BAŞVURU</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px;">
+        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">TOPLAM BAŞVURU</span>
           <strong id="stat-total-apps" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
         </div>
-        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">ONAYLANAN KATILIM</span>
+        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">ONAYLANAN KATILIM</span>
           <strong id="stat-approved-apps" style="font-size: var(--text-3xl); color: var(--primary-main);">0</strong>
         </div>
-        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">BEKLEYEN DEĞERLENDİRME</span>
+        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
+          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">BEKLEYEN DEĞERLENDİRME</span>
           <strong id="stat-pending-apps" style="font-size: var(--text-3xl); color: var(--accent-orange);">0</strong>
         </div>
       </div>
-      <p class="editorial-note">Not: Katkı özeti sahte XP veya rozet üretilmeden, yalnızca doğrulanmış başvuru ve katılım verilerinizden hesaplanır.</p>
+      <p class="editorial-note">Not: Katkı özeti sahte İyilik Puanı veya rozet üretilmeden, yalnızca doğrulanmış başvuru ve katılım verilerinizden hesaplanır.</p>
     </section>
 
     <div class="dashboard-sections-grid">
@@ -109,6 +109,89 @@
       </section>
     </div>
   </div>
+</div>
+
+<div style="grid-column: 1 / -1; margin-top: var(--space-8);">
+  <section id="volunteer-profile-section" style="margin-bottom: var(--space-12);">
+    <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-1);">Profil Durumu</h2>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Profilindeki beceri ve ilgi alanlarını eksiksiz doldurman, Smart-Match yapay zekasının sana daha uygun etkinlikler bulmasına yardımcı olacaktır.</p>
+
+    <!-- Phase 17B: Profile Completion Card -->
+    <div id="profile-completion-card" style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px; margin-bottom: 24px;">
+      <div id="profile-completion-loading">
+        <div class="skeleton-line"></div>
+      </div>
+      <div id="profile-completion-content" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+          <span id="profile-completion-text" style="font-weight: 600; font-size: var(--text-base); color: var(--text-main);">Profilin %0 tamamlandı</span>
+          <span id="profile-completion-percentage-display" style="color: var(--primary-main); font-size: var(--text-sm); font-weight: 700;">0%</span>
+        </div>
+        <div style="width: 100%; background: rgba(15,82,56,0.1); border-radius: 99px; height: 10px; margin-bottom: 24px; overflow: hidden;">
+          <div id="profile-completion-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="height: 100%; width: 0%; background: var(--primary-main); transition: width 0.3s ease;"></div>
+        </div>
+        
+        <div id="profile-completion-success" style="display: none; color: var(--primary-main); font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-4);">
+          Profil bilgilerin eksiksiz. Smart-Match için profil verilerin hazır.
+        </div>
+        
+        <button type="button" id="btn-toggle-profile-form" class="btn" style="background: white; color: var(--primary-main); border: 1px solid #d4e4da; border-radius: 99px; padding: 8px 16px; font-weight: 600;">Profilimi Güncelle</button>
+      </div>
+      <div id="profile-completion-error" style="display: none; color: var(--accent-orange); font-size: var(--text-sm);">
+        Profil bilgilerin şu anda yüklenemiyor. Lütfen sayfayı yenileyin.
+      </div>
+    </div>
+
+    <!-- Mevcut Profil Formu -->
+    <div id="profile-form-container" style="display: none;">
+      <div id="profile-skeleton" style="background: white; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
+         <div class="skeleton-line"></div>
+         <div class="skeleton-line short"></div>
+      </div>
+      <form id="volunteer-profile-form" style="display: none; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="profile-first-name">Ad</label>
+            <input type="text" id="profile-first-name" required>
+          </div>
+          <div class="form-group">
+            <label for="profile-last-name">Soyad</label>
+            <input type="text" id="profile-last-name" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="profile-phone">Telefon</label>
+            <input type="text" id="profile-phone">
+          </div>
+          <div class="form-group">
+            <label for="profile-birth-date">Doğum Tarihi</label>
+            <input type="date" id="profile-birth-date">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="profile-city">Şehir</label>
+            <input type="text" id="profile-city">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="profile-bio">Biyografi</label>
+          <textarea id="profile-bio" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="profile-skills">Beceriler (virgülle ayırın)</label>
+          <input type="text" id="profile-skills" placeholder="Örn: Tasarım, İletişim, Yazılım">
+        </div>
+        <div class="form-group">
+          <label for="profile-interests">İlgi Alanları (virgülle ayırın)</label>
+          <input type="text" id="profile-interests" placeholder="Örn: Çevre, Eğitim, Hayvan Hakları">
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+          <button type="submit" id="profile-save-btn" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </section>
 </div>
 
 <nav class="bottom-nav" aria-label="Mobil Alt Navigasyon">

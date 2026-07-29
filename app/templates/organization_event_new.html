@@ -133,11 +133,14 @@
           <strong style="color: var(--text-muted);">Açıklama:</strong>
           <p id="prev-desc" style="margin: 0; white-space: pre-wrap;">-</p>
         </div>
-        <p class="editorial-note">Veri Bütünlüğü ve Mimarî Notu: Etkinlik oluşturma API endpoint'i (`POST /api/events`) "Taslak (Draft)" statüsünde kayda izin vermediğinden, veri kaybını önlemek adına form ilerlemeniz tarayıcı yerel hafızasında (`localStorage`) tutulur ve yalnızca aşağıdan "Etkinliği Yayınla" butonuna basıldığında sunucuya aktarılarak yayınlanır.</p>
+        <p class="editorial-note">Veri Bütünlüğü ve Mimarî Notu: Etkinliğinizi hemen yayınlayabilir veya daha sonra tamamlamak üzere taslak olarak kaydedebilirsiniz. Taslak etkinlikler listesinde görüntülenebilir ancak gönüllüler tarafından görülemez.</p>
       </div>
       <div style="display: flex; justify-content: space-between; margin-top: var(--space-6); gap: var(--space-4);">
         <button type="button" class="btn btn-outline btn-lg wizard-prev-btn" data-prev="3">← Geri</button>
-        <button type="submit" id="wizard-submit-btn" class="btn btn-primary btn-lg">Etkinliği Yayınla</button>
+        <div style="display: flex; gap: var(--space-3);">
+          <button type="button" id="wizard-draft-btn" class="btn btn-outline btn-lg">Taslak Olarak Kaydet</button>
+          <button type="submit" id="wizard-submit-btn" class="btn btn-primary btn-lg">Etkinliği Yayınla</button>
+        </div>
       </div>
     </div>
   </form>
