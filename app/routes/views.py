@@ -29,3 +29,11 @@ def organization_event_new_view():
 @views_bp.route('/organizations/<int:id>', methods=['GET'])
 def organization_profile_view(id: int):
     return render_template('organization_profile.html', org_id=id)
+
+@views_bp.route('/organizations', methods=['GET'])
+def organizations_list_view():
+    return render_template('organizations.html')
+
+@views_bp.route('/quiz', methods=['GET'])
+def quiz_view():
+    return render_template('personality_test.html')
