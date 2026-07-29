@@ -11,26 +11,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   const categoryFilter = document.getElementById('category-filter');
   const dateFilter = document.getElementById('date-filter');
   const skillFilter = document.getElementById('skill-filter');
+  const orgFilter = document.getElementById('org-filter');
   const applyBtn = document.getElementById('apply-filters-btn');
   const clearBtn = document.getElementById('clear-filters-btn');
   const emptyClearBtn = document.getElementById('empty-clear-btn');
   const retryBtn = document.getElementById('retry-load-btn');
 
+  // URL'den ?org= parametresini oku ve org filtresini otomatik set et
+  const urlParams = new URLSearchParams(window.location.search);
+  const orgFromUrl = urlParams.get('org');
+  if (orgFromUrl && orgFilter) orgFilter.value = orgFromUrl;
+
   let allEvents = [];
+  let currentPage = 1;
   let recommendationsMap = {};
   let favoritesSet = new Set();
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  const loadMoreContainer = document.getElementById('load-more-container');
 
-  function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const item = document.createElement('div');
-    item.className = `toast-item toast-${type}`;
-    item.textContent = message;
-    container.appendChild(item);
-    setTimeout(() => {
-      item.remove();
-    }, 4000);
-  }
 
   function showState(state) {
     if (skeletonEl) skeletonEl.style.display = state === 'skeleton' ? 'grid' : 'none';
@@ -43,64 +41,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     showState('skeleton');
     try {
       const token = window.apiService.getToken();
-      const eventsRes = await window.eventsService.list();
-      allEvents = eventsRes.data.events || [];
-
       if (token) {
         try {
           const recRes = await window.recommendationsService.getForMe();
           const recs = recRes.data.recommendations || [];
-          recs.forEach(r => {
-            recommendationsMap[r.event_id] = r;
-          });
-        } catch (e) {
-        }
+          recs.forEach(r => recommendationsMap[r.event_id] = r);
+        } catch (e) {}
         try {
           const favRes = await window.favoritesService.list();
           const favs = favRes.data.favorites || [];
-          favs.forEach(f => {
-            favoritesSet.add(f.event_id);
-          });
-        } catch (e) {
-        }
+          favs.forEach(f => favoritesSet.add(f.event_id));
+        } catch (e) {}
       }
-      applyFilters();
+      await applyFilters(true);
     } catch (error) {
       showState('error');
     }
   }
 
-  function applyFilters() {
-    const query = (searchInput.value || '').trim().toLowerCase();
-    const city = (cityFilter.value || '').trim().toLowerCase();
-    const category = (categoryFilter.value || '').trim().toLowerCase();
+  async function applyFilters(resetPage = true) {
+    if (resetPage) {
+      currentPage = 1;
+      allEvents = [];
+      showState('skeleton');
+    }
+
+    let query = (searchInput.value || '').trim();
+    const city = (cityFilter.value || '').trim();
+    const category = (categoryFilter.value || '').trim();
     const dateVal = dateFilter.value || '';
-    const skill = (skillFilter.value || '').trim().toLowerCase();
+    const skill = (skillFilter.value || '').trim();
 
-    const filtered = allEvents.filter(event => {
-      if (query) {
-        const titleMatch = (event.title || '').toLowerCase().includes(query);
-        const orgMatch = (event.organization && event.organization.name || '').toLowerCase().includes(query);
-        if (!titleMatch && !orgMatch) return false;
+    if (skill) {
+       query = query ? `${query} ${skill}` : skill;
+    }
+
+    let params = { page: currentPage, per_page: 20 };
+    if (query) params.q = query;
+    if (city) params.city = city;
+    if (category) params.category = category;
+    if (dateVal) params.start_after = dateVal + 'T00:00:00';
+    // org filter
+    const orgId = orgFilter ? (orgFilter.value || '').trim() : '';
+    if (orgId) params.org_id = orgId;
+
+    renderChips({ query: searchInput.value.trim(), city, category, dateVal, skill });
+
+    try {
+      const eventsRes = await window.eventsService.list(params);
+      const events = eventsRes.data.events || [];
+      const pagination = eventsRes.data.pagination || {};
+
+      if (resetPage) {
+        allEvents = events;
+      } else {
+        allEvents = allEvents.concat(events);
       }
-      if (city && (event.city || '').toLowerCase() !== city) {
-        return false;
+
+      renderGrid(allEvents);
+
+      if (loadMoreContainer) {
+        if (pagination.page < pagination.pages) {
+          loadMoreContainer.style.display = 'block';
+        } else {
+          loadMoreContainer.style.display = 'none';
+        }
       }
-      if (category && !(event.category || '').toLowerCase().includes(category)) {
-        return false;
-      }
-      if (dateVal && event.start_date) {
-        const evDate = event.start_date.split('T')[0];
-        if (evDate !== dateVal) return false;
-      }
-      if (skill && !(event.requirements || '').toLowerCase().includes(skill)) {
-        return false;
-      }
-      return true;
+    } catch (error) {
+      if (resetPage) showState('error');
+    }
+  }
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+      currentPage++;
+      applyFilters(false);
     });
-
-    renderChips({ query, city, category, dateVal, skill });
-    renderGrid(filtered);
   }
 
   function renderChips(filters) {
@@ -195,9 +211,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           <h2 class="event-title" style="font-size: var(--text-lg); margin-bottom: var(--space-1);">
             <a href="/events/${event.id}" style="color: var(--text-main); text-decoration: none;">${event.title}</a>
           </h2>
-          <div style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
-            <span>${orgName}</span>
-            ${isVerified ? '<span style="color: var(--primary-main); font-weight: 700; font-size: var(--text-xs); background: var(--primary-light); padding: 1px 6px; border-radius: var(--radius-sm);">Doğrulanmış STK</span>' : ''}
+          <div style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              ${orgName}
+            </span>
+            ${isVerified ? '<span style="color: var(--primary-main); font-weight: 700; font-size: var(--text-xs); background: rgba(15,82,56,0.08); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(15,82,56,0.15);">✓ Doğrulanmış</span>' : ''}
           </div>
           <div style="font-size: var(--text-xs); color: var(--text-muted); display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-4); background: var(--bg-subtle); padding: var(--space-3); border-radius: var(--radius-md);">
             <div><strong>Tarih:</strong> ${dateStr} (${timeStr})</div>
@@ -223,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function toggleFavorite(eventId, btnEl) {
     if (!window.apiService.getToken()) {
-      showToast('Favorilere eklemek için önce giriş yapmalısınız.', 'error');
+      window.ui.showToast('Favorilere eklemek için önce giriş yapmalısınız.', 'error');
       setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
       return;
     }
@@ -234,16 +253,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         favoritesSet.delete(eventId);
         btnEl.className = 'btn btn-outline';
         btnEl.textContent = 'Kaydet';
-        showToast('Etkinlik favorilerden çıkarıldı.');
+        window.ui.showToast('Etkinlik favorilerden çıkarıldı.');
       } else {
         await window.favoritesService.add(eventId);
         favoritesSet.add(eventId);
         btnEl.className = 'btn btn-secondary';
         btnEl.textContent = 'Kaydedildi';
-        showToast('Etkinlik favorilere kaydedildi.');
+        window.ui.showToast('Etkinlik favorilere kaydedildi.');
       }
     } catch (error) {
-      showToast(error.message || 'Favori işlemi başarısız oldu.', 'error');
+      window.ui.showToast(error.message || 'Favori işlemi başarısız oldu.', 'error');
     }
   }
 
@@ -269,7 +288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (cityFilter) cityFilter.addEventListener('change', applyFilters);
   if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
   if (dateFilter) dateFilter.addEventListener('change', applyFilters);
-  if (skillFilter) skillFilter.addEventListener('input', applyFilters);
+  if (skillFilter) skillFilter.addEventListener('change', applyFilters);
 
   loadInitialData();
 });

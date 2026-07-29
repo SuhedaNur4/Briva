@@ -27,17 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pathParts = window.location.pathname.split('/').filter(Boolean);
   const eventId = pathParts[pathParts.length - 1];
 
-  function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const item = document.createElement('div');
-    item.className = `toast-item toast-${type}`;
-    item.textContent = message;
-    container.appendChild(item);
-    setTimeout(() => {
-      item.remove();
-    }, 4000);
-  }
 
   function showState(state) {
     if (skeletonEl) skeletonEl.style.display = state === 'skeleton' ? 'grid' : 'none';
@@ -188,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (applyBtn) {
     applyBtn.addEventListener('click', async () => {
       if (!window.apiService.getToken()) {
-        showToast('Başvuru yapmak için önce giriş yapmalısınız.', 'error');
+        window.ui.showToast('Başvuru yapmak için önce giriş yapmalısınız.', 'error');
         setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
         return;
       }
@@ -200,16 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       try {
         await window.eventsService.apply(eventId, coverLetter);
-        showToast('Başvurun alındı.');
+        window.ui.showToast('Başvurun alındı.');
         if (applyBox) applyBox.style.display = 'none';
         if (applySuccessBox) applySuccessBox.style.display = 'block';
       } catch (error) {
         if (error.status === 409) {
-          showToast('Bu etkinliğe zaten başvurdunuz.', 'error');
+          window.ui.showToast('Bu etkinliğe zaten başvurdunuz.', 'error');
           if (applyBox) applyBox.style.display = 'none';
           if (applySuccessBox) applySuccessBox.style.display = 'block';
         } else {
-          showToast(error.message || 'Başvuru sırasında bir hata oluştu.', 'error');
+          window.ui.showToast(error.message || 'Başvuru sırasında bir hata oluştu.', 'error');
           applyBtn.disabled = false;
           applyBtn.textContent = originalText;
         }

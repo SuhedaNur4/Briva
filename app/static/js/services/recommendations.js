@@ -13,6 +13,10 @@ class RecommendationsService {
   recommend(userContext = {}) {
     return window.apiService.post('/recommendations', userContext);
   }
+
+  evaluateApplicant(payload) {
+    return window.apiService.post('/recommendations/evaluate-applicant', payload);
+  }
 }
 
 window.recommendationsService = new RecommendationsService();
