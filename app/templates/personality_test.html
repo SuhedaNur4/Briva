@@ -588,10 +588,17 @@
 
     <!-- Results -->
     <div class="quiz-results" id="quiz-results">
-      <div class="quiz-results-icon">🌿</div>
-      <h2 id="results-title">İşte Sana Özel Öneriler!</h2>
-      <p id="results-desc">Smart-Match motorumuz, cevaplarına göre sana en uygun etkinlikleri belirledi.</p>
-      <div class="quiz-profile-interests" id="results-interests"></div>
+      <h2 id="results-title">Sana Özel Öneriler</h2>
+      <p id="results-desc" style="font-size: 1.1rem; color: var(--text-main); margin-bottom: var(--space-6); font-weight: 500;">Seni biraz daha tanıdık.</p>
+      
+      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); text-align: left; margin-bottom: var(--space-8);">
+        <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--text-main);">Öne Çıkan İlgi Alanların</h3>
+        <div id="results-insights" style="display: flex; flex-direction: column; gap: var(--space-4);">
+          <!-- JavaScript ile doldurulacak -->
+        </div>
+      </div>
+      
+      <h3 style="font-size: var(--text-xl); margin-bottom: var(--space-4); color: var(--primary-main);">Sana uygun gönüllülük etkinlikleri:</h3>
       <div class="quiz-rec-grid" id="results-recs"></div>
       <div class="quiz-actions">
         <a href="/events" class="btn btn-outline" style="border-radius: 99px;">Tüm Etkinlikleri Gör</a>

@@ -95,6 +95,92 @@ def _strip_code_fences(text: str) -> str:
             cleaned = cleaned[4:]
     return cleaned.strip()
 
+APPLICANT_EVALUATION_PROMPT = """Sen bir STK (Sivil Toplum Kuruluşu) için aday değerlendirme asistanısın.
+Aşağıda verilen Gönüllü Profilini ve Etkinlik Kriterlerini dikkatle analiz et. Adayın etkinliğe ne kadar uygun olduğunu anlamsal (semantic) olarak değerlendir.
+
+Gönüllü Profili:
+- Biyografi/Hakkında: {bio}
+- İlgi Alanları: {interests}
+- Beceriler: {skills}
+- Şehir: {user_city}
+
+Etkinlik Kriterleri:
+- Başlık: {event_title}
+- Açıklama: {event_desc}
+- Gereksinimler: {event_reqs}
+- Kategori: {event_category}
+- Şehir: {event_city}
+
+YALNIZCA aşağıdaki JSON formatında cevap ver. Herhangi bir markdown veya açıklama metni ekleme.
+Gaps kısmına, etkinlik kriterlerinde istenen ancak gönüllü profilinde doğrulanamayan gereksinimleri yaz.
+Strengths kısmına, adayın etkinliğe uygun güçlü yönlerini yaz.
+
+{{
+  "match_score": <0 ile 100 arası tamsayı>,
+  "summary": "<2-3 cümlelik profesyonel aday özeti>",
+  "strengths": ["<güçlü yön 1>", "<güçlü yön 2>"],
+  "gaps": ["<eksik yön 1>", "<eksik yön 2>"],
+  "recommendation": "<strong_match, possible_match veya weak_match>"
+}}
+"""
+
+def evaluate_applicant_with_gemini(applicant_data: dict, event_data: dict) -> dict | None:
+    """Gemini API kullanarak aday ve etkinlik arasındaki uygunluğu semantik olarak değerlendirir."""
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key or genai is None:
+        return None
+    
+    prompt = APPLICANT_EVALUATION_PROMPT.format(
+        bio=applicant_data.get('bio') or 'Belirtilmedi',
+        interests=', '.join(applicant_data.get('interests') or ['Belirtilmedi']),
+        skills=', '.join(applicant_data.get('skills') or ['Belirtilmedi']),
+        user_city=applicant_data.get('city') or 'Belirtilmedi',
+        event_title=event_data.get('title') or 'Belirtilmedi',
+        event_desc=event_data.get('description') or 'Belirtilmedi',
+        event_reqs=event_data.get('requirements') or 'Belirtilmedi',
+        event_category=event_data.get('category') or 'Belirtilmedi',
+        event_city=event_data.get('city') or 'Belirtilmedi'
+    )
+    
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(
+            GEMINI_MODEL,
+            generation_config={'temperature': 0.3, 'response_mime_type': 'application/json'},
+        )
+        response = model.generate_content(prompt)
+        parsed = json.loads(_strip_code_fences(response.text))
+        
+        # Validasyon
+        if not isinstance(parsed, dict) or 'match_score' not in parsed:
+            return None
+            
+        return {
+            'match_score': max(0, min(100, int(parsed.get('match_score', 0)))),
+            'summary': str(parsed.get('summary', '')).strip(),
+            'strengths': _as_str_list(parsed.get('strengths')),
+            'gaps': _as_str_list(parsed.get('gaps')),
+            'recommendation': str(parsed.get('recommendation', 'possible_match')).strip(),
+            'source': 'gemini'
+        }
+    except Exception:
+        return None
+
+def get_embedding(text: str) -> list[float] | None:
+    """Metin için Gemini Embedding API'sini kullanarak vektör döndürür."""
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key or genai is None or not text.strip():
+        return None
+    try:
+        genai.configure(api_key=api_key)
+        result = genai.embed_content(
+            model="models/text-embedding-004",
+            content=text,
+            task_type="retrieval_document"
+        )
+        return result['embedding']
+    except Exception:
+        return None
 
 def _validate_analysis(data: dict) -> dict | None:
     """Modelden dönen JSON'un beklenen şemaya uyduğunu doğrular."""
