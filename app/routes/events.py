@@ -178,6 +178,12 @@ def update_event(event_id: int):
         except ValueError as e:
             return (jsonify({'error': str(e)}), 400)
     db.session.commit()
+    
+    # Invalidate embedding cache if updated
+    from app.recommend import _EVENT_EMBEDDING_CACHE
+    if event_id in _EVENT_EMBEDDING_CACHE:
+        del _EVENT_EMBEDDING_CACHE[event_id]
+
     return (jsonify({'message': 'Etkinlik güncellendi.', 'event': event.to_dict()}), 200)
 
 @events_bp.route('/<int:event_id>/apply', methods=['POST'])

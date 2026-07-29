@@ -14,6 +14,21 @@ SCORE_FEEDBACK_DISLIKE: int = -20  # Kullanıcı beğenmediyse ceza (issue #19)
 RECOMMENDATION_THRESHOLD: int = 70
 MAX_RECOMMENDATIONS: int = 20
 
+_EVENT_EMBEDDING_CACHE = {}
+
+import math
+from app.utils.ai_analyzer import get_embedding
+
+def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
+    if not vec1 or not vec2 or len(vec1) != len(vec2):
+        return 0.0
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    norm1 = math.sqrt(sum(a * a for a in vec1))
+    norm2 = math.sqrt(sum(b * b for b in vec2))
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+    return dot_product / (norm1 * norm2)
+
 @dataclass
 class UserContext:
     city: str = ''
@@ -24,6 +39,19 @@ class UserContext:
     disliked_categories: list[str] = field(default_factory=list)
     liked_event_ids: set = field(default_factory=set)
     disliked_event_ids: set = field(default_factory=set)
+    past_applications: list[str] = field(default_factory=list)
+    past_participations: list[str] = field(default_factory=list)
+    
+    def get_context_text(self) -> str:
+        """Kullanıcının semantik profili için metin üretir."""
+        parts = []
+        if self.city: parts.append(f"Şehir: {self.city}")
+        if self.interests: parts.append(f"İlgi Alanları: {', '.join(self.interests)}")
+        if self.skills: parts.append(f"Beceriler: {', '.join(self.skills)}")
+        if self.past_participations: parts.append(f"Geçmiş Katılımlar: {', '.join(self.past_participations)}")
+        if self.past_applications: parts.append(f"Geçmiş Başvurular: {', '.join(self.past_applications)}")
+        if self.liked_categories: parts.append(f"Beğenilen Kategoriler: {', '.join(self.liked_categories)}")
+        return " | ".join(parts)
 
     @classmethod
     def from_volunteer_profile(cls, profile: 'VolunteerProfile') -> 'UserContext':
@@ -145,22 +173,52 @@ class RecommendationEngine:
         total = sum(breakdown.values())
         return EventScore(event_id=event.id, event_title=event.title, total_score=total, breakdown=breakdown, matching_details=matching_details, event_data=event.to_dict())
 
+    def _get_event_embedding(self, event: 'Event') -> list[float] | None:
+        if event.id in _EVENT_EMBEDDING_CACHE:
+            return _EVENT_EMBEDDING_CACHE[event.id]
+        
+        event_text = f"Başlık: {event.title} | Kategori: {event.category} | Şehir: {event.city} | Gereksinimler: {event.requirements} | Açıklama: {event.description}"
+        emb = get_embedding(event_text)
+        if emb:
+            _EVENT_EMBEDDING_CACHE[event.id] = emb
+        return emb
+
     def recommend(self, user: UserContext, events: list['Event']) -> list[EventScore]:
         now = datetime.now(timezone.utc)
         results: list[EventScore] = []
+        
+        # Hard Filters
+        valid_events = []
         for event in events:
-            if event.status != 'published':
+            if event.status != 'published' or event.is_full:
                 continue
-            if event.is_full:
-                continue
-            event_start = event.start_date
-            if event_start.tzinfo is None:
-                event_start = event_start.replace(tzinfo=timezone.utc)
+            event_start = event.start_date.replace(tzinfo=timezone.utc) if event.start_date.tzinfo is None else event.start_date
             if event_start <= now:
                 continue
+            valid_events.append(event)
+            
+        # Semantic Retrieval
+        user_emb = get_embedding(user.get_context_text())
+        
+        for event in valid_events:
             scored = self.score_event(user, event)
+            
+            # Semantic Similarity Integration
+            semantic_bonus = 0
+            if user_emb:
+                event_emb = self._get_event_embedding(event)
+                if event_emb:
+                    similarity = cosine_similarity(user_emb, event_emb)
+                    # 0.5 ile 1.0 arasındaki benzerliği puana dönüştür (maks +40 puan bonus)
+                    if similarity > 0.5:
+                        semantic_bonus = int((similarity - 0.5) * 2 * 40)
+                        scored.breakdown['semantic_similarity'] = semantic_bonus
+                        scored.total_score += semantic_bonus
+            
+            # Rule-based threshold check
             if scored.total_score >= self.threshold:
                 results.append(scored)
+                
         results.sort(key=lambda r: r.total_score, reverse=True)
         return results[:self.max_results]
 
