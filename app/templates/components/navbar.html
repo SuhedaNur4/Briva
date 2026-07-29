@@ -25,7 +25,7 @@
               {% if global_orgs %}
                 {% for org in global_orgs %}
                 <a href="/events?org={{ org.id }}" class="nav-mega-org" data-org-id="{{ org.id }}">
-                  <img src="{{ org.logo_url }}" alt="{{ org.name }}" style="width:24px; height:24px; object-fit:contain; border-radius:4px; flex-shrink:0;" onerror="this.src='https://ui-avatars.com/api/?name={{ org.name | urlencode }}&background=random'">
+                  <img src="{{ org.logo_url }}" alt="{{ org.name }}" style="width:24px; height:24px; object-fit:contain; border-radius:4px; flex-shrink:0;" onerror="this.src='https://ui-avatars.com/api/?name={{ org.name | urlencode }}&background=random'; this.onerror=null;">
                   <span style="font-size:0.75rem; line-height:1.2; display:block; padding-right:4px;">{{ org.name }}</span>
                 </a>
                 {% endfor %}

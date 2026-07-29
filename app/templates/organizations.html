@@ -166,19 +166,28 @@
   background:white; padding:80px 40px 100px;
 }
 .orgs-list-inner { max-width:1200px; margin:0 auto; }
+/* FILTER TABS (Navbar style) */
 .orgs-filter-bar {
-  display:flex; gap:12px; flex-wrap:wrap;
+  display:flex; gap:24px; flex-wrap:wrap;
   margin-bottom:40px; align-items:center;
+  border-bottom: 2px solid #f0f4f2;
+  padding-bottom: 8px;
 }
 .orgs-filter-btn {
-  padding:8px 18px; border-radius:99px;
-  border:1.5px solid #d4e4da; background:white;
-  font-size:0.85rem; font-weight:600; color:var(--text-muted);
+  padding:8px 12px; border:none; background:transparent;
+  font-size:0.95rem; font-weight:700; color:var(--text-muted);
   cursor:pointer; transition:all 0.2s;
+  position: relative;
 }
-.orgs-filter-btn:hover, .orgs-filter-btn.active {
-  background:var(--green-deep); color:white; border-color:var(--green-deep);
+.orgs-filter-btn::after {
+  content: ''; position: absolute; bottom: -10px; left: 0; right: 0;
+  height: 3px; background: var(--green-deep);
+  transform: scaleX(0); transition: transform 0.2s ease;
 }
+.orgs-filter-btn:hover { color:var(--text-main); }
+.orgs-filter-btn.active { color:var(--green-deep); }
+.orgs-filter-btn.active::after { transform: scaleX(1); }
+
 .orgs-search {
   margin-left:auto;
   border:1.5px solid #d4e4da; border-radius:99px;
@@ -268,11 +277,11 @@
     <h1>İyiliği Birlikte<br><em>Örgütleyen</em> Kuruluşlar</h1>
     <p>Sivil toplum kuruluşları, toplumun vicdanını kurumsal bir çatı altında toplar. Briva, bu kuruluşları ihtiyaç duydukları gönüllülerle buluşturan köprüdür.</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="#org-list" class="btn btn-primary" style="border-radius:99px; background:white; color:var(--green-deep);">15 STK'yı Keşfet</a>
+      <a href="#org-list" class="btn btn-primary" style="border-radius:99px; background:white; color:var(--green-deep);">Kuruluşları Keşfet</a>
       <a href="/quiz" class="btn btn-outline" style="border-radius:99px; border-color:rgba(255,255,255,0.3); color:rgba(255,255,255,0.85);">Profil Testini Çöz</a>
     </div>
     <div class="orgs-hero-stats">
-      <div class="orgs-stat"><h3>15</h3><p>Doğrulanmış STK</p></div>
+      <div class="orgs-stat"><h3>{{ global_orgs|length if global_orgs else '15+' }}</h3><p>Doğrulanmış Kuruluş</p></div>
       <div class="orgs-stat"><h3>23+</h3><p>Aktif Etkinlik</p></div>
       <div class="orgs-stat"><h3>7</h3><p>Şehir</p></div>
       <div class="orgs-stat"><h3>%100</h3><p>Şeffaf & Doğrulanmış</p></div>
@@ -314,7 +323,7 @@
         <h2>Doğrulama Süreci: <em>Güven Her Şeyden Önce</em></h2>
         <p>Briva'da listelenen her STK, platform yönetimimizin gerçekleştirdiği bir doğrulama sürecinden geçer. Bu süreçte kuruluşun yasal statüsü, faaliyetlerinin gerçekliği ve gönüllülere yönelik sorumluluklarını yerine getirip getirmediği değerlendirilir.</p>
         <p>Doğrulama rozetine sahip STK'larla çalışmak, gönüllülerin katkılarının gerçek bir toplumsal etkiye dönüşeceğinden emin olmalarını sağlar.</p>
-        <a href="#org-list" class="detail-btn">15 Doğrulanmış STK'yı Gör →</a>
+        <a href="#org-list" class="detail-btn">Doğrulanmış Kuruluşları Gör →</a>
       </div>
       <div class="orgs-zebra-img">
         <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=80" alt="Şeffaflık">
@@ -339,7 +348,7 @@
 <section class="orgs-list-section" id="org-list">
   <div class="orgs-list-inner">
     <div style="margin-bottom:40px;">
-      <h2 class="section-title">Tüm Sivil Toplum <em>Kuruluşları</em></h2>
+      <h2 class="section-title">Tüm Sivil Toplum Kuruluşları</h2>
     </div>
     <!-- Filter bar -->
     <div class="orgs-filter-bar">
@@ -347,7 +356,7 @@
       <button class="orgs-filter-btn" data-filter="eğitim">Eğitim</button>
       <button class="orgs-filter-btn" data-filter="çevre">Çevre</button>
       <button class="orgs-filter-btn" data-filter="sağlık">Sağlık</button>
-      <button class="orgs-filter-btn" data-filter="insani">İnsani Yardım</button>
+      <button class="orgs-filter-btn" data-filter="insani yardım">İnsani Yardım</button>
       <button class="orgs-filter-btn" data-filter="hayvan">Hayvan Hakları</button>
       <button class="orgs-filter-btn" data-filter="sosyal">Sosyal Destek</button>
       <input type="text" class="orgs-search" id="orgs-search" placeholder="STK ara...">
@@ -356,12 +365,12 @@
     <div class="orgs-grid" id="orgs-grid">
       {% if global_orgs %}
         {% for org in global_orgs %}
-        <div class="org-card" data-name="{{ org.name | lower }}">
+        <div class="org-card" data-name="{{ org.name | lower }}" data-desc="{{ org.description | lower }}">
           <div class="org-card-header">
             <div class="org-icon" style="background:white; padding:6px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-              <img src="https://www.google.com/s2/favicons?domain={{ org.website }}&sz=128" alt="{{ org.name }}"
+              <img src="{{ org.logo_url }}" alt="{{ org.name }}"
                    style="width:40px; height:40px; object-fit:contain; border-radius:6px;"
-                   onerror="this.src='{{ org.logo_url }}'; this.onerror=null;">
+                   onerror="this.src='https://ui-avatars.com/api/?name={{ org.name | urlencode }}&background=random'; this.onerror=null;">
             </div>
             <div class="org-meta">
               <div class="org-name">{{ org.name }}</div>
@@ -373,8 +382,8 @@
             </div>
           </div>
           {% if org.website %}
-          <div style="font-size:0.75rem; color:var(--text-muted);">
-            <a href="https://{{ org.website }}" target="_blank" rel="noopener" style="color:var(--primary-main); text-decoration:none;">🔗 {{ org.website }}</a>
+          <div style="font-size:0.75rem; color:var(--text-muted); display:none;">
+            <a href="{{ org.website }}" target="_blank" rel="noopener" style="color:var(--primary-main); text-decoration:none;">🔗 {{ org.website }}</a>
           </div>
           {% endif %}
           <div class="org-desc">{{ org.description or 'Topluma değer katan sivil toplum kuruluşu.' }}</div>
@@ -394,13 +403,44 @@
 </section>
 
 <script>
-// Search filter
-document.getElementById('orgs-search').addEventListener('input', function() {
-  const term = this.value.toLowerCase();
-  document.querySelectorAll('.org-card').forEach(card => {
-    card.style.display = card.dataset.name.includes(term) ? '' : 'none';
+// Search and Filter functionality
+const filterBtns = document.querySelectorAll('.orgs-filter-btn');
+const searchInput = document.getElementById('orgs-search');
+const cards = document.querySelectorAll('.org-card');
+
+function filterCards() {
+  const activeBtn = document.querySelector('.orgs-filter-btn.active');
+  const activeFilter = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
+  const searchTerm = searchInput.value.toLowerCase();
+
+  cards.forEach(card => {
+    const name = card.getAttribute('data-name') || '';
+    const desc = card.getAttribute('data-desc') || '';
+    const textContent = name + ' ' + desc;
+    
+    let matchesFilter = true;
+    if (activeFilter !== 'all') {
+      matchesFilter = textContent.includes(activeFilter);
+    }
+    
+    let matchesSearch = true;
+    if (searchTerm) {
+      matchesSearch = textContent.includes(searchTerm);
+    }
+    
+    card.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
+  });
+}
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards();
   });
 });
+
+searchInput.addEventListener('input', filterCards);
 
 // Zebra scroll animation
 const observer = new IntersectionObserver((entries) => {

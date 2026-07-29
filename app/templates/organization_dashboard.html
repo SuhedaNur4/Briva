@@ -290,9 +290,21 @@
         </div>
 
         <div style="background: var(--primary-light); border: 1px solid var(--primary-main); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6);">
-          <h4 style="font-size: var(--text-base); color: var(--primary-main); margin-bottom: var(--space-2);">🤖 Yapay Zeka Ön Değerlendirmesi</h4>
-          <p id="am-ai-summary" style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2);">-</p>
-          <ul id="am-ai-reasons" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+            <h4 style="font-size: var(--text-base); color: var(--primary-main); margin: 0;">🤖 AI Aday Analizi</h4>
+            <span id="am-ai-score" style="font-weight: bold; font-size: var(--text-lg); padding: 4px 12px; border-radius: 99px; background: white; border: 1px solid var(--primary-main);"></span>
+          </div>
+          <p id="am-ai-summary" style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-4); line-height: 1.5;">-</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+            <div>
+              <strong style="color: var(--primary-main); font-size: var(--text-sm); display: block; margin-bottom: 4px;">✓ Güçlü Yönler</strong>
+              <ul id="am-ai-strengths" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
+            </div>
+            <div>
+              <strong style="color: var(--accent-orange); font-size: var(--text-sm); display: block; margin-bottom: 4px;">⚠️ Eksikler</strong>
+              <ul id="am-ai-gaps" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
+            </div>
+          </div>
         </div>
         
         <div style="display: flex; justify-content: flex-end; gap: var(--space-3); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
