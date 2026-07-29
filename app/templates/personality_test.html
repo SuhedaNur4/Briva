@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+{% block title %}Bivi Testi – Briva | Birlikte Tanışalım{% endblock %}
+
+{% block content %}
+<style>
+  /* ===== QUIZ PAGE ===== */
+  .quiz-shell {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f5238 0%, #166547 40%, #1a7a55 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+  .quiz-card {
+    background: white;
+    border-radius: 28px;
+    max-width: 680px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+  }
+  .quiz-header {
+    background: var(--primary-main);
+    padding: 28px 36px 24px;
+    position: relative;
+  }
+  .quiz-header h1 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 4px;
+  }
+  .quiz-header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.85rem;
+  }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin-top: 16px;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: #a8e6cf;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  .quiz-progress-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .quiz-body {
+    padding: 40px 36px;
+  }
+
+  /* Question */
+  .quiz-question-wrap {
+    display: none;
+    animation: fadeSlideIn 0.4s ease-out forwards;
+  }
+  .quiz-question-wrap.active {
+    display: block;
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .quiz-q-number {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary-main);
+    margin-bottom: 10px;
+  }
+  .quiz-q-text {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.35;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+  }
+
+  /* Options */
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 2px solid #e8f0eb;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f9fbfa;
+    user-select: none;
+  }
+  .quiz-option:hover {
+    border-color: var(--primary-main);
+    background: rgba(15,82,56,0.04);
+  }
+  .quiz-option.selected {
+    border-color: var(--primary-main);
+    background: rgba(15,82,56,0.07);
+  }
+  .quiz-option-key {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e8f0eb;
+    color: var(--primary-main);
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .quiz-option.selected .quiz-option-key {
+    background: var(--primary-main);
+    color: white;
+  }
+  .quiz-option-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-main);
+    line-height: 1.4;
+  }
+
+  /* Text input questions */
+  .quiz-text-input {
+    width: 100%;
+    border: 2px solid #e8f0eb;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 1rem;
+    color: var(--text-main);
+    background: #f9fbfa;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .quiz-text-input:focus {
+    border-color: var(--primary-main);
+    background: white;
+  }
+
+  /* Multi-select hint */
+  .quiz-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* Navigation */
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e8f0eb;
+  }
+  .quiz-btn-back {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+  .quiz-btn-back:hover { color: var(--text-main); }
+  .quiz-btn-next {
+    background: var(--primary-main);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    padding: 12px 32px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .quiz-btn-next:hover {
+    background: #166547;
+    transform: translateY(-1px);
+  }
+  .quiz-btn-next:disabled {
+    background: #c8d8cf;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Results */
+  .quiz-results {
+    display: none;
+    padding: 40px 36px;
+    text-align: center;
+  }
+  .quiz-results.visible { display: block; }
+  .quiz-results-icon {
+    width: 72px;
+    height: 72px;
+    background: rgba(15,82,56,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+  }
+  .quiz-results h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .quiz-results p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 460px;
+    margin: 0 auto 32px;
+  }
+  .quiz-rec-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+  .quiz-rec-card {
+    border: 1.5px solid #e8f0eb;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .quiz-rec-card:hover {
+    border-color: var(--primary-main);
+    box-shadow: 0 4px 16px rgba(15,82,56,0.1);
+  }
+  .quiz-rec-card h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 2px;
+  }
+  .quiz-rec-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .quiz-rec-link {
+    background: var(--primary-main);
+    color: white;
+    border-radius: 99px;
+    padding: 7px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .quiz-rec-link:hover { background: #166547; }
+  .quiz-profile-interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .quiz-interest-tag {
+    background: rgba(15,82,56,0.08);
+    color: var(--primary-main);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid rgba(15,82,56,0.15);
+  }
+  .quiz-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .quiz-loading {
+    display: none;
+    padding: 60px 36px;
+    text-align: center;
+  }
+  .quiz-loading.visible { display: block; }
+  .quiz-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e8f0eb;
+    border-top-color: var(--primary-main);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<div class="quiz-shell">
+  <div class="quiz-card">
+    <!-- Header -->
+    <div class="quiz-header">
+      <h1>Bivi Testi</h1>
+      <p>15 kısa soruda seni tanıyalım — sonunda sana özel etkinlik önerileri hazır olsun.</p>
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="quiz-progress" style="width: 0%"></div>
+      </div>
+      <div class="quiz-progress-label" id="quiz-progress-label">Soru 1 / 15</div>
+    </div>
+
+    <!-- Questions -->
+    <div class="quiz-body" id="quiz-body">
+
+      <!-- Q1 -->
+      <div class="quiz-question-wrap active" data-q="1">
+        <div class="quiz-q-number">Soru 1</div>
+        <div class="quiz-q-text">Hafta sonu boş vaktin olsa ne yapmayı tercih edersin?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q1" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Parkta çöp toplamak, doğa alanlarını temizlemek</div></div>
+          <div class="quiz-option" data-q="q1" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Çocuklara veya gençlere bir şeyler öğretmek</div></div>
+          <div class="quiz-option" data-q="q1" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Yaşlılara veya dezavantajlı bireylere yardım etmek</div></div>
+          <div class="quiz-option" data-q="q1" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Barınakta hayvanlarla vakit geçirmek</div></div>
+        </div>
+        <div class="quiz-nav">
+          <span></span>
+          <button class="quiz-btn-next" id="next-1" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-question-wrap" data-q="2">
+        <div class="quiz-q-number">Soru 2</div>
+        <div class="quiz-q-text">Hangi tür sosyal problem seni en çok harekete geçirir?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q2" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">İklim değişikliği ve çevre kirliliği</div></div>
+          <div class="quiz-option" data-q="q2" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Eğitime erişememe ve fırsat eşitsizliği</div></div>
+          <div class="quiz-option" data-q="q2" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Yoksulluk, yalnızlık, sosyal dışlanma</div></div>
+          <div class="quiz-option" data-q="q2" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Sokak hayvanlarının ve habitatların korunması</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(2)">← Geri</button>
+          <button class="quiz-btn-next" id="next-2" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-question-wrap" data-q="3">
+        <div class="quiz-q-number">Soru 3</div>
+        <div class="quiz-q-text">Elinde tam 3 saatin olsa, hangi etkinliğe katılırdın?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q3" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Fidan dikme ya da sahil temizleme kampanyası</div></div>
+          <div class="quiz-option" data-q="q3" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Ücretsiz ders verme veya kitap bağışı seferberliği</div></div>
+          <div class="quiz-option" data-q="q3" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Huzurevi ziyareti veya gıda bankası yardımı</div></div>
+          <div class="quiz-option" data-q="q3" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Barınak temizliği veya sokak hayvanı mama dağıtımı</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(3)">← Geri</button>
+          <button class="quiz-btn-next" id="next-3" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-question-wrap" data-q="4">
+        <div class="quiz-q-number">Soru 4</div>
+        <div class="quiz-q-text">Gönüllülük yaparken en çok hangi duyguyu yaşarsın?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q4" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Fiziksel olarak emek vermenin tatmini</div></div>
+          <div class="quiz-option" data-q="q4" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Birinin yüzünde oluşturduğun "şimdi anladım" ifadesi</div></div>
+          <div class="quiz-option" data-q="q4" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Biriyle gerçek bir insani bağ kurduğun an</div></div>
+          <div class="quiz-option" data-q="q4" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Bir hayvanın sana güvenerek yaklaşması</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(4)">← Geri</button>
+          <button class="quiz-btn-next" id="next-4" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-question-wrap" data-q="5">
+        <div class="quiz-q-number">Soru 5</div>
+        <div class="quiz-q-text">Hangi tür haber seni en çok etkiler?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q5" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Orman yangını veya okyanus kirliliği haberi</div></div>
+          <div class="quiz-option" data-q="q5" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Okula gidemeyen çocuklar hakkında röportaj</div></div>
+          <div class="quiz-option" data-q="q5" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Yaşlıların yalnız geçirdiği Bayramlar</div></div>
+          <div class="quiz-option" data-q="q5" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Sokak hayvanlarının kurtarılma haberi</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(5)">← Geri</button>
+          <button class="quiz-btn-next" id="next-5" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="quiz-question-wrap" data-q="6">
+        <div class="quiz-q-number">Soru 6</div>
+        <div class="quiz-q-text">Gönüllü olarak en çok hangi yeteneğini kullanmak istersin?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q6" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Fiziksel güç ve elleri kirletme korkusu yok</div></div>
+          <div class="quiz-option" data-q="q6" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Bir konuyu açık ve ilgi çekici anlatma becerisi</div></div>
+          <div class="quiz-option" data-q="q6" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Empati kurma ve aktif dinleme yeteneği</div></div>
+          <div class="quiz-option" data-q="q6" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Sabır ve hayvanlarla iletişim kurabilme</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(6)">← Geri</button>
+          <button class="quiz-btn-next" id="next-6" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="quiz-question-wrap" data-q="7">
+        <div class="quiz-q-number">Soru 7</div>
+        <div class="quiz-q-text">Genellikle hangi zaman diliminde müsait olursun?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q7" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Hafta içi gündüzleri (Pazartesi–Cuma)</div></div>
+          <div class="quiz-option" data-q="q7" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Hafta sonları (Cumartesi–Pazar)</div></div>
+          <div class="quiz-option" data-q="q7" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Hem hafta içi hem hafta sonu esnek</div></div>
+          <div class="quiz-option" data-q="q7" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Yalnızca resmi tatiller ve uzun hafta sonları</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(7)">← Geri</button>
+          <button class="quiz-btn-next" id="next-7" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="quiz-question-wrap" data-q="8">
+        <div class="quiz-q-number">Soru 8</div>
+        <div class="quiz-q-text">Hangi ortamda daha verimli ve mutlu hissedersin?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q8" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Açık hava, doğa, park veya sahil</div></div>
+          <div class="quiz-option" data-q="q8" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Okul, kütüphane veya kurs ortamı</div></div>
+          <div class="quiz-option" data-q="q8" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Toplum merkezi, huzurevi veya saha çalışması</div></div>
+          <div class="quiz-option" data-q="q8" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Veteriner kliniği, barınak veya doğa alanı</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(8)">← Geri</button>
+          <button class="quiz-btn-next" id="next-8" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="quiz-question-wrap" data-q="9">
+        <div class="quiz-q-number">Soru 9</div>
+        <div class="quiz-q-text">Uzun vadede ne tür bir fark yaratmak isterdin?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q9" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Şehrimizin daha yeşil ve temiz olmasına katkı</div></div>
+          <div class="quiz-option" data-q="q9" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Eğitime erişemeyen biri için kapı aralamak</div></div>
+          <div class="quiz-option" data-q="q9" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Yalnız hisseden birinin hayatına dokunmak</div></div>
+          <div class="quiz-option" data-q="q9" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Hayvanların daha iyi koşullarda yaşamasını sağlamak</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(9)">← Geri</button>
+          <button class="quiz-btn-next" id="next-9" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="quiz-question-wrap" data-q="10">
+        <div class="quiz-q-number">Soru 10</div>
+        <div class="quiz-q-text">Gönüllü çalışmaya nereden başlamak daha cazip görünür?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q10" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Büyük, organize bir çevre kampanyasından</div></div>
+          <div class="quiz-option" data-q="q10" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Küçük bir toplulukta birebir ders veya mentörlükten</div></div>
+          <div class="quiz-option" data-q="q10" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Mahalle düzeyinde sosyal destek projesinden</div></div>
+          <div class="quiz-option" data-q="q10" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Barınakta ya da sokak hayvanları için anlık yardımdan</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(10)">← Geri</button>
+          <button class="quiz-btn-next" id="next-10" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q11: Şehir (text) -->
+      <div class="quiz-question-wrap" data-q="11">
+        <div class="quiz-q-number">Soru 11</div>
+        <div class="quiz-q-text">Hangi şehirde yaşıyorsun?</div>
+        <input class="quiz-text-input" id="q11-city" type="text" placeholder="Örn: İstanbul, Ankara, İzmir...">
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(11)">← Geri</button>
+          <button class="quiz-btn-next" id="next-11">İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q12 -->
+      <div class="quiz-question-wrap" data-q="12">
+        <div class="quiz-q-number">Soru 12</div>
+        <div class="quiz-q-text">Yaş aralığın nedir?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q12" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">15–20 (Lise ve üniversite öğrencisi)</div></div>
+          <div class="quiz-option" data-q="q12" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">21–30 (Genç yetişkin)</div></div>
+          <div class="quiz-option" data-q="q12" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">31–45 (Çalışan, kariyer sahibi)</div></div>
+          <div class="quiz-option" data-q="q12" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">45+ (Deneyimli, olgun)</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(12)">← Geri</button>
+          <button class="quiz-btn-next" id="next-12" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q13 -->
+      <div class="quiz-question-wrap" data-q="13">
+        <div class="quiz-q-number">Soru 13</div>
+        <div class="quiz-q-text">Daha önce herhangi bir gönüllülük deneyimin var mı?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q13" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Evet, aktif olarak gönüllülük yapıyorum</div></div>
+          <div class="quiz-option" data-q="q13" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Evet, birkaç kez deneyimledim</div></div>
+          <div class="quiz-option" data-q="q13" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Hayır ama çok istiyorum</div></div>
+          <div class="quiz-option" data-q="q13" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">Hayır, tamamen yeniyim ve heyecanlıyım</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(13)">← Geri</button>
+          <button class="quiz-btn-next" id="next-13" disabled>İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q14: Beceriler (multi-select) -->
+      <div class="quiz-question-wrap" data-q="14">
+        <div class="quiz-q-number">Soru 14</div>
+        <div class="quiz-q-text">Sahip olduğun becerileri seç:</div>
+        <div class="quiz-hint">Birden fazla seçebilirsin.</div>
+        <div class="quiz-options" id="q14-options">
+          <div class="quiz-option" data-q="q14" data-v="a" data-multi="true"><div class="quiz-option-key">A</div><div class="quiz-option-text">Kodlama / Teknoloji</div></div>
+          <div class="quiz-option" data-q="q14" data-v="b" data-multi="true"><div class="quiz-option-key">B</div><div class="quiz-option-text">İletişim / Sunum</div></div>
+          <div class="quiz-option" data-q="q14" data-v="c" data-multi="true"><div class="quiz-option-key">C</div><div class="quiz-option-text">Müzik / Sanat</div></div>
+          <div class="quiz-option" data-q="q14" data-v="d" data-multi="true"><div class="quiz-option-key">D</div><div class="quiz-option-text">Öğretmenlik / Eğitim</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(14)">← Geri</button>
+          <button class="quiz-btn-next" id="next-14">İleri <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Q15 -->
+      <div class="quiz-question-wrap" data-q="15">
+        <div class="quiz-q-number">Soru 15</div>
+        <div class="quiz-q-text">Briva'yı nasıl duydun?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-q="q15" data-v="a"><div class="quiz-option-key">A</div><div class="quiz-option-text">Sosyal medya</div></div>
+          <div class="quiz-option" data-q="q15" data-v="b"><div class="quiz-option-key">B</div><div class="quiz-option-text">Bir arkadaşımdan</div></div>
+          <div class="quiz-option" data-q="q15" data-v="c"><div class="quiz-option-key">C</div><div class="quiz-option-text">Üniversite/okul duyurusu</div></div>
+          <div class="quiz-option" data-q="q15" data-v="d"><div class="quiz-option-key">D</div><div class="quiz-option-text">İnternet araması</div></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="goBack(15)">← Geri</button>
+          <button class="quiz-btn-next" id="next-15" disabled>Sonuçları Gör ✦</button>
+        </div>
+      </div>
+
+    </div><!-- end quiz-body -->
+
+    <!-- Loading -->
+    <div class="quiz-loading" id="quiz-loading">
+      <div class="quiz-spinner"></div>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Smart-Match senin için etkinlikleri analiz ediyor...</p>
+    </div>
+
+    <!-- Results -->
+    <div class="quiz-results" id="quiz-results">
+      <div class="quiz-results-icon">🌿</div>
+      <h2 id="results-title">İşte Sana Özel Öneriler!</h2>
+      <p id="results-desc">Smart-Match motorumuz, cevaplarına göre sana en uygun etkinlikleri belirledi.</p>
+      <div class="quiz-profile-interests" id="results-interests"></div>
+      <div class="quiz-rec-grid" id="results-recs"></div>
+      <div class="quiz-actions">
+        <a href="/events" class="btn btn-outline" style="border-radius: 99px;">Tüm Etkinlikleri Gör</a>
+        <a href="/dashboard" class="btn btn-primary" style="border-radius: 99px;">Profil Oluştur & Kaydol</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/js/personality_test.js"></script>
+{% endblock %}
