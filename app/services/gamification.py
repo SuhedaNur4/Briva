@@ -144,16 +144,8 @@ def _application_count(user_id: int) -> int:
 
 def is_profile_complete(profile: VolunteerProfile | None) -> bool:
     """Minimum profil (#38 madde 3): ad, soyad, şehir, bio, en az 1 beceri ve 1 ilgi alanı."""
-    if profile is None:
-        return False
-    return all([
-        (profile.first_name or '').strip(),
-        (profile.last_name or '').strip(),
-        (profile.city or '').strip(),
-        (profile.bio or '').strip(),
-        len(profile.skills_list) >= 1,
-        len(profile.interests_list) >= 1,
-    ])
+    from app.services.profile import calculate_profile_completion
+    return calculate_profile_completion(profile) == 100
 
 
 def check_badges(user_id: int) -> list[UserBadge]:
