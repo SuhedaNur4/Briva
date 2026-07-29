@@ -25,8 +25,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('profile-org-desc').textContent = org.description || 'Kuruluş hakkında henüz bir açıklama eklenmemiş.';
 
   const webEl = document.getElementById('profile-org-web');
+  const membershipBtn = document.getElementById('profile-org-membership-btn');
   if (webEl) {
-    webEl.innerHTML = org.website ? `<a href="${org.website}" target="_blank" rel="noopener noreferrer">${org.website}</a>` : '-';
+    if (org.website) {
+      let webUrl = org.website.startsWith('http') ? org.website : 'https://' + org.website;
+      webEl.innerHTML = `<a href="${webUrl}" target="_blank" rel="noopener noreferrer">${org.website}</a>`;
+      if (membershipBtn) {
+        membershipBtn.href = webUrl;
+        membershipBtn.style.display = 'inline-block';
+      }
+    } else {
+      webEl.innerHTML = '-';
+      if (membershipBtn) membershipBtn.style.display = 'none';
+    }
+  }
+
+  const logoEl = document.getElementById('profile-org-logo');
+  if (logoEl) {
+    const defaultLogo = `https://ui-avatars.com/api/?name=${encodeURIComponent(org.name || 'STK')}&background=random`;
+    logoEl.src = org.logo_url || (org.website ? `https://www.google.com/s2/favicons?domain=${org.website}&sz=128` : defaultLogo);
+    logoEl.onerror = function() { this.src = defaultLogo; this.onerror = null; };
   }
   document.getElementById('profile-org-phone').textContent = org.phone || '-';
   document.getElementById('profile-org-address').textContent = org.address || '-';

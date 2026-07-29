@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+{% block title %}STK'lar | Briva — Sivil Toplum Kuruluşları{% endblock %}
+
+{% block content %}
+<style>
+/* ===== STK LANDING PAGE ===== */
+:root {
+  --sage: #e8f0eb;
+  --sage-mid: #c8ddd0;
+  --green-deep: #0f5238;
+  --green-mid: #166547;
+}
+
+/* HERO */
+.orgs-hero {
+  background: linear-gradient(135deg, var(--green-deep) 0%, #1a7a55 100%);
+  padding: 100px 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.orgs-hero::before {
+  content:'';
+  position:absolute; top:-120px; right:-120px;
+  width:600px; height:600px;
+  background:rgba(255,255,255,0.03);
+  border-radius:50%;
+}
+.orgs-hero::after {
+  content:'';
+  position:absolute; bottom:-80px; left:-80px;
+  width:400px; height:400px;
+  background:rgba(255,255,255,0.02);
+  border-radius:50%;
+}
+.orgs-hero-inner {
+  max-width:900px; margin:0 auto;
+  position:relative; z-index:1;
+  text-align:center;
+}
+.orgs-hero-badge {
+  display:inline-block;
+  font-size:0.7rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:#a8e6cf; background:rgba(168,230,207,0.12);
+  padding:6px 16px; border-radius:99px;
+  border:1px solid rgba(168,230,207,0.2);
+  margin-bottom:24px;
+}
+.orgs-hero h1 {
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  font-weight:900; color:white;
+  letter-spacing:-0.03em; line-height:1.1;
+  margin-bottom:20px;
+}
+.orgs-hero h1 em { color:#a8e6cf; font-style:normal; }
+.orgs-hero p {
+  font-size:1.1rem; color:rgba(255,255,255,0.7);
+  max-width:600px; margin:0 auto 36px;
+  line-height:1.65;
+}
+.orgs-hero-stats {
+  display:flex; gap:40px; justify-content:center; flex-wrap:wrap;
+  margin-top:48px; padding-top:40px;
+  border-top:1px solid rgba(255,255,255,0.12);
+}
+.orgs-stat h3 {
+  font-size:2rem; font-weight:900; color:#a8e6cf; margin:0;
+}
+.orgs-stat p { font-size:0.8rem; color:rgba(255,255,255,0.5); margin:4px 0 0; text-transform:uppercase; letter-spacing:1px; }
+
+/* ZEBRA INTRO */
+.orgs-mission-section { background:white; }
+.orgs-mission-inner { max-width:1200px; margin:0 auto; padding:0 40px; }
+
+.orgs-zebra-row {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:80px; align-items:center;
+  padding:96px 0;
+  border-bottom:1px solid #f0f4f2;
+  opacity:0; transform:translateY(40px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.orgs-zebra-row.visible { opacity:1; transform:translateY(0); }
+.orgs-zebra-row.reverse { direction:rtl; }
+.orgs-zebra-row.reverse > * { direction:ltr; }
+.orgs-zebra-img {
+  border-radius:24px; overflow:hidden;
+  aspect-ratio:4/3; position:relative;
+}
+.orgs-zebra-img img {
+  width:100%; height:100%; object-fit:cover;
+  transition:transform 0.6s ease;
+}
+.orgs-zebra-row:hover .orgs-zebra-img img { transform:scale(1.03); }
+.orgs-zebra-text {}
+.orgs-zebra-text .section-label { display:block; margin-bottom:12px; }
+.orgs-zebra-text h2 {
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  font-weight:900; color:var(--text-main);
+  letter-spacing:-0.02em; line-height:1.2;
+  margin-bottom:20px;
+}
+.orgs-zebra-text h2 em { color:var(--green-deep); font-style:normal; }
+.orgs-zebra-text p {
+  font-size:1rem; color:var(--text-muted);
+  line-height:1.75; margin-bottom:16px;
+}
+.orgs-zebra-text .detail-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:0.9rem; font-weight:700;
+  color:var(--green-deep); text-decoration:none;
+  margin-top:12px; transition:gap 0.2s;
+}
+.orgs-zebra-text .detail-btn:hover { gap:14px; }
+
+/* QUIZ CTA — FLUID (mouse-aware) */
+.orgs-quiz-cta {
+  background:var(--sage);
+  padding:100px 40px;
+  position:relative; overflow:hidden;
+}
+.orgs-quiz-cta-card {
+  max-width:860px; margin:0 auto;
+  background:var(--green-deep);
+  border-radius:32px;
+  padding:72px;
+  display:flex; align-items:center; gap:48px;
+  position:relative; overflow:hidden;
+  cursor:default;
+  transition:transform 0.15s ease, box-shadow 0.15s ease;
+  will-change:transform;
+}
+.orgs-quiz-cta-card::before {
+  content:'';
+  position:absolute; top:-100px; right:-100px;
+  width:400px; height:400px;
+  background:rgba(255,255,255,0.04);
+  border-radius:50%;
+  pointer-events:none;
+}
+.orgs-quiz-cta-text { flex:1; }
+.orgs-quiz-cta-text h2 {
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  font-weight:900; color:white;
+  letter-spacing:-0.03em; margin-bottom:14px;
+}
+.orgs-quiz-cta-text p {
+  color:rgba(255,255,255,0.6);
+  font-size:0.95rem; line-height:1.65;
+  max-width:440px;
+}
+.orgs-quiz-cta-btn {
+  background:white; color:var(--green-deep);
+  padding:18px 40px; border-radius:99px;
+  font-size:1rem; font-weight:800;
+  text-decoration:none; white-space:nowrap; flex-shrink:0;
+  box-shadow:0 8px 32px rgba(0,0,0,0.18);
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.orgs-quiz-cta-btn:hover {
+  transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,0.22);
+}
+
+/* STK GRID */
+.orgs-list-section {
+  background:white; padding:80px 40px 100px;
+}
+.orgs-list-inner { max-width:1200px; margin:0 auto; }
+.orgs-filter-bar {
+  display:flex; gap:12px; flex-wrap:wrap;
+  margin-bottom:40px; align-items:center;
+}
+.orgs-filter-btn {
+  padding:8px 18px; border-radius:99px;
+  border:1.5px solid #d4e4da; background:white;
+  font-size:0.85rem; font-weight:600; color:var(--text-muted);
+  cursor:pointer; transition:all 0.2s;
+}
+.orgs-filter-btn:hover, .orgs-filter-btn.active {
+  background:var(--green-deep); color:white; border-color:var(--green-deep);
+}
+.orgs-search {
+  margin-left:auto;
+  border:1.5px solid #d4e4da; border-radius:99px;
+  padding:8px 18px; font-size:0.9rem;
+  outline:none; transition:border-color 0.2s; width:200px;
+}
+.orgs-search:focus { border-color:var(--green-deep); }
+.orgs-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));
+  gap:24px;
+}
+.org-card {
+  background:#e8f0eb; border:1px solid #d4e4da;
+  border-radius:20px; padding:28px 24px;
+  display:flex; flex-direction:column; gap:14px;
+  transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position:relative; overflow:hidden;
+}
+.org-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:4px; background:var(--green-deep);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 0.3s ease;
+}
+.org-card:hover {
+  transform:translateY(-6px);
+  box-shadow:0 16px 48px rgba(15,82,56,0.12);
+  border-color:var(--green-deep);
+}
+.org-card:hover::before { transform:scaleX(1); }
+.org-card-header { display:flex; align-items:flex-start; gap:14px; }
+.org-icon {
+  width:52px; height:52px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; flex-shrink:0;
+  background:var(--sage);
+}
+.org-meta { flex:1; }
+.org-name { font-size:1rem; font-weight:800; color:var(--text-main); margin:0 0 4px; }
+.org-city { font-size:0.78rem; color:var(--text-muted); display:flex; align-items:center; gap:4px; }
+.org-verified { font-size:0.68rem; font-weight:700; color:var(--green-deep); background:rgba(15,82,56,0.08); padding:2px 8px; border-radius:99px; }
+.org-desc {
+  font-size:0.85rem; color:var(--text-muted); line-height:1.6;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.org-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.org-tag {
+  font-size:0.7rem; font-weight:700; letter-spacing:0.5px;
+  padding:4px 10px; border-radius:99px;
+  background:var(--sage); color:var(--green-deep);
+}
+.org-card-footer {
+  margin-top:auto; padding-top:14px;
+  border-top:1px solid #f0f4f2;
+  display:flex; gap:10px;
+}
+.org-events-btn {
+  flex:1; text-align:center; padding:10px 0;
+  border-radius:99px; font-size:0.85rem; font-weight:700;
+  background:var(--green-deep); color:white;
+  text-decoration:none; transition:background 0.2s;
+}
+.org-events-btn:hover { background:#166547; }
+.org-profile-btn {
+  padding:10px 16px; border-radius:99px;
+  font-size:0.85rem; font-weight:600;
+  border:1.5px solid #d4e4da; color:var(--text-muted);
+  text-decoration:none; transition:all 0.2s;
+}
+.org-profile-btn:hover { border-color:var(--green-deep); color:var(--green-deep); }
+
+@media(max-width:700px){
+  .orgs-zebra-row { grid-template-columns:1fr; gap:32px; }
+  .orgs-zebra-row.reverse { direction:ltr; }
+  .orgs-quiz-cta-card { flex-direction:column; text-align:center; padding:48px 32px; }
+  .orgs-quiz-cta-btn { width:100%; text-align:center; }
+  .orgs-hero { padding:72px 24px 60px; }
+  .orgs-list-section, .orgs-quiz-cta { padding:64px 24px; }
+  .orgs-mission-inner { padding:0 24px; }
+}
+</style>
+
+<!-- HERO -->
+<div class="orgs-hero">
+  <div class="orgs-hero-inner">
+    <span class="orgs-hero-badge">Briva İyilik Ağı</span>
+    <h1>İyiliği Birlikte<br><em>Örgütleyen</em> Kuruluşlar</h1>
+    <p>Sivil toplum kuruluşları, toplumun vicdanını kurumsal bir çatı altında toplar. Briva, bu kuruluşları ihtiyaç duydukları gönüllülerle buluşturan köprüdür.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="#org-list" class="btn btn-primary" style="border-radius:99px; background:white; color:var(--green-deep);">15 STK'yı Keşfet</a>
+      <a href="/quiz" class="btn btn-outline" style="border-radius:99px; border-color:rgba(255,255,255,0.3); color:rgba(255,255,255,0.85);">Profil Testini Çöz</a>
+    </div>
+    <div class="orgs-hero-stats">
+      <div class="orgs-stat"><h3>15</h3><p>Doğrulanmış STK</p></div>
+      <div class="orgs-stat"><h3>23+</h3><p>Aktif Etkinlik</p></div>
+      <div class="orgs-stat"><h3>7</h3><p>Şehir</p></div>
+      <div class="orgs-stat"><h3>%100</h3><p>Şeffaf & Doğrulanmış</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ZEBRA: STK'ların Misyonu Nedir? -->
+<section class="orgs-mission-section">
+  <div class="orgs-mission-inner">
+
+    <div class="orgs-zebra-row" id="zebra-1">
+      <div class="orgs-zebra-text">
+        <span class="section-label">Neden STK?</span>
+        <h2>Devletin Görmediği Yerde <em>Biz Varız</em></h2>
+        <p>Sivil toplum kuruluşları, resmi mekanizmaların ulaşamadığı ihtiyaç noktalarını tespit eder ve orada fiilen varlık gösterir. Bir çocuğun okula gitme hakkından, bir yaşlının yalnızlığına, bir sokak hayvanının barınma ihtiyacından, ormanlık alanlardaki çevre tahribatına kadar pek çok alanda STK'lar kalıcı çözümler üretir.</p>
+        <p>Briva'daki her kuruluş, bu alanda gerçek bir ihtiyaca karşılık vermek için kurulmuş; şeffaflık denetimimizden geçmiş ve platformumuzda doğrulanmış kuruluşlardır.</p>
+      </div>
+      <div class="orgs-zebra-img">
+        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=700&q=80" alt="STK Gönüllüleri">
+      </div>
+    </div>
+
+    <div class="orgs-zebra-row reverse" id="zebra-2">
+      <div class="orgs-zebra-text">
+        <span class="section-label">Alanlar</span>
+        <h2>Çevre'den Eğitime, <em>Kültürden Sağlığa</em></h2>
+        <p>Platforma katılan STK'lar tek bir kategoride değil, toplumsal yaşamın birçok katmanında faaliyet göstermektedir. Çevre aktivizmi, eğitim gönüllülüğü, hayvan hakları savunuculuğu, afet müdahalesi, engelli bireylerin desteklenmesi ve kültürel miras koruma bunların başında geliyor.</p>
+        <p>Bu çeşitlilik, her gönüllünün ilgi alanı ve becerisiyle örtüşen bir etkinlik bulmasını mümkün kılıyor.</p>
+      </div>
+      <div class="orgs-zebra-img">
+        <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80" alt="STK Çalışmaları">
+      </div>
+    </div>
+
+    <div class="orgs-zebra-row" id="zebra-3">
+      <div class="orgs-zebra-text">
+        <span class="section-label">Şeffaflık</span>
+        <h2>Doğrulama Süreci: <em>Güven Her Şeyden Önce</em></h2>
+        <p>Briva'da listelenen her STK, platform yönetimimizin gerçekleştirdiği bir doğrulama sürecinden geçer. Bu süreçte kuruluşun yasal statüsü, faaliyetlerinin gerçekliği ve gönüllülere yönelik sorumluluklarını yerine getirip getirmediği değerlendirilir.</p>
+        <p>Doğrulama rozetine sahip STK'larla çalışmak, gönüllülerin katkılarının gerçek bir toplumsal etkiye dönüşeceğinden emin olmalarını sağlar.</p>
+        <a href="#org-list" class="detail-btn">15 Doğrulanmış STK'yı Gör →</a>
+      </div>
+      <div class="orgs-zebra-img">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=80" alt="Şeffaflık">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUIZ CTA (fluid, mouse-aware) -->
+<section class="orgs-quiz-cta">
+  <div class="orgs-quiz-cta-card" id="quiz-cta-card">
+    <div class="orgs-quiz-cta-text">
+      <h2>Birbirimizi Yakından Tanıyalım</h2>
+      <p>15 soruluk Bivi Testini çöz. Smart-Match motorumuz cevaplarından senin için en uygun STK'ları ve etkinlikleri belirleyerek önerilerini oluşturur.</p>
+    </div>
+    <a href="/quiz" class="orgs-quiz-cta-btn">Teste Git →</a>
+  </div>
+</section>
+
+<!-- STK LİSTESİ -->
+<section class="orgs-list-section" id="org-list">
+  <div class="orgs-list-inner">
+    <div style="margin-bottom:40px;">
+      <h2 class="section-title">Tüm Sivil Toplum <em>Kuruluşları</em></h2>
+    </div>
+    <!-- Filter bar -->
+    <div class="orgs-filter-bar">
+      <button class="orgs-filter-btn active" data-filter="all">Tümü</button>
+      <button class="orgs-filter-btn" data-filter="eğitim">Eğitim</button>
+      <button class="orgs-filter-btn" data-filter="çevre">Çevre</button>
+      <button class="orgs-filter-btn" data-filter="sağlık">Sağlık</button>
+      <button class="orgs-filter-btn" data-filter="insani">İnsani Yardım</button>
+      <button class="orgs-filter-btn" data-filter="hayvan">Hayvan Hakları</button>
+      <button class="orgs-filter-btn" data-filter="sosyal">Sosyal Destek</button>
+      <input type="text" class="orgs-search" id="orgs-search" placeholder="STK ara...">
+    </div>
+    <!-- Grid — server-side render -->
+    <div class="orgs-grid" id="orgs-grid">
+      {% if global_orgs %}
+        {% for org in global_orgs %}
+        <div class="org-card" data-name="{{ org.name | lower }}">
+          <div class="org-card-header">
+            <div class="org-icon" style="background:white; padding:6px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+              <img src="https://www.google.com/s2/favicons?domain={{ org.website }}&sz=128" alt="{{ org.name }}"
+                   style="width:40px; height:40px; object-fit:contain; border-radius:6px;"
+                   onerror="this.src='{{ org.logo_url }}'; this.onerror=null;">
+            </div>
+            <div class="org-meta">
+              <div class="org-name">{{ org.name }}</div>
+              <div class="org-city">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ org.city or 'Türkiye' }}
+                <span class="org-verified">✓ Aktif STK</span>
+              </div>
+            </div>
+          </div>
+          {% if org.website %}
+          <div style="font-size:0.75rem; color:var(--text-muted);">
+            <a href="https://{{ org.website }}" target="_blank" rel="noopener" style="color:var(--primary-main); text-decoration:none;">🔗 {{ org.website }}</a>
+          </div>
+          {% endif %}
+          <div class="org-desc">{{ org.description or 'Topluma değer katan sivil toplum kuruluşu.' }}</div>
+          <div class="org-card-footer">
+            <a href="/events?org={{ org.id }}" class="org-events-btn">Etkinliklerini Gör</a>
+            <a href="/organizations/{{ org.id }}" class="org-profile-btn">Profil</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column:1/-1; padding:48px; text-align:center; color:var(--text-muted);">
+          Kuruluşlar yüklenemedi.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<script>
+// Search filter
+document.getElementById('orgs-search').addEventListener('input', function() {
+  const term = this.value.toLowerCase();
+  document.querySelectorAll('.org-card').forEach(card => {
+    card.style.display = card.dataset.name.includes(term) ? '' : 'none';
+  });
+});
+
+// Zebra scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.orgs-zebra-row').forEach(el => observer.observe(el));
+
+// Fluid mouse tilt on quiz CTA card
+const card = document.getElementById('quiz-cta-card');
+if (card) {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    card.style.transform = `perspective(800px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
+  });
+}
+</script>
+{% endblock %}
+

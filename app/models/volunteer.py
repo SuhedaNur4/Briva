@@ -35,7 +35,23 @@ class VolunteerProfile(db.Model):
         return [s.strip() for s in self.skills.split(',') if s.strip()]
 
     def to_dict(self) -> dict:
-        return {'id': self.id, 'user_id': self.user_id, 'first_name': self.first_name, 'last_name': self.last_name, 'full_name': self.full_name, 'phone': self.phone, 'birth_date': self.birth_date.isoformat() if self.birth_date else None, 'city': self.city, 'bio': self.bio, 'interests': self.interests_list, 'skills': self.skills_list, 'xp_points': self.xp_points or 0, 'created_at': self.created_at.isoformat()}
+        from app.services.profile import calculate_profile_completion
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'full_name': self.full_name,
+            'phone': self.phone,
+            'birth_date': self.birth_date.isoformat() if self.birth_date else None,
+            'city': self.city,
+            'bio': self.bio,
+            'interests': self.interests_list,
+            'skills': self.skills_list,
+            'xp_points': self.xp_points or 0,
+            'profile_completion_percentage': calculate_profile_completion(self),
+            'created_at': self.created_at.isoformat()
+        }
 
     def __repr__(self) -> str:
         return f'<VolunteerProfile id={self.id} user_id={self.user_id} name={self.full_name}>'

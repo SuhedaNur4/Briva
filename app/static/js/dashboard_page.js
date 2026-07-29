@@ -29,17 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const historyGrid = document.getElementById('history-grid');
   const historyEmpty = document.getElementById('history-empty');
 
-  function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const item = document.createElement('div');
-    item.className = `toast-item toast-${type}`;
-    item.textContent = message;
-    container.appendChild(item);
-    setTimeout(() => {
-      item.remove();
-    }, 4000);
-  }
 
   if (!window.apiService.getToken()) {
     if (loginSection) loginSection.style.display = 'block';
@@ -55,17 +44,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const email = (loginEmail.value || '').trim();
       const pass = loginPass.value || '';
       if (!email || !pass) {
-        showToast('E-posta ve şifre zorunludur.', 'error');
+        window.ui.showToast('E-posta ve şifre zorunludur.', 'error');
         return;
       }
       doLoginBtn.disabled = true;
       doLoginBtn.textContent = 'Giriş Yapılıyor...';
       try {
         await window.authService.login(email, pass);
-        showToast('Giriş başarılı.');
+        window.ui.showToast('Giriş başarılı.');
         window.location.reload();
       } catch (error) {
-        showToast(error.message || 'Giriş başarısız.', 'error');
+        window.ui.showToast(error.message || 'Giriş başarısız.', 'error');
         doLoginBtn.disabled = false;
         doLoginBtn.textContent = 'Giriş Yap';
       }
@@ -80,9 +69,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function loadDashboard() {
     loadUser();
+    loadProfile();
     loadApplications();
-    loadRecommendations();
+    // loadRecommendations(); // Artık butona basılınca çağrılacak
     loadFavorites();
+    loadGamification();
+    loadXpHistory();
+    loadLeaderboard();
   }
 
   async function loadUser() {
@@ -104,6 +97,125 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
       return fallback;
     }
+  }
+
+  const profileSkeleton = document.getElementById('profile-skeleton');
+  const profileForm = document.getElementById('volunteer-profile-form');
+  const profileSaveBtn = document.getElementById('profile-save-btn');
+  const profileFormContainer = document.getElementById('profile-form-container');
+  const btnToggleProfileForm = document.getElementById('btn-toggle-profile-form');
+  const btnScrollToProfile = document.getElementById('btn-scroll-to-profile');
+
+  // Phase 17B Elements
+  const compLoading = document.getElementById('profile-completion-loading');
+  const compContent = document.getElementById('profile-completion-content');
+  const compError = document.getElementById('profile-completion-error');
+  const compText = document.getElementById('profile-completion-text');
+  const compPercent = document.getElementById('profile-completion-percentage-display');
+  const compBar = document.getElementById('profile-completion-bar');
+  const compSuccess = document.getElementById('profile-completion-success');
+  const smartMatchHelper = document.getElementById('smart-match-profile-helper');
+
+  if (btnToggleProfileForm) {
+    btnToggleProfileForm.addEventListener('click', () => {
+      profileFormContainer.style.display = 'block';
+      profileForm.style.display = 'block';
+      profileSkeleton.style.display = 'none';
+    });
+  }
+
+  if (btnScrollToProfile) {
+    btnScrollToProfile.addEventListener('click', (e) => {
+      if (profileFormContainer) profileFormContainer.style.display = 'block';
+      if (profileForm) profileForm.style.display = 'block';
+      if (profileSkeleton) profileSkeleton.style.display = 'none';
+    });
+  }
+
+  async function loadProfile() {
+    if (!profileSkeleton || !profileForm) return;
+    
+    if (compLoading) compLoading.style.display = 'block';
+    if (compContent) compContent.style.display = 'none';
+    if (compError) compError.style.display = 'none';
+
+    try {
+      const res = await window.volunteersService.getMe();
+      const vp = res.data.volunteer;
+      if (vp) {
+        document.getElementById('profile-first-name').value = vp.first_name || '';
+        document.getElementById('profile-last-name').value = vp.last_name || '';
+        document.getElementById('profile-phone').value = vp.phone || '';
+        document.getElementById('profile-birth-date').value = vp.birth_date || '';
+        document.getElementById('profile-city').value = vp.city || '';
+        document.getElementById('profile-bio').value = vp.bio || '';
+        document.getElementById('profile-skills').value = (vp.skills || []).join(', ');
+        document.getElementById('profile-interests').value = (vp.interests || []).join(', ');
+
+        // Phase 17B UX Updates
+        const pct = vp.profile_completion_percentage || 0;
+        
+        if (compLoading) compLoading.style.display = 'none';
+        if (compContent) compContent.style.display = 'block';
+        
+        if (compText) compText.textContent = `Profilin %${pct} tamamlandı`;
+        if (compPercent) compPercent.textContent = `${pct}%`;
+        if (compBar) {
+          compBar.style.width = `${pct}%`;
+          compBar.setAttribute('aria-valuenow', pct);
+        }
+
+        if (pct === 100) {
+          if (compSuccess) compSuccess.style.display = 'block';
+          if (btnToggleProfileForm) btnToggleProfileForm.style.display = 'none';
+          if (smartMatchHelper) smartMatchHelper.style.display = 'none';
+          if (profileFormContainer) profileFormContainer.style.display = 'none';
+        } else {
+          if (compSuccess) compSuccess.style.display = 'none';
+          if (btnToggleProfileForm) btnToggleProfileForm.style.display = 'inline-block';
+          if (smartMatchHelper) smartMatchHelper.style.display = 'block';
+        }
+      }
+    } catch (e) {
+      if (compLoading) compLoading.style.display = 'none';
+      if (compError) compError.style.display = 'block';
+    }
+  }
+
+  if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (profileSaveBtn.disabled) return;
+      profileSaveBtn.disabled = true;
+      profileSaveBtn.textContent = 'Kaydediliyor...';
+      
+      const payload = {
+        first_name: document.getElementById('profile-first-name').value,
+        last_name: document.getElementById('profile-last-name').value,
+        phone: document.getElementById('profile-phone').value,
+        birth_date: document.getElementById('profile-birth-date').value,
+        city: document.getElementById('profile-city').value,
+        bio: document.getElementById('profile-bio').value,
+        skills: document.getElementById('profile-skills').value,
+        interests: document.getElementById('profile-interests').value
+      };
+
+      try {
+        await window.volunteersService.updateMe(payload);
+        window.ui.showToast('Profil başarıyla güncellendi.');
+        loadUser();
+        // Live refresh Phase 17B
+        await loadProfile();
+        // Force gamification refresh since 100% gives XP/badges
+        loadGamification();
+        loadXpHistory();
+      } catch (err) {
+        window.ui.showToast(err.message || 'Profil güncellenirken bir hata oluştu.', 'error');
+      } finally {
+        profileSaveBtn.disabled = false;
+        profileSaveBtn.textContent = 'Kaydet';
+      }
+    });
   }
 
   async function loadApplications() {
@@ -134,8 +246,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         appsGrid.innerHTML = '';
         apps.forEach(app => {
           const ev = app.event || {};
-          const statusText = app.status === 'approved' ? 'Onaylandı' : (app.status === 'pending' ? 'Değerlendirmede' : 'Reddedildi');
-          const badgeClass = app.status === 'approved' ? 'status-approved' : (app.status === 'pending' ? 'status-pending' : 'status-rejected');
+          let statusText = 'Durum bilgisi güncelleniyor';
+          let badgeClass = 'status-pending';
+          switch (app.status) {
+            case 'pending': statusText = 'Değerlendiriliyor'; badgeClass = 'status-pending'; break;
+            case 'approved': case 'accepted': statusText = 'Onaylandı'; badgeClass = 'status-approved'; break;
+            case 'rejected': statusText = 'Reddedildi'; badgeClass = 'status-rejected'; break;
+            case 'completed': statusText = 'Tamamlandı'; badgeClass = 'status-completed'; break;
+            case 'cancelled': statusText = 'İptal Edildi'; badgeClass = 'status-cancelled'; break;
+          }
           const dateStr = window.formatDate(app.applied_at);
 
           const card = document.createElement('div');
@@ -167,10 +286,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               if (confirm('Başvurunuzu iptal etmek istediğinize emin misiniz?')) {
                 try {
                   await window.applicationsService.update(app.id, { status: 'cancelled' });
-                  showToast('Başvuru iptal edildi.');
+                  window.ui.showToast('Başvuru iptal edildi.');
                   loadApplications();
                 } catch (err) {
-                  showToast(err.message || 'İptal işlemi başarısız.', 'error');
+                  window.ui.showToast(err.message || 'İptal işlemi başarısız.', 'error');
                 }
               }
             });
@@ -239,6 +358,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  const btnSmartMatch = document.getElementById('btn-smart-match');
+  if (btnSmartMatch) {
+    btnSmartMatch.addEventListener('click', async () => {
+      btnSmartMatch.disabled = true;
+      btnSmartMatch.textContent = 'Aranıyor...';
+      await loadRecommendations();
+      btnSmartMatch.disabled = false;
+      btnSmartMatch.textContent = 'Bana Etkinlik Bul';
+    });
+  }
+
   async function loadRecommendations() {
     if (recsSkeleton) recsSkeleton.style.display = 'grid';
     try {
@@ -268,7 +398,11 @@ document.addEventListener('DOMContentLoaded', async () => {
               <h3 style="font-size: var(--text-base); margin-bottom: var(--space-2);">
                 <a href="/events/${ev.id}" style="color: var(--text-main); text-decoration: none;">${ev.title || `Etkinlik #${ev.id}`}</a>
               </h3>
-              <p style="font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-4);">İlgi alanlarınız ve beceri kriterlerinizle yüksek uyum gösteriyor.</p>
+              <div style="font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-4); display: flex; flex-direction: column; gap: 4px;">
+              ${(rec.matching_details && Object.keys(rec.matching_details).length > 0 
+                     ? Object.entries(rec.matching_details).filter(([k,v]) => (Array.isArray(v) ? v.length > 0 : v)).map(([k,v]) => `<span>✓ ${k === 'matching_skills' ? 'Becerilerinle örtüşüyor' : (k === 'matching_interests' ? 'İlgi alanlarınla örtüşüyor' : (k === 'city_matched' ? 'Konumuna uygun' : (k === 'day_matched' ? 'Müsaitlik gününle uyumlu' : 'Profilinle uyumlu')))}</span>`).join('') 
+                     : '<span>✓ Profilinle genel olarak uyumlu</span>')}
+              </div>
             </div>
             <div class="event-card-footer" style="border-top: 1px solid var(--border-subtle); padding-top: var(--space-3);">
               <a href="/events/${ev.id}" class="btn btn-primary btn-block" style="width: 100%; text-align: center;">Uygunluk Nedenlerini Gör</a>
@@ -314,10 +448,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           removeBtn.addEventListener('click', async () => {
             try {
               await window.favoritesService.remove(fav.event_id);
-              showToast('Etkinlik favorilerden çıkarıldı.');
+              window.ui.showToast('Etkinlik favorilerden çıkarıldı.');
               loadFavorites();
             } catch (err) {
-              showToast(err.message || 'Hata oluştu.', 'error');
+              window.ui.showToast(err.message || 'Hata oluştu.', 'error');
             }
           });
           favsGrid.appendChild(card);
@@ -345,4 +479,180 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
     container.appendChild(card);
   }
+
+  const gamRetryBtn = document.getElementById('gamification-retry-btn');
+  if (gamRetryBtn) gamRetryBtn.addEventListener('click', loadGamification);
+
+  async function loadGamification() {
+    const gamSkeleton = document.getElementById('gamification-skeleton');
+    const gamContent = document.getElementById('gamification-content');
+    const gamEmpty = document.getElementById('gamification-empty');
+    const gamEmptyText = document.getElementById('gamification-empty-text');
+
+    if (gamSkeleton) gamSkeleton.style.display = 'block';
+    if (gamContent) gamContent.style.display = 'none';
+    if (gamEmpty) gamEmpty.style.display = 'none';
+    
+    try {
+      const res = await window.gamificationService.getMe();
+      const gam = res.data;
+      if (gamSkeleton) gamSkeleton.style.display = 'none';
+      
+      if (!gam || gam.xp === undefined) {
+        if (gamEmpty) {
+          gamEmpty.style.display = 'block';
+          if (gamEmptyText) gamEmptyText.textContent = 'Henüz İyilik Puanı kazanmadınız.';
+        }
+        return;
+      }
+
+      if (gamContent) gamContent.style.display = 'block';
+      const levelEl = document.getElementById('gamification-level');
+      if (levelEl) levelEl.textContent = gam.level;
+      
+      const xpEl = document.getElementById('gamification-xp');
+      if (xpEl) xpEl.textContent = window.formatNumber(gam.xp) + ' İP';
+      
+      const nextXpEl = document.getElementById('gamification-next-xp');
+      const nextXpTextEl = document.getElementById('gamification-next-xp-text');
+      if (gam.next_level_xp === null) {
+          if (nextXpTextEl) nextXpTextEl.textContent = 'Maksimum seviyedesiniz!';
+      } else {
+          if (nextXpEl) nextXpEl.textContent = window.formatNumber(gam.next_level_xp);
+      }
+      
+      const pBar = document.getElementById('gamification-progress-bar');
+      if (pBar) pBar.style.width = (gam.progress * 100) + '%';
+
+      const badgesContainer = document.getElementById('gamification-badges');
+      if (badgesContainer && gam.badges) {
+        badgesContainer.innerHTML = '';
+        gam.badges.forEach(ub => {
+          const b = ub.badge;
+          if (!b) return;
+          const badgeEl = document.createElement('div');
+          badgeEl.style.display = 'flex';
+          badgeEl.style.alignItems = 'center';
+          badgeEl.style.gap = 'var(--space-2)';
+          badgeEl.style.background = 'var(--bg-surface-alt)';
+          badgeEl.style.border = '1px solid var(--border-subtle)';
+          badgeEl.style.borderRadius = 'var(--radius-full)';
+          badgeEl.style.padding = '4px 12px';
+          badgeEl.innerHTML = `
+            <span style="font-size: var(--text-base);">🏆</span>
+            <div>
+              <strong style="font-size: var(--text-xs); display: block; color: var(--text-main);">${b.name}</strong>
+            </div>
+          `;
+          badgeEl.title = b.description;
+          badgesContainer.appendChild(badgeEl);
+        });
+      }
+
+    } catch (e) {
+      if (gamSkeleton) gamSkeleton.style.display = 'none';
+      if (gamEmpty) {
+        gamEmpty.style.display = 'block';
+        if (gamEmptyText) gamEmptyText.textContent = 'Katkı bilgileriniz şu anda yüklenemiyor.';
+      }
+    }
+  }
+
+  async function loadXpHistory() {
+    const skeleton = document.getElementById('xp-history-skeleton');
+    const grid = document.getElementById('xp-history-grid');
+    const empty = document.getElementById('xp-history-empty');
+
+    if (skeleton) skeleton.style.display = 'block';
+    
+    try {
+      const res = await window.gamificationService.getHistory(1, 10);
+      const items = res.data.items || [];
+      if (skeleton) skeleton.style.display = 'none';
+      
+      if (!items.length) {
+        if (empty) empty.style.display = 'block';
+        return;
+      }
+      
+      if (grid) {
+        grid.style.display = 'flex';
+        grid.innerHTML = '';
+        items.forEach(item => {
+          const el = document.createElement('div');
+          el.style.background = 'var(--bg-subtle)';
+          el.style.border = '1px solid var(--border-subtle)';
+          el.style.borderRadius = 'var(--radius-md)';
+          el.style.padding = 'var(--space-3) var(--space-4)';
+          el.style.display = 'flex';
+          el.style.justifyContent = 'space-between';
+          el.style.alignItems = 'center';
+          el.innerHTML = `
+            <div>
+              <strong style="font-size: var(--text-sm); display: block;">${item.reason}</strong>
+              <span style="font-size: var(--text-xs); color: var(--text-muted);">${window.formatDate(item.created_at)}</span>
+            </div>
+            <strong style="color: var(--primary-main); font-size: var(--text-base);">+${item.amount} İP</strong>
+          `;
+          grid.appendChild(el);
+        });
+      }
+    } catch (e) {
+      if (skeleton) skeleton.style.display = 'none';
+      if (empty) {
+        empty.style.display = 'block';
+        empty.querySelector('p').textContent = 'Geçmiş bilgileri yüklenemedi.';
+      }
+    }
+  }
+
+  async function loadLeaderboard() {
+    const skeleton = document.getElementById('leaderboard-skeleton');
+    const grid = document.getElementById('leaderboard-grid');
+    const errorEl = document.getElementById('leaderboard-error');
+
+    if (skeleton) skeleton.style.display = 'block';
+    
+    try {
+      const res = await window.gamificationService.getLeaderboard();
+      const entries = res.data.entries || [];
+      const current = res.data.current_user;
+      if (skeleton) skeleton.style.display = 'none';
+      
+      if (!entries.length) {
+        if (errorEl) errorEl.style.display = 'block';
+        return;
+      }
+      
+      if (grid) {
+        grid.style.display = 'flex';
+        grid.innerHTML = '';
+        entries.forEach(entry => {
+          const isMe = current && current.rank === entry.rank;
+          const el = document.createElement('div');
+          el.style.padding = 'var(--space-3) var(--space-4)';
+          el.style.borderBottom = '1px solid var(--border-subtle)';
+          el.style.display = 'flex';
+          el.style.justifyContent = 'space-between';
+          el.style.alignItems = 'center';
+          if (isMe) {
+            el.style.background = 'var(--bg-surface-alt)';
+          }
+          el.innerHTML = `
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <span style="font-size: var(--text-lg); font-weight: bold; color: var(--text-muted); min-width: 24px;">#${entry.rank}</span>
+              <strong style="font-size: var(--text-sm); color: ${isMe ? 'var(--primary-main)' : 'var(--text-main)'};">${isMe ? 'Sen: ' : ''}${entry.display_name}</strong>
+            </div>
+            <strong style="font-size: var(--text-sm); color: var(--text-muted);">${window.formatNumber(entry.xp)} İP</strong>
+          `;
+          grid.appendChild(el);
+        });
+        if (grid.lastElementChild) grid.lastElementChild.style.borderBottom = 'none';
+      }
+    } catch (e) {
+      if (skeleton) skeleton.style.display = 'none';
+      if (errorEl) errorEl.style.display = 'block';
+    }
+  }
+
 });

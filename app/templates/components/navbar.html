@@ -1,16 +1,185 @@
 <header class="app-header">
   <nav class="navbar" aria-label="Ana Navigasyon">
     <div class="navbar-brand">
-      <a href="/" class="brand-link">Briva</a>
+      <a href="/" class="brand-link" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <img src="/static/images/briva_logo.png" alt="Briva Logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+        <span style="font-size: 1.2rem; font-weight: 800; color: var(--text-main);">Briva</span>
+      </a>
     </div>
     <ul class="navbar-nav">
+      <li><a href="/#about" class="nav-link">Hakkımızda</a></li>
       <li><a href="/events" class="nav-link">Etkinlikleri Keşfet</a></li>
-      <li><a href="/#how-it-works" class="nav-link">Nasıl Çalışır</a></li>
-      <li><a href="/#ngos" class="nav-link">STK'lar</a></li>
+      <!-- STK'lar MEGA MENU -->
+      <li class="nav-mega-wrapper" id="stk-nav-item">
+        <a href="/organizations" class="nav-link nav-mega-trigger" id="stk-nav-link">
+          STK'lar
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;transition:transform 0.2s" id="stk-chevron"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+        <div class="nav-mega-menu" id="stk-mega-menu">
+          <div class="nav-mega-inner">
+            <div class="nav-mega-header">
+              <span>{{ global_orgs|length if global_orgs else 20 }} Sivil Toplum Kuruluşu</span>
+              <a href="/organizations" class="nav-mega-all-btn">Tümünü Gör →</a>
+            </div>
+            <div class="nav-mega-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">
+              {% if global_orgs %}
+                {% for org in global_orgs %}
+                <a href="/events?org={{ org.id }}" class="nav-mega-org" data-org-id="{{ org.id }}">
+                  <img src="{{ org.logo_url }}" alt="{{ org.name }}" style="width:24px; height:24px; object-fit:contain; border-radius:4px; flex-shrink:0;" onerror="this.src='https://ui-avatars.com/api/?name={{ org.name | urlencode }}&background=random'">
+                  <span style="font-size:0.75rem; line-height:1.2; display:block; padding-right:4px;">{{ org.name }}</span>
+                </a>
+                {% endfor %}
+              {% else %}
+                <div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+                  Kuruluşlar yüklenemedi.
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </li>
+      <li><a href="/#roadmap" class="nav-link">Yol Haritası</a></li>
     </ul>
-    <div class="navbar-actions">
-      <a href="/dashboard" class="btn btn-outline" id="nav-login-btn">Giriş Yap</a>
-      <a href="/events" class="btn btn-primary" id="nav-register-btn">Ana CTA</a>
+    <div class="navbar-actions" style="display: flex; align-items: center; gap: var(--space-3);">
+      <div id="nav-notifications" style="display: none; position: relative; margin-right: var(--space-4);">
+        <button id="nav-notif-btn" aria-label="Bildirimler" style="background: none; border: none; cursor: pointer; position: relative; font-size: 1.25rem;">
+          🔔
+          <span id="nav-notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--accent-orange); color: white; border-radius: 50%; font-size: 0.6rem; padding: 2px 5px; font-weight: bold;">0</span>
+        </button>
+        <div id="nav-notif-dropdown" style="display: none; position: absolute; right: 0; top: 100%; width: 320px; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 1000; overflow: hidden; margin-top: var(--space-2);">
+           <div style="padding: var(--space-3); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+             <h3 style="margin: 0; font-size: var(--text-sm);">Bildirimler</h3>
+             <button id="nav-notif-read-all" style="background: none; border: none; color: var(--primary-main); font-size: var(--text-xs); cursor: pointer; display: none;">Tümünü Okundu İşaretle</button>
+           </div>
+           <div id="nav-notif-list" style="max-height: 300px; overflow-y: auto;">
+             <div id="nav-notif-skeleton" style="padding: var(--space-3); display: none;">Yükleniyor...</div>
+             <div id="nav-notif-empty" style="padding: var(--space-4); text-align: center; color: var(--text-muted); font-size: var(--text-xs); display: none;">Henüz bildirimin yok.</div>
+             <div id="nav-notif-error" style="padding: var(--space-4); text-align: center; color: var(--accent-orange); font-size: var(--text-xs); display: none;">Bildirimler şu anda yüklenemiyor.</div>
+             <div id="nav-notif-items"></div>
+           </div>
+        </div>
+      </div>
+      <div id="nav-auth-buttons" style="display: flex; gap: var(--space-2);">
+        <a href="/dashboard" class="btn btn-outline" id="nav-login-btn">Giriş Yap</a>
+        <a href="/dashboard" class="btn btn-primary" id="nav-register-btn">Kayıt Ol</a>
+      </div>
+      <div id="nav-user-profile" style="display: none; align-items: center; gap: var(--space-2);">
+        <span id="nav-user-greeting" style="font-weight: 500; color: var(--text-main); font-size: var(--text-sm);">Hoş geldin</span>
+        <a href="/dashboard" class="btn" style="background:#093424; color:white; padding: 8px 18px; font-size: 0.85rem; border-radius: 99px; box-shadow: 0 4px 12px rgba(9,52,36,0.25);">Panele Git</a>
+      </div>
     </div>
   </nav>
 </header>
+
+<style>
+/* ===== MEGA MENU ===== */
+.nav-mega-wrapper {
+  position: relative;
+}
+.nav-mega-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: transparent;
+}
+.nav-mega-trigger {
+  display: flex !important;
+  align-items: center;
+}
+.nav-mega-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  border: 1px solid #e8f0eb;
+  z-index: 999;
+  overflow: hidden;
+  animation: megaIn 0.2s ease-out;
+}
+@keyframes megaIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.nav-mega-wrapper:hover .nav-mega-menu,
+.nav-mega-menu:hover {
+  display: block;
+}
+.nav-mega-wrapper:hover #stk-chevron {
+  transform: rotate(180deg);
+}
+.nav-mega-inner { padding: 20px; }
+.nav-mega-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid #f0f4f2;
+}
+.nav-mega-header span {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted);
+}
+.nav-mega-all-btn {
+  font-size: 0.82rem; font-weight: 700; color: var(--primary-main);
+  text-decoration: none; transition: gap 0.2s;
+}
+.nav-mega-all-btn:hover { text-decoration: underline; }
+.nav-mega-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.nav-mega-org {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 12px;
+  text-decoration: none; color: var(--text-main);
+  font-size: 0.83rem; font-weight: 600;
+  transition: background 0.15s;
+}
+.nav-mega-org:hover {
+  background: #f3f7f4;
+  color: var(--primary-main);
+}
+.nav-mega-icon { font-size: 1rem; flex-shrink: 0; }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    const currentPath = window.location.pathname;
+    const currentHash = window.location.hash;
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href === currentPath || href === currentPath + currentHash) {
+        link.classList.add('active');
+      }
+      // Org sayfasında STK linki aktif
+      if (currentPath.startsWith('/organizations') && href === '/organizations') {
+        link.classList.add('active');
+      }
+      link.addEventListener('click', function() {
+        if (this.classList.contains('nav-mega-trigger')) return;
+        navLinks.forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Mega menu: org linklerine tıklanınca events?org= sayfasına yönlendir
+    document.querySelectorAll('.nav-mega-org').forEach(el => {
+      el.addEventListener('click', function(e) {
+        const orgId = this.dataset.orgId;
+        if (orgId) {
+          e.preventDefault();
+          window.location.href = `/events?org=${orgId}`;
+        }
+      });
+    });
+  });
+</script>

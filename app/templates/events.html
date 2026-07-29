@@ -3,19 +3,99 @@
 {% block title %}Gönüllülük Etkinlikleri | Briva{% endblock %}
 
 {% block content %}
+<style>
+  .events-page-hero {
+    background: linear-gradient(135deg, var(--primary-main) 0%, #166547 100%);
+    padding: 56px 40px 48px;
+    margin: -1px;
+    position: relative;
+    overflow: hidden;
+  }
+  .events-page-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: var(--bg-page);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .events-page-hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .events-page-hero p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.05rem;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+  .filter-pill-bar {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border: 1px solid #e8f0eb;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-top: 32px;
+  }
+  .fpb-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 140px;
+  }
+  .fpb-group label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .fpb-group input,
+  .fpb-group select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 0.9rem;
+    background: var(--bg-page);
+    color: var(--text-main);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .fpb-group input:focus,
+  .fpb-group select:focus {
+    border-color: var(--primary-main);
+  }
+  .fpb-actions {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+</style>
+
+<div class="events-page-hero">
+  <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;">
+    <h1>Gönüllülük Etkinlikleri</h1>
+    <p>Becerilerinize, ilgi alanlarınıza ve müsaitlik durumunuza en uygun toplumsal fayda projelerini bulun.</p>
+  </div>
+</div>
+
 <div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
-  <header style="margin-bottom: var(--space-8);">
-    <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2);">Gönüllülük Etkinlikleri</h1>
-
-    <p style="color: var(--text-muted); font-size: var(--text-base);">Becerilerinize, ilgi alanlarınıza ve müsaitlik durumunuza en uygun toplumsal fayda projelerini bulun.</p>
-  </header>
-
-  <section class="filter-bar" aria-label="Etkinlik Filtreleri">
-    <div class="filter-input-group">
-      <label for="search-input">Arama</label>
+  <section class="filter-pill-bar" aria-label="Etkinlik Filtreleri" style="max-width: 1200px; margin: 0 auto 80px;">
+    <div class="fpb-group" style="flex: 2; min-width: 200px;">
+      <label for="search-input">Ara</label>
       <input type="text" id="search-input" placeholder="Etkinlik veya STK adı...">
     </div>
-    <div class="filter-input-group">
+    <div class="fpb-group">
       <label for="city-filter">Şehir</label>
       <select id="city-filter">
         <option value="">Tüm Şehirler</option>
@@ -26,7 +106,7 @@
         <option value="antalya">Antalya</option>
       </select>
     </div>
-    <div class="filter-input-group">
+    <div class="fpb-group">
       <label for="category-filter">Kategori</label>
       <select id="category-filter">
         <option value="">Tüm Kategoriler</option>
@@ -37,17 +117,28 @@
         <option value="afet yardımı">Afet Yardımı</option>
       </select>
     </div>
-    <div class="filter-input-group">
-      <label for="date-filter">Tarih</label>
+    <div class="fpb-group">
+      <label for="date-filter">Tarihten İtibaren</label>
       <input type="date" id="date-filter">
     </div>
-    <div class="filter-input-group">
-      <label for="skill-filter">Gerekli Beceri</label>
-      <input type="text" id="skill-filter" placeholder="Örn: ilk yardım, kodlama...">
+    <div class="fpb-group">
+      <label for="skill-filter">Beceri</label>
+      <input type="text" id="skill-filter" placeholder="Örn: kodlama, müzik...">
     </div>
-    <div style="display: flex; align-items: flex-end; gap: var(--space-2);">
-      <button type="button" id="apply-filters-btn" class="btn btn-primary">Filtrele</button>
-      <button type="button" id="clear-filters-btn" class="btn btn-outline">Temizle</button>
+    <div class="fpb-group">
+      <label for="org-filter">STK / Kuruluş</label>
+      <select id="org-filter">
+        <option value="">Tüm STK'lar</option>
+        {% if global_orgs %}
+          {% for org in global_orgs %}
+            <option value="{{ org.id }}">{{ org.name }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+    <div class="fpb-actions">
+      <button type="button" id="apply-filters-btn" class="btn btn-primary" style="border-radius: 10px; padding: 9px 20px; font-size: 0.9rem;">Filtrele</button>
+      <button type="button" id="clear-filters-btn" class="btn btn-outline" style="border-radius: 10px; padding: 9px 16px; font-size: 0.9rem;">✕</button>
     </div>
   </section>
 
@@ -80,6 +171,10 @@
   </div>
 
   <div id="events-grid" class="events-grid" style="display: none;"></div>
+  
+  <div id="load-more-container" style="display: none; text-align: center; margin-top: var(--space-8);">
+    <button id="load-more-btn" class="btn btn-outline btn-lg">Daha Fazla Yükle</button>
+  </div>
 
   <div id="events-empty" class="empty-state" style="display: none; text-align: center; padding: var(--space-12); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
     <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Aradığınız kriterlere uygun etkinlik bulunamadı.</h3>

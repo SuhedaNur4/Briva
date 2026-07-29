@@ -1,5 +1,7 @@
-<article class="event-card" data-event-id="{{ event.id if event else '' }}">
-  <div class="event-card-header">
+<article class="event-card" data-event-id="{{ event.id if event else '' }}" style="display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+  <img src="https://picsum.photos/seed/{{ event.id if event else '0' }}/400/200" alt="Etkinlik Görseli" style="width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid var(--border-subtle);">
+  <div class="event-card-content" style="padding: var(--space-4); display: flex; flex-direction: column; flex: 1;">
+    <div class="event-card-header">
     <span class="event-category">{{ event.category if event else 'Kategori' }}</span>
     <span class="event-city">{{ event.city if event else 'Şehir' }}</span>
   </div>
@@ -12,5 +14,6 @@
   <div class="event-card-footer">
     <span class="event-date">{{ event.start_date if event else 'Tarih belirtilmemiş' }}</span>
     <a href="/events/{{ event.id if event else '#' }}" class="btn btn-secondary">Detaylar</a>
+  </div>
   </div>
 </article>

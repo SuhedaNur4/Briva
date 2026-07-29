@@ -29,6 +29,16 @@ def create_app(config_override=None) -> Flask:
         db.create_all()
         from app.services.gamification import seed_badges
         seed_badges()
+        
+    @flask_app.context_processor
+    def inject_organizations():
+        from app.models.organization import Organization
+        try:
+            orgs = Organization.query.filter_by(is_verified=True).limit(20).all()
+        except Exception:
+            orgs = []
+        return dict(global_orgs=orgs)
+
     _register_error_handlers(flask_app)
     return flask_app
 
@@ -44,6 +54,7 @@ def _register_blueprints(flask_app: Flask) -> None:
     from app.routes.feedback import feedback_bp
     from app.routes.notifications import notifications_bp
     from app.routes.gamification import gamification_bp
+    from app.routes.quiz import quiz_bp
     from app.routes.views import views_bp
     flask_app.register_blueprint(auth_bp, url_prefix='/api/auth')
     flask_app.register_blueprint(volunteers_bp, url_prefix='/api/volunteers')
@@ -56,6 +67,7 @@ def _register_blueprints(flask_app: Flask) -> None:
     flask_app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     flask_app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
     flask_app.register_blueprint(gamification_bp, url_prefix='/api/gamification')
+    flask_app.register_blueprint(quiz_bp, url_prefix='/api/quiz')
     flask_app.register_blueprint(views_bp)
 
     # Swagger UI Blueprint

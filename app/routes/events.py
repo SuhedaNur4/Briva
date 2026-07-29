@@ -99,7 +99,7 @@ def list_events():
     status = request.args.get('status', 'published')
     if status != 'all':
         query = query.filter(Event.status == status)
-    org_id = request.args.get('organization_id')
+    org_id = request.args.get('organization_id') or request.args.get('org_id')
     if org_id:
         try:
             query = query.filter(Event.organization_id == int(org_id))

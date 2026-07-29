@@ -5,6 +5,8 @@
   --bg-subtle: #F7F7F4;
   --surface-card: #FFFFFF;
   --surface-elevated: #FFFFFF;
+  --surface-sage: #e8f0eb;
+  --surface-sage-light: #f3f7f4;
   --primary-main: #0F5238;
   --primary-hover: #166547;
   --primary-light: #E8F2EE;
@@ -123,13 +125,23 @@ ul {
 
 .nav-link {
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
-  transition: color 0.15s ease-out;
+  transition: all 0.2s ease-out;
+  padding: 8px 16px;
+  border-radius: 99px;
+  text-decoration: none;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover {
   color: var(--primary-main);
+  background-color: rgba(15, 82, 56, 0.05);
+}
+
+.nav-link.active {
+  color: var(--text-main);
+  background-color: #4ade80;
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
 }
 
 .navbar-actions {
@@ -1140,6 +1152,11 @@ textarea:focus {
   background-color: var(--bg-subtle);
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
+}
+
+.status-badge.status-completed {
+  background-color: var(--info-blue-light);
+  color: var(--info-blue);
 }
 
 .event-detail-grid {

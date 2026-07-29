@@ -8,6 +8,7 @@ class Organization(db.Model):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     website = db.Column(db.String(255), nullable=True)
+    logo_url = db.Column(db.String(512), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
     address = db.Column(db.Text, nullable=True)
     city = db.Column(db.String(100), nullable=True)
@@ -18,7 +19,7 @@ class Organization(db.Model):
     events = db.relationship('Event', back_populates='organization', cascade='all, delete-orphan')
 
     def to_dict(self, include_events: bool=False) -> dict:
-        data = {'id': self.id, 'user_id': self.user_id, 'name': self.name, 'description': self.description, 'website': self.website, 'phone': self.phone, 'address': self.address, 'city': self.city, 'is_verified': self.is_verified, 'created_at': self.created_at.isoformat()}
+        data = {'id': self.id, 'user_id': self.user_id, 'name': self.name, 'description': self.description, 'website': self.website, 'logo_url': self.logo_url, 'phone': self.phone, 'address': self.address, 'city': self.city, 'is_verified': self.is_verified, 'created_at': self.created_at.isoformat()}
         if include_events:
             data['events'] = [e.to_dict() for e in self.events]
         return data

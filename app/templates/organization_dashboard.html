@@ -247,6 +247,59 @@
           </div>
         </form>
       </div>
+  </div>
+
+  <!-- Aday İnceleme Modalı (Explainable AI) -->
+  <div id="applicant-modal" role="dialog" aria-modal="true" aria-labelledby="applicant-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; padding: var(--space-4);">
+    <div style="background: var(--surface-card); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); position: relative; padding: var(--space-6);">
+      <button type="button" id="close-applicant-modal" aria-label="Modalı Kapat" class="btn btn-outline btn-sm" style="position: absolute; top: var(--space-4); right: var(--space-4); border: none;">✕ Kapat</button>
+      
+      <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-4);">Aday İncelemesi</h2>
+      
+      <!-- Skeleton Loading State -->
+      <div id="applicant-modal-skeleton" style="display: none; display: flex; flex-direction: column; gap: var(--space-4);">
+        <div class="skeleton-line" style="height: 24px; width: 60%;"></div>
+        <div class="skeleton-line" style="height: 60px; width: 100%;"></div>
+        <div class="skeleton-line" style="height: 40px; width: 80%;"></div>
+      </div>
+      
+      <!-- Error State -->
+      <div id="applicant-modal-error" style="display: none; background: var(--bg-surface-alt); border-left: 4px solid var(--accent-red); padding: var(--space-4); border-radius: var(--radius-sm); color: var(--text-main); font-size: var(--text-sm);"></div>
+
+      <!-- Real Content -->
+      <div id="applicant-modal-content" style="display: none;">
+        <div style="margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle);">
+          <h3 id="am-name" style="font-size: var(--text-lg); margin-bottom: var(--space-1);">-</h3>
+          <p id="am-city" style="font-size: var(--text-sm); color: var(--text-muted);">-</p>
+        </div>
+        
+        <div style="margin-bottom: var(--space-4);">
+          <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">Hakkında</strong>
+          <p id="am-bio" style="font-size: var(--text-sm); margin: 0; line-height: 1.5;">-</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
+          <div>
+            <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">Beceriler</strong>
+            <div id="am-skills" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
+          </div>
+          <div>
+            <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">İlgi Alanları</strong>
+            <div id="am-interests" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
+          </div>
+        </div>
+
+        <div style="background: var(--primary-light); border: 1px solid var(--primary-main); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6);">
+          <h4 style="font-size: var(--text-base); color: var(--primary-main); margin-bottom: var(--space-2);">🤖 Yapay Zeka Ön Değerlendirmesi</h4>
+          <p id="am-ai-summary" style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2);">-</p>
+          <ul id="am-ai-reasons" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-3); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
+          <button type="button" id="am-reject-btn" class="btn btn-outline" style="color: var(--accent-red); border-color: var(--accent-red);">Reddet</button>
+          <button type="button" id="am-approve-btn" class="btn btn-primary">Başvuruyu Onayla</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

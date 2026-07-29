@@ -3,224 +3,1176 @@
 {% block title %}Briva | İyilik ve Yardımlaşma Platformu{% endblock %}
 
 {% block content %}
-<section class="hero-section">
-  <div class="hero-container">
-    <div class="hero-content">
-      <h1 class="hero-title">İyilik yapmak isteyenlerle, yardıma ihtiyaç duyanları buluşturuyoruz.</h1>
-      <p class="hero-subtitle">Briva, gönüllüleri ve sivil toplum kuruluşlarını niteliklerine, ilgi alanlarına ve müsaitlik zamanlarına göre en doğru etkinliklerde buluşturan akıllı eşleşme platformudur.</p>
-      <div class="hero-actions">
-        <a href="/events" class="btn btn-primary btn-lg">Gönüllü Olarak Katıl</a>
-        <a href="/organization/dashboard" class="btn btn-outline btn-lg">STK Olarak Başla</a>
+<style>
+  /* ===== HERO: SPLIT LAYOUT ===== */
+  .hero-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 90vh;
+    overflow: hidden;
+  }
+  .hero-left {
+    background: var(--primary-main);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+  }
+  .hero-h1 {
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: white;
+    margin-bottom: 28px;
+  }
+  .hero-h1 span {
+    color: #a8e6cf;
+  }
+  .hero-desc {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+    max-width: 420px;
+    margin-bottom: 40px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .hero-btn-primary {
+    background: white;
+    color: var(--primary-main);
+    padding: 14px 32px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .hero-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .hero-btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    padding: 14px 28px;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    transition: all 0.2s ease;
+  }
+  .hero-btn-ghost:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.5);
+  }
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-stat-num {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+  }
+  .hero-stat-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.5px;
+  }
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-slideshow {
+    width: 85%;
+    height: 85%;
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+  }
+  .hero-slideshow img {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity 1.5s ease-in-out;
+  }
+  .hero-slideshow img.active {
+    opacity: 1;
+  }
+
+  /* ===== MARQUEE STRIP ===== */
+  .marquee-strip {
+    background: #e8f0eb; /* Açık yeşil */
+    padding: 14px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 1px solid #d1e0d7;
+  }
+  .marquee-inner {
+    display: inline-flex;
+    gap: 40px;
+    animation: marquee-scroll 30s linear infinite;
+  }
+  .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-main);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  @keyframes marquee-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ===== SECTION GLOBALS ===== */
+  .section-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 96px 40px;
+  }
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary-main);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .section-title {
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--text-main);
+  }
+  .section-title em {
+    font-style: normal;
+    color: var(--primary-main);
+  }
+
+  /* ===== FADE UP ANIMATION ===== */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .delay-1 { transition-delay: 0.1s; }
+  .delay-2 { transition-delay: 0.2s; }
+  .delay-3 { transition-delay: 0.3s; }
+  .delay-4 { transition-delay: 0.4s; }
+
+  /* ===== SCROLLING TEXT (HAKKIMIZDA) ===== */
+  .scroll-text-section {
+    background: var(--surface-sage-light);
+    overflow: hidden;
+    padding: 80px 0;
+  }
+  .scroll-text-track {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .scroll-text-row {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    padding: 0 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+  }
+  .scroll-text-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .scroll-text-row:nth-child(even) {
+    flex-direction: row; /* Default'a çevirdik, böylece 2. satırda resim sağda kalıyordu. Wait, the user wants the MIDDLE image to be on the LEFT. */
+  }
+  .scroll-text-row:nth-child(2) {
+    flex-direction: row-reverse; /* 2. satırda resim solda olacak (image is 2nd in DOM, so row-reverse puts it 1st visually) */
+  }
+  .scroll-text-content {
+    flex: 1;
+    max-width: 520px;
+  }
+  .scroll-text-content h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--text-main);
+  }
+  .scroll-text-content p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--text-muted);
+  }
+  .scroll-text-img {
+    flex: 1;
+    max-width: 480px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(15,82,56,0.12);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+  }
+  .scroll-text-img:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 50px rgba(15,82,56,0.18);
+  }
+  .scroll-text-img img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+  .scroll-text-divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--primary-main), transparent);
+    margin: 32px 40px;
+    opacity: 0.15;
+    max-width: 1120px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== YOL HARİTASI ===== */
+  .roadmap-section {
+    background: var(--primary-main);
+    padding: 96px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .roadmap-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .roadmap-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .roadmap-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .roadmap-header h2 {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 800;
+    color: white;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+  .roadmap-header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  /* Serpentine Roadmap Timeline */
+  .roadmap-timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 0;
+  }
+  .roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 100%;
+    background: rgba(168,230,207,0.15);
+    border-radius: 4px;
+    z-index: 0;
+  }
+  .roadmap-timeline-connector {
+    display: none;
+  }
+  .roadmap-card {
+    width: 45%;
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 32px 32px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    margin-bottom: -20px; /* Zikzak görünüm için bindirme */
+  }
+  .roadmap-card:nth-child(odd) { margin-left: auto; margin-top: 40px; }
+  .roadmap-card:nth-child(even) { margin-right: auto; }
+  
+  .roadmap-card::before {
+    content: ''; position: absolute;
+    top: 40px; width: 80px; height: 2px;
+    background: rgba(168,230,207,0.3);
+    z-index: -1;
+  }
+  .roadmap-card:nth-child(even)::before { right: -80px; }
+  .roadmap-card:nth-child(odd)::before { left: -80px; }
+  
+  .roadmap-card::after {
+    content: ''; position: absolute;
+    top: 33px; width: 16px; height: 16px;
+    background: #a8e6cf; border: 4px solid var(--primary-main);
+    border-radius: 50%; z-index: 2;
+    box-shadow: 0 0 0 4px rgba(168,230,207,0.2);
+  }
+  .roadmap-card:nth-child(even)::after { right: -91px; }
+  .roadmap-card:nth-child(odd)::after { left: -91px; }
+
+  .roadmap-card:hover {
+    background: rgba(255,255,255,0.14);
+    transform: translateY(-6px);
+  }
+  .roadmap-step-num {
+    width: 44px;
+    height: 44px;
+    background: #a8e6cf;
+    color: var(--primary-main);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 6px rgba(168,230,207,0.15);
+  }
+  .roadmap-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+  }
+  .roadmap-card p {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.65);
+  }
+  .roadmap-card .ai-badge {
+    display: inline-block;
+    background: rgba(168,230,207,0.15);
+    color: #a8e6cf;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(168,230,207,0.25);
+    margin-bottom: 12px;
+  }
+  @media (max-width: 900px) {
+    .roadmap-timeline::before { left: 30px; }
+    .roadmap-card { width: calc(100% - 70px); margin-left: 70px !important; margin-bottom: 24px; margin-top: 0 !important; }
+    .roadmap-card::before { display: none; }
+    .roadmap-card::after { left: -48px !important; }
+  }
+
+  /* ===== SHOWCASE CARDS ===== */
+  .showcase-section {
+    padding: 96px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .showcase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 48px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .showcase-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+  }
+  .sc-card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    background: white;
+    border: 1px solid #e8f0eb;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .sc-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(15,82,56,0.15);
+  }
+  .sc-card-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .sc-card:hover .sc-card-img {
+    transform: scale(1.05);
+  }
+  .sc-card-img-wrap {
+    overflow: hidden;
+  }
+  .sc-card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: #f3f7f4;
+  }
+  .sc-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--primary-main);
+    margin-bottom: 10px;
+  }
+  .sc-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+  .sc-card-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 20px;
+  }
+  .sc-card-btn {
+    display: block;
+    text-align: center;
+    background: var(--primary-main);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .sc-card-btn:hover {
+    background: #166547;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero-split {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+    .hero-left {
+      padding: 64px 32px;
+    }
+    .hero-right {
+      height: 340px;
+    }
+    .scroll-text-row, .scroll-text-row:nth-child(even) {
+      flex-direction: column;
+      gap: 24px;
+    }
+    .section-wrap, .showcase-section {
+      padding: 64px 24px;
+    }
+    .roadmap-section {
+      padding: 64px 24px;
+    }
+  }
+</style>
+
+<!-- ===== HERO: SPLIT LAYOUT ===== -->
+<section class="hero-split" id="about">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Yardımlaşma Platformu</p>
+    <h1 class="hero-h1">İyiliği teknolojiyle <em style="color:#a8e6cf">buluşturuyoruz.</em></h1>
+    <p class="hero-desc">Zamanını ve yeteneklerini paylaşmak paha biçilemez. Briva, seni saatlerce uygun proje arama derdinden kurtarıp, ilgi alanlarına en uygun projeleri saniyelerde karşına çıkarır.</p>
+    <div class="hero-actions">
+      <a href="/dashboard" class="hero-btn-primary">Hemen Kayıt Ol</a>
+      <a href="#roadmap" class="hero-btn-ghost">Nasıl Çalışır?</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num">4</span>
+        <span class="hero-stat-label">Doğrulanmış STK</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">12</span>
+        <span class="hero-stat-label">Aktif Etkinlik</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">AI</span>
+        <span class="hero-stat-label">Smart-Match Motoru</span>
       </div>
     </div>
-    <div class="hero-preview">
-      <div class="preview-box">
-        <span class="preview-badge">Örnek Platform Görünümü</span>
-        <h2 class="preview-title">Kadıköy Sahil Temizliği ve Geri Dönüşüm Atölyesi</h2>
-        <p class="preview-text">Düzenleyen: Yeşil Gelecek Derneği | Tarih: 15 Ağustos 2026</p>
-        <div class="match-score-box" style="margin-top: 1.5rem;">
-          <div class="match-score-header">
-            <span>Uygunluk Değerlendirmesi</span>
-            <span class="match-score-value">%94 Eşleşme</span>
-          </div>
-          <div class="match-reasons-list">
-            <span class="match-reason-tag">Bu etkinlik sana uygun olabilir</span>
-            <span class="match-reason-tag">İlgi alanlarınla örtüşüyor</span>
-            <span class="match-reason-tag">Konumuna yakın</span>
-            <span class="match-reason-tag">Uygunluk zamanlarınla eşleşiyor</span>
-          </div>
-        </div>
-        <p class="editorial-note">Not: Bu ekran üründeki akıllı eşleşme ve açıklanabilir analiz deneyimini gösteren editoryal bir sunumdur.</p>
+  </div>
+  <div class="hero-right">
+    <div class="hero-slideshow" id="hero-slider">
+      <!-- Images will be injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== MARQUEE STRIP ===== -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">Akıllı Eşleşme (Smart-Match)</span>
+    <span class="marquee-item">Gönüllülük Etkinlikleri</span>
+    <span class="marquee-item">İyilik Puanları Kazan</span>
+    <span class="marquee-item">Rozetler & Başarılar</span>
+    <span class="marquee-item">Doğrulanmış STK'lar</span>
+    <span class="marquee-item">Çevre & Eğitim & Hayvan Hakları</span>
+    <!-- Tekrar et (sonsuz kaydırma için) -->
+    <span class="marquee-item">Akıllı Eşleşme (Smart-Match)</span>
+    <span class="marquee-item">Gönüllülük Etkinlikleri</span>
+    <span class="marquee-item">İyilik Puanları Kazan</span>
+    <span class="marquee-item">Rozetler & Başarılar</span>
+    <span class="marquee-item">Doğrulanmış STK'lar</span>
+    <span class="marquee-item">Çevre & Eğitim & Hayvan Hakları</span>
+  </div>
+</div>
+
+<!-- ===== HAKKIMIZDA: KAYAN METİNLER ===== -->
+<section class="scroll-text-section">
+  <div class="scroll-text-track">
+    
+    <div class="scroll-text-row" id="story-row-1">
+      <div class="scroll-text-content">
+        <span class="section-label">Briva Nedir?</span>
+        <h3>Seninle Birlikte Büyüyen Bir Hikaye</h3>
+        <p>Briva, sıradan bir ilan panosu olmanın çok ötesinde, seni anlayan ve yönlendiren bir rehberdir. Gönüllülük yapmak istediğinde, genellikle karşına çıkan karmaşık başvuru süreçleri, uygun olmayan zaman dilimleri veya yeteneklerine hitap etmeyen görevler motivasyonunu kırabilir.</p>
+        <p style="margin-top: 12px;">İşte tam bu noktada Briva devreye giriyor. Seni saatlerce uygun bir proje arama derdinden kurtarıp, ilgi alanlarına ve programına en uygun sivil toplum projelerini doğrudan karşına çıkarıyoruz.</p>
+      </div>
+      <div class="scroll-text-img">
+        <!-- Birlikte gülümseyen gönüllüler, topluluk - Sağlam URL -->
+        <img src="https://images.unsplash.com/photo-1593113563332-4d564bb31c9a?auto=format&fit=crop&w=600&q=80" onerror="this.src='https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=600&q=80'" alt="Briva İyilik Ağı">
+      </div>
+    </div>
+    
+    <div class="scroll-text-divider"></div>
+    
+    <div class="scroll-text-row" id="story-row-2">
+      <div class="scroll-text-content">
+        <span class="section-label">Smart-Match Teknolojisi</span>
+        <h3>Emeğinin Değerini Bilen Akıllı Sistem</h3>
+        <p>Bir etkinliğe başvururken en çok merak edilen şey "Acaba bu proje bana uygun mu?" sorusudur. Akıllı Eşleşme (Smart-Match) altyapımız, profilinde belirttiğin becerileri, lokasyonunu ve müsaitlik durumunu saniyeler içinde analiz eder.</p>
+        <p style="margin-top: 12px;">Örneğin; eğitim alanında deneyimliysen ve sadece hafta sonları müsaitsen, sistemimiz sana tam olarak bu kriterlere uyan, doğrulanmış kuruluşların çocuk eğitim projelerini önerir. Böylece doğru zamanda doğru yerde olmanın mutluluğunu yaşarsın.</p>
+      </div>
+      <div class="scroll-text-img">
+        <!-- İnsanlar birlikte çalışıyor, işbirliği -->
+        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=600&q=80" onerror="this.src='https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=600&q=80'" alt="Akıllı Eşleşme">
+      </div>
+    </div>
+    
+    <div class="scroll-text-divider"></div>
+    
+    <div class="scroll-text-row" id="story-row-3">
+      <div class="scroll-text-content">
+        <span class="section-label">İyilik Puanları & Rozetler</span>
+        <h3>İyilik Yaparken Eğlenmeyi Unutma</h3>
+        <p>Gönüllülük elbette ki içten gelen bir arzudur, ancak neden bu yolculuğu biraz daha renkli hale getirmeyelim? Briva'nın oyunlaştırma dinamikleri sayesinde katıldığın her etkinlikten sonra <strong>İyilik Puanı</strong> kazanırsın.</p>
+        <p style="margin-top: 12px;">Kazandığın puanlar sayesinde yeni seviyelere ulaşır, profilinde sergileyebileceğin özel rozetler kazanırsın. Hem kurumlara sağladığın değer somutlaşır, hem de diğer gönüllülerle tatlı bir motivasyon döngüsüne girersin.</p>
+      </div>
+      <div class="scroll-text-img">
+        <!-- Gülümseyen çocuklar / öğrenciler -->
+        <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=600&q=80" onerror="this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80'" alt="İyilik Yaparken Eğlen">
       </div>
     </div>
   </div>
 </section>
 
-<section class="mission-section">
-  <div class="mission-container">
-    <h2 class="section-title">Toplumsal Etki ve Güvenilir Platform</h2>
-    <div class="mission-grid">
-      <article class="mission-card">
-        <h3 class="mission-title">Akıllı ve Anlamlı Eşleşme</h3>
-        <p class="mission-text">Nitelikleriniz, becerileriniz ve zaman çerçeveniz analiz edilerek sadece size gerçekten hitap eden ve verimli olabileceğiniz sosyal sorumluluk fırsatları önerilir.</p>
-      </article>
-      <article class="mission-card">
-        <h3 class="mission-title">Doğrulanmış Kuruluşlar</h3>
-        <p class="mission-text">Platformda yer alan tüm sivil toplum kuruluşları resmi denetimlerden geçerek onaylanır. İyilik yaparken güvenli ve şeffaf bir süreç yaşarsınız.</p>
-      </article>
-      <article class="mission-card">
-        <h3 class="mission-title">Ölçülebilir Sosyal Katkı</h3>
-        <p class="mission-text">Katıldığınız etkinlikler, harcadığınız gönüllülük saatleri ve topluma sağladığınız fayda profilinizde somut bir katkı geçmişi olarak kayıt altına alınır.</p>
-      </article>
+<!-- ===== YOL HARİTASI ===== -->
+<section class="roadmap-section" id="roadmap">
+  <div class="roadmap-inner">
+    <div class="roadmap-header fade-up">
+      <h2>Platformu Nasıl Kullanacaksın?</h2>
+      <p>Briva'da iyilik serüvenin yalnızca birkaç basit adımdan oluşur. Akıllı sistemimiz seni her adımda yönlendirir.</p>
+    </div>
+    <div class="roadmap-timeline" style="position:relative;">
+      <div class="roadmap-timeline-connector"></div>
+      
+      <div class="roadmap-card fade-up delay-1">
+        <div class="roadmap-step-num">1</div>
+        <h3>Profilini Tamamla ve Keşfet</h3>
+        <p>Becerilerini, ilgi alanlarını ve müsait olduğun günleri gir. Hangi alana ilgin olduğunu henüz bilmiyor musun? Hiç sorun değil! Platformumuzdaki mini testimiz sayesinde (Birbirimizi Yakından Tanıyalım), gizli kalmış yeteneklerini ve severek yapabileceğin gönüllülük alanlarını senin için keşfediyoruz.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-2">
+        <div class="roadmap-step-num">2</div>
+        <div class="ai-badge">✦ Smart-Match AI</div>
+        <h3>Akıllı Asistan ile Etkinlik Seç</h3>
+        <p>Girdiğin veriler, test sonuçların ve geçmiş katılımların Briva Smart-Match yapay zeka motoru tarafından analiz edilir. Hangi etkinliğin sana en uygun olacağını (zaman, konum, yetenek eşleşmesi) hesaplayıp, senin için en ideal etkinlikleri özel bir akışta sunar. "Acaba ne yapsam?" diye düşünme, AI asistanın senin için en doğru eşleşmeyi bulur.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-3">
+        <div class="roadmap-step-num">3</div>
+        <h3>Başvur ve İyiliğe Adım At</h3>
+        <p>Detaylarını incelediğin etkinliğe tek tıkla başvur. STK yöneticisi onayladığında anında bildirim alırsın ve etkinlik "Yaklaşan Katılımların" listene düşer. İyilik yapmanın en kolay, en organize yolu budur.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-4">
+        <div class="roadmap-step-num">4</div>
+        <div class="ai-badge">✦ İyilik Puanı (İP)</div>
+        <h3>Katıl ve Etkini Büyüt</h3>
+        <p>Etkinliği tamamladıktan sonra sistem, tamamlanan etkinliğin zorluk seviyesine ve süresine göre hesaplanmış <strong style="color:#a8e6cf">İP (İyilik Puanı)</strong> hesabına otomatik yansıtır. Bu senin topluma kattığın değerin görünür halidir.</p>
+        <p style="margin-top: 10px; color: rgba(255,255,255,0.5); font-size: 0.85rem;">Puanların arttıkça "İlk Gönüllü", "Çevre Dostu", "Eğitim Elçisi" gibi özel rozetlerle profilini zenginleştir. Liderlik tablosunda yükselerek diğer gönüllülerle tatlı bir motivasyon döngüsüne girersin.</p>
+      </div>
+      
     </div>
   </div>
 </section>
 
-<section class="how-it-works-section" id="how-it-works">
-  <div class="container">
-    <h2 class="section-title">Nasıl Çalışır?</h2>
-    <div class="how-it-works-grid">
-      <div class="flow-column">
-        <h3 class="flow-title">Gönüllüler İçin 3 Adım</h3>
-        <div class="step-list">
-          <div class="step-item">
-            <span class="step-number">1</span>
-            <div class="step-content">
-              <h4>Keşfet</h4>
-              <p>İlgi alanlarınıza, yeteneklerinize ve yaşadığınız şehre hitap eden aktif sosyal sorumluluk projelerini inceleyin.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <span class="step-number">2</span>
-            <div class="step-content">
-              <h4>Eşleş</h4>
-              <p>Müsaitlik zamanlarınızla ve yetkinliklerinizle en yüksek uyumu gösteren ilanları şeffaf nedenleriyle görün.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <span class="step-number">3</span>
-            <div class="step-content">
-              <h4>Katıl</h4>
-              <p>Tek tıkla başvurunuzu iletin, organizasyon süreçlerini takip edin ve sahada yerinizi alın.</p>
-            </div>
-          </div>
-        </div>
+<!-- ===== SHOWCASE ===== -->
+<section class="showcase-section" id="showcase">
+  <div class="showcase-header fade-up">
+    <div>
+      <span class="section-label">Örnek Projeler</span>
+      <h2 class="section-title">Birlikte Neler <em>Yapabiliriz?</em></h2>
+    </div>
+    <a href="/events" style="font-size: 0.9rem; font-weight: 600; color: var(--primary-main); text-decoration: none; white-space: nowrap;">Tümünü Gör →</a>
+  </div>
+  <div class="showcase-cards">
+    
+    <div class="sc-card fade-up delay-1">
+      <div class="sc-card-img-wrap">
+        <!-- Sahil temizliği, doğa/gönüllüler -->
+        <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80" alt="Sahil Temizliği" class="sc-card-img">
       </div>
+      <div class="sc-card-body">
+        <span class="sc-tag">🌿 Çevre</span>
+        <h3 class="sc-card-title">Sahil Temizleme Etkinliği</h3>
+        <p class="sc-card-desc">Kıyılarımızı plastik atıklardan kurtarmak için harika bir hafta sonu etkinliği. Eldivenler bizden, enerji sizden.</p>
+        <a href="/events/1" class="sc-card-btn">Detayları Gör</a>
+      </div>
+    </div>
+    
+    <div class="sc-card fade-up delay-2">
+      <div class="sc-card-img-wrap">
+        <!-- Çocuklar öğreniyor, eğitim -->
+        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80" alt="Eğitim" class="sc-card-img">
+      </div>
+      <div class="sc-card-body">
+        <span class="sc-tag" style="color: #c05621;">📚 Eğitim</span>
+        <h3 class="sc-card-title">Köy Okullarına Kitap Yardımı</h3>
+        <p class="sc-card-desc">Çocukların hayal dünyasını genişletmek için toplanan kitapları ayrıştırma ve paketleme çalışmasına katıl.</p>
+        <a href="/events/3" class="sc-card-btn">Detayları Gör</a>
+      </div>
+    </div>
+    
+    <div class="sc-card fade-up delay-3">
+      <div class="sc-card-img-wrap">
+        <!-- Köpek barınak, hayvan sevgisi -->
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=600&q=80" alt="Hayvan Hakları" class="sc-card-img">
+      </div>
+      <div class="sc-card-body">
+        <span class="sc-tag" style="color: #b7791f;">🐾 Hayvan Hakları</span>
+        <h3 class="sc-card-title">Barınak Ziyareti ve Bakım</h3>
+        <p class="sc-card-desc">Sevimli dostlarımızın mamalarını tazelemek ve biraz sevgi göstermek için barınakta buluşuyoruz.</p>
+        <a href="/events/5" class="sc-card-btn">Detayları Gör</a>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+<!-- ===== STK BÖLÜMÜ ===== -->
+<style>
+  .stk-section {
+    background: var(--surface-sage-light, #f3f7f4);
+    padding: 96px 40px;
+  }
+  .stk-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .stk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .stk-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    border: 1.5px solid #e0ebe4;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stk-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(15,82,56,0.12);
+    border-color: var(--primary-main);
+  }
+  .stk-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .stk-card h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+  }
+  .stk-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0;
+    flex: 1;
+  }
+  .stk-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--primary-main);
+    background: rgba(15,82,56,0.08);
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+  .stk-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary-main);
+    text-decoration: none;
+    margin-top: 8px;
+    transition: gap 0.2s;
+  }
+  .stk-link:hover { gap: 10px; }
 
-      <div class="flow-column">
-        <h3 class="flow-title">STK'lar İçin 3 Adım</h3>
-        <div class="step-list">
-          <div class="step-item">
-            <span class="step-number">1</span>
-            <div class="step-content">
-              <h4>Etkinlik Oluştur</h4>
-              <p>Projenizin detaylarını, ihtiyaç duyulan yetkinlikleri, kontenjanı ve görev tanımını adım adım tanımlayın.</p>
+  /* ===== AI ÖNERİ BÖLÜMÜ ===== */
+  .ai-recs-section {
+    background: #0c3d28;
+    padding: 96px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-recs-section::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 50%;
+  }
+  .ai-recs-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .ai-recs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .ai-recs-header h2 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  .ai-recs-header span {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .ai-recs-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+  }
+  .ai-recs-carousel::-webkit-scrollbar { display: none; }
+  .ai-rec-card {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background 0.3s ease;
+  }
+  .ai-rec-card:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  .ai-rec-cat {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8e6cf;
+  }
+  .ai-rec-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.35;
+  }
+  .ai-rec-org {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+  }
+  .ai-rec-link {
+    display: inline-block;
+    margin-top: auto;
+    background: rgba(168,230,207,0.15);
+    color: #a8e6cf;
+    border: 1px solid rgba(168,230,207,0.25);
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .ai-rec-link:hover {
+    background: rgba(168,230,207,0.25);
+  }
+  .ai-recs-guest {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px dashed rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .ai-recs-guest h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+  }
+  .ai-recs-guest p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+  
+  /* ===== QUİZ CTA ===== */
+  .quiz-cta-section {
+    background: white;
+    padding: 80px 40px;
+  }
+  .quiz-cta-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #0f5238 0%, #1a7a55 100%);
+    border-radius: 28px;
+    padding: 56px 64px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .quiz-cta-inner::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .quiz-cta-text h2 {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .quiz-cta-text p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 440px;
+  }
+  .quiz-cta-btn {
+    background: white;
+    color: var(--primary-main);
+    padding: 16px 36px;
+    border-radius: 99px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .quiz-cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.25);
+  }
+  @media (max-width: 700px) {
+    .quiz-cta-inner {
+      grid-template-columns: 1fr;
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .quiz-cta-btn { width: 100%; }
+    .stk-section, .ai-recs-section, .quiz-cta-section { padding: 64px 24px; }
+  }
+</style>
+
+<!-- ===== STK YATAY BANT ===== -->
+<section style="background: #f3f7f4; padding: 96px 40px; overflow: hidden;">
+  <div style="max-width: 1200px; margin: 0 auto;">
+    <div class="fade-up" style="display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: flex-end; margin-bottom: 56px; flex-wrap: wrap;">
+      <div>
+        <span class="section-label">İyilik Ağı</span>
+        <h2 class="section-title" style="margin-bottom:16px;">Sivil Toplum <em>Kuruluşlarımız</em></h2>
+        <p style="font-size:1.05rem; color:var(--text-muted); line-height:1.7; max-width:600px; margin-bottom:0;">
+          Briva üzerinde yer alan her STK; eğitim, çevre, sağlık, afet ve daha pek çok alanda gerçek toplumsal etki yaratıyor. Katıldığın her etkinlik, bu kuruluşların güçlenmesine katkı sağlıyor.
+        </p>
+      </div>
+      <a href="/organizations" class="btn btn-primary" style="border-radius:99px; font-size:0.92rem; padding:12px 28px; white-space:nowrap; flex-shrink:0;">STK'lara Git →</a>
+    </div>
+    <!-- Yatay kayan STK şeridi -->
+    <div class="fade-up" style="display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 8px;">
+      <style>.stk-strip-card:hover { transform: translateY(-4px); border-color: var(--primary-main); box-shadow: 0 8px 24px rgba(15,82,56,0.12); }</style>
+      {% if global_orgs %}
+        {% for org in global_orgs %}
+        <div class="stk-strip-card" style="flex:0 0 320px; scroll-snap-align:start; background:white; border:1.5px solid #e0ebe4; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px; transition:all 0.25s ease;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <img src="{{ org.logo_url }}" alt="{{ org.name }}" style="width:48px; height:48px; object-fit:contain; border-radius:8px; flex-shrink:0;" onerror="this.src='https://ui-avatars.com/api/?name={{ org.name | urlencode }}&background=random'">
+            <div>
+              <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--primary-main);">Kuruluş</div>
+              <div style="font-size:0.95rem;font-weight:800;color:var(--text-main); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ org.name }}</div>
             </div>
           </div>
-          <div class="step-item">
-            <span class="step-number">2</span>
-            <div class="step-content">
-              <h4>Uygun Gönüllüleri Bul</h4>
-              <p>İlanınıza başvuran adayların kriterlerinize ne derece uyduğunu kolayca filtreleyip değerlendirin.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <span class="step-number">3</span>
-            <div class="step-content">
-              <h4>Birlikte Gerçekleştir</h4>
-              <p>Onayladığınız gönüllü ekibinizle anlık iletişim kurun ve projenizi başarıyla tamamlayın.</p>
-            </div>
-          </div>
+          <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;flex:1;">{{ org.description | truncate(100) if org.description else 'Topluma değer katan sivil toplum kuruluşu.' }}</div>
+          <a href="/events?org={{ org.id }}" style="font-size:0.85rem;font-weight:700;color:var(--primary-main);text-decoration:none; align-self:flex-start;">Etkinlikleri →</a>
+        </div>
+        {% endfor %}
+      {% endif %}
+      <!-- Tümünü Gör Kartı -->
+      <div style="flex:0 0 240px; scroll-snap-align:start; background:var(--primary-main); border-radius:16px; padding:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:16px; text-align:center;">
+        <div style="font-size:2.5rem; color:white;">→</div>
+        <div style="font-size:0.9rem;font-weight:700;color:rgba(255,255,255,0.9);">Daha Fazla STK</div>
+        <a href="/organizations" style="background:white;color:var(--primary-main);padding:10px 20px;border-radius:99px;font-size:0.85rem;font-weight:700;text-decoration:none;">Tümünü Gör</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AI ÖNERİ: Senin İçin Seçtik ===== -->
+<section class="ai-recs-section" style="padding: 100px 40px; background: white; position: relative; overflow: hidden;">
+  <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 100% 0%, rgba(168,230,207,0.1) 0%, transparent 50%); pointer-events: none;"></div>
+  
+  <div class="ai-recs-inner" style="max-width: 1200px; margin: 0 auto; position: relative;">
+    <div class="ai-recs-header fade-up" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; border-bottom: 2px solid #e8f0eb; padding-bottom: 24px;">
+      <div>
+        <span style="font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--primary-main); display: block; margin-bottom: 12px;">✦ Smart-Match Motoru</span>
+        <h2 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--text-main); letter-spacing: -0.03em; margin: 0;">Senin İçin <span style="color: #a8e6cf;">Seçtik</span></h2>
+      </div>
+      <p style="max-width: 400px; color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin: 0; text-align: right;">Sana en uygun etkinlikleri keşfet. Smart-Match yapay zekası, yeteneklerin ve zamanınla en iyi eşleşen fırsatları saniyeler içinde önüne getirir.</p>
+    </div>
+    
+    <!-- Giriş yapmış kullanıcılar için -->
+    <div id="ai-recs-logged-in" style="display:none;" class="fade-up delay-1">
+      <div class="ai-recs-carousel" id="ai-recs-carousel"></div>
+    </div>
+    
+    <!-- Giriş yapmamış kullanıcılar için Premium Banner -->
+    <div id="ai-recs-guest" class="fade-up delay-1" style="background: linear-gradient(135deg, #093424 0%, #155c42 100%); border-radius: 32px; padding: 64px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 48px; box-shadow: 0 24px 60px rgba(9,52,36,0.15); transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease; will-change: transform;">
+      <div style="position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: rgba(168,230,207,0.05); border-radius: 50%; pointer-events: none;"></div>
+      <div style="position: absolute; bottom: -50px; right: -50px; width: 300px; height: 300px; background: rgba(168,230,207,0.08); border-radius: 50%; pointer-events: none;"></div>
+      
+      <div style="flex: 1; position: relative; z-index: 1;">
+        <h3 style="color: white; font-size: 2.2rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em;">Sana Özel Bir Akış Seni Bekliyor</h3>
+        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; line-height: 1.7; max-width: 540px; margin-bottom: 0;">Smart-Match, geçmiş etkileşimlerini, ilgi alanlarını ve bulunduğun şehri analiz ederek tamamen sana özel bir etkinlik akışı oluşturur. Bize kendini tanıttıkça, öneriler nokta atışı isabetli hale gelir.</p>
+      </div>
+      
+      <div style="position: relative; z-index: 1; flex-shrink: 0; background: rgba(255,255,255,0.05); padding: 32px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); text-align: center;">
+        <div style="font-size: 1.8rem; font-weight: 900; color: #a8e6cf; margin-bottom: 8px;">15 Soru</div>
+        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;">Mini Kişilik Testi</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <a href="/quiz" class="btn" style="background: #a8e6cf; color: #093424; padding: 14px 28px; border-radius: 99px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: transform 0.2s ease;">Teste Başla ✦</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="ngo-section" id="ngos">
-  <div class="container ngo-layout">
-    <div class="ngo-content">
-      <h2>Doğru gönüllülere daha kolay ulaşın.</h2>
-      <p>Sivil toplum kuruluşlarının en büyük zorluğu, projenin gereksinimlerine gerçekten uyan ve bağlılık gösterecek gönüllüleri zamanında bulabilmektir. Briva ile süreçlerinizi dijitalleştirin.</p>
-      <ul class="feature-list">
-        <li>Nitelik ve beceri tabanlı aday listeleme</li>
-        <li>Kolay başvuru onay ve red yönetimi</li>
-        <li>Katılım geçmişi doğrulanmış gönüllü profilleri</li>
-        <li>Kurumunuza özel doğrulanmış rozet ve güvenilirlik profili</li>
-      </ul>
-      <a href="/organization/dashboard" class="btn btn-primary btn-lg">STK Olarak Başla</a>
-    </div>
-    <div class="ngo-preview">
-      <div class="flow-column">
-        <h3 class="flow-title">STK Akış Özeti</h3>
-        <p class="mission-text" style="margin-bottom: 1rem;">Etkinliklerinizi oluşturun, gönüllü ihtiyacınızı belirleyin, uygun adayları keşfedin ve tüm başvuruları tek panelden yönetin.</p>
-        <a href="/organization/events/new" class="btn btn-outline btn-block">Yeni İlan Oluşturma Sihirbazını İncele</a>
-      </div>
-    </div>
-  </div>
-</section>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.scroll-text-row').forEach(el => observer.observe(el));
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-<section class="stats-section">
-  <div class="container">
-    <h2 class="section-title">Örnek Etkinlik Fırsatları</h2>
-    <div class="events-grid" id="sample-events-grid">
-      <article class="event-card">
-        <div class="event-card-header">
-          <span class="event-category">Çevre &amp; Doğayı Koruma</span>
-          <span class="event-city">İstanbul</span>
-        </div>
-        <div class="event-card-body">
-          <h3 class="event-title">
-            <a href="/events">Belgrad Ormanı Ekolojik Temizlik Hareketi</a>
-          </h3>
-          <p class="event-description">Doğa severlerle birlikte orman içi plastik atıkları topluyor ve geri dönüşüm bilincini destekliyoruz.</p>
-        </div>
-        <div class="event-card-footer">
-          <span class="event-date">20 Ağustos 2026</span>
-          <a href="/events" class="btn btn-secondary">İncele</a>
-        </div>
-      </article>
+    // AI önerileri
+    const token = localStorage.getItem('briva_access_token') || sessionStorage.getItem('briva_access_token');
+    if (token) {
+      document.getElementById('ai-recs-guest').style.display = 'none';
+      document.getElementById('ai-recs-logged-in').style.display = 'block';
+      loadAIRecs(token);
+    }
 
-      <article class="event-card">
-        <div class="event-card-header">
-          <span class="event-category">Eğitim &amp; Mentörlük</span>
-          <span class="event-city">Ankara</span>
-        </div>
-        <div class="event-card-body">
-          <h3 class="event-title">
-            <a href="/events">Köy Okulları İçin Dijital Kodlama Atölyesi</a>
-          </h3>
-          <p class="event-description">Temel bilgisayar ve kodlama becerilerini çocuklara aktarmak isteyen gönüllü eğitmenler arıyoruz.</p>
-        </div>
-        <div class="event-card-footer">
-          <span class="event-date">25 Ağustos 2026</span>
-          <a href="/events" class="btn btn-secondary">İncele</a>
-        </div>
-      </article>
 
-      <article class="event-card">
-        <div class="event-card-header">
-          <span class="event-category">Sosyal Destek</span>
-          <span class="event-city">İzmir</span>
-        </div>
-        <div class="event-card-body">
-          <h3 class="event-title">
-            <a href="/events">Engelsiz Yaşam Merkezi Sanat Etkinliği</a>
-          </h3>
-          <p class="event-description">Özel gereksinimli bireylerle resim ve seramik çalışmalarında asistans sağlayacak gönüllüler davetlidir.</p>
-        </div>
-        <div class="event-card-footer">
-          <span class="event-date">28 Ağustos 2026</span>
-          <a href="/events" class="btn btn-secondary">İncele</a>
-        </div>
-      </article>
-    </div>
-    <p class="editorial-note" style="text-align: center; margin-top: 1.5rem;">Not: Yukarıdaki kartlar platformun arayüzünü örneklendiren editoryal ilanlardır. Canlı etkinlikler API üzerinden listelenecektir.</p>
-  </div>
-</section>
+  });
 
-<section class="final-cta-section">
-  <div class="container">
-    <div class="final-cta-grid">
-      <div class="cta-card">
-        <div>
-          <h3>Gönüllü müsün?</h3>
-          <p>Yeteneklerinize ve ilgi alanlarınıza uyan projeleri bulun, toplumsal etki yaratmaya hemen başlayın.</p>
+  async function loadAIRecs(token) {
+    try {
+      const res = await fetch('/api/recommendations/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const carousel = document.getElementById('ai-recs-carousel');
+      const recs = data.recommendations || [];
+      if (recs.length === 0) {
+        document.getElementById('ai-recs-logged-in').style.display = 'none';
+        document.getElementById('ai-recs-guest').style.display = 'block';
+        return;
+      }
+      carousel.innerHTML = recs.slice(0, 6).map(r => `
+        <div class="ai-rec-card">
+          <div class="ai-rec-cat">${r.category || 'Genel'}</div>
+          <div class="ai-rec-title">${escHtml(r.title)}</div>
+          <div class="ai-rec-org">${escHtml(r.organization?.name || 'Sivil Toplum Kuruluşu')}</div>
+          <a href="/events/${r.id}" class="ai-rec-link">Detayları Gör</a>
         </div>
-        <div>
-          <a href="/events" class="btn btn-primary btn-lg btn-block">Katkı Sağlayabileceğin Bir Etkinlik Keşfet</a>
-        </div>
-      </div>
-      <div class="cta-card">
-        <div>
-          <h3>Bir STK mısın?</h3>
-          <p>Projelerinize değer katacak doğru gönüllülere hızla ulaşın, başvuru ve operasyon süreçlerinizi kolaylaştırın.</p>
-        </div>
-        <div>
-          <a href="/organization/dashboard" class="btn btn-outline btn-lg btn-block">İhtiyacın Olan Gönüllülerle Buluş</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      `).join('');
+    } catch(e) {
+      document.getElementById('ai-recs-logged-in').style.display = 'none';
+      document.getElementById('ai-recs-guest').style.display = 'block';
+    }
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Hero Slider
+  const heroImages = [
+    "https://images.unsplash.com/photo-1544027993-37db48d5f696?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1593113589914-075990190da5?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1531206715517-5c0ba140b4b8?auto=format&fit=crop&w=900&q=80"
+  ];
+  const heroSlider = document.getElementById('hero-slider');
+  if (heroSlider) {
+    heroSlider.innerHTML = heroImages.map((src, i) => `<img src="${src}" class="${i===0 ? 'active' : ''}" alt="Gönüllüler">`).join('');
+    const imgs = heroSlider.querySelectorAll('img');
+    let currentIdx = 0;
+    setInterval(() => {
+      imgs[currentIdx].classList.remove('active');
+      currentIdx = (currentIdx + 1) % imgs.length;
+      imgs[currentIdx].classList.add('active');
+    }, 3000);
+  }
+</script>
+
 {% endblock %}
