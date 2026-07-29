@@ -9,6 +9,11 @@ from app.models.user import User
 from app.recommend import RecommendationEngine, UserContext, RECOMMENDATION_THRESHOLD
 from app.utils.auth_helpers import get_current_user, volunteer_required, organization_required
 from app.utils.validators import parse_request_json
+from app.utils.ai_analyzer import evaluate_applicant_with_gemini
+import google.generativeai as genai
+import os
+import json
+
 recommendations_bp = Blueprint('recommendations', __name__)
 
 def _feedback_signals_for(user_id: int) -> tuple[list[str], list[str], set, set]:
@@ -59,6 +64,21 @@ def recommend_for_me():
     if not user.volunteer_profile:
         return (jsonify({'error': 'Öneri alabilmek için önce gönüllü profilinizi oluşturun.', 'hint': 'PUT /api/volunteers/me ile profilinizi oluşturun.'}), 400)
     user_context = UserContext.from_volunteer_profile(user.volunteer_profile)
+    
+    # Geçmiş başvuruları ve katılımları ekle
+    applications = EventApplication.query.filter_by(user_id=user.id).all()
+    past_apps = []
+    past_parts = []
+    for app in applications:
+        if app.event and app.event.title:
+            if app.status == 'completed':
+                past_parts.append(app.event.title)
+            else:
+                past_apps.append(app.event.title)
+    
+    user_context.past_applications = past_apps
+    user_context.past_participations = past_parts
+    
     liked_cats, disliked_cats, liked_ids, disliked_ids = _feedback_signals_for(user.id)
     user_context.with_feedback(liked_cats, disliked_cats, liked_ids, disliked_ids)
     try:
@@ -85,9 +105,45 @@ def explain():
     if not event:
         return (jsonify({'error': 'Etkinlik bulunamadı.'}), 404)
     user_context = UserContext.from_dict(data)
+    
+    context_text = user_context.get_context_text().strip()
+    is_empty_profile = not context_text
+    
+    explanation_text = ""
+    if is_empty_profile:
+        explanation_text = "Profilindeki bilgiler bu etkinlik için yeterli kişiselleştirme sağlamıyor. Sana özel öneriler için 15 soruluk testi tamamlayabilirsin."
+    else:
+        # Gemini ile açıklama üret (Kişiselleştirilmiş AI Explanation)
+        api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+        if api_key:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-2.0-flash')
+                prompt = f"""Sen bir gönüllülük platformu yapay zekasısın. Gönüllüye, aşağıdaki etkinliğin ona NEDEN uygun olduğunu 2-3 cümleyle samimi bir dille açıkla.
+YALNIZCA açıklama metnini döndür. Yorum yapma, Markdown kullanma.
+Gönüllü Profili: Şehir: {user_context.city}, Beceriler: {', '.join(user_context.skills)}, İlgi Alanları: {', '.join(user_context.interests)}, Geçmiş Katılımlar: {', '.join(user_context.past_participations)}
+Etkinlik: Başlık: {event.title}, Açıklama: {event.description}, Kategori: {event.category}, Gereksinimler: {event.requirements}
+                """
+                response = model.generate_content(prompt)
+                explanation_text = response.text.strip()
+            except Exception as e:
+                explanation_text = ""
+                
     rec_engine = RecommendationEngine()
-    explanation = rec_engine.explain(user_context, event)
-    return (jsonify({'explanation': explanation}), 200)
+    scored = rec_engine.score_event(user_context, event)
+    
+    if not explanation_text:
+        # Fallback (Rule-based)
+        explanation_text = "Bu etkinlik genel profil kriterlerinize temel düzeyde uyum sağlamaktadır."
+        
+    return (jsonify({
+        'explanation': {
+            'text': explanation_text,
+            'is_empty_profile': is_empty_profile,
+            'total_score': scored.total_score,
+            'matching_details': scored.matching_details
+        }
+    }), 200)
 
 @recommendations_bp.route('/evaluate-applicant', methods=['POST'])
 @jwt_required()
@@ -149,6 +205,35 @@ def evaluate_applicant():
     if not req_list:
         missing_info.append("Etkinlik için özel beceri kriteri tanımlanmamış.")
     summary = "Bu aday etkinliğiniz için uygun olabilir." if (matching_skills or matching_interests or city_matched) else "Adayın profil bilgileri ile etkinlik kriterleri arasında doğrudan eşleşme tespit edilemedi."
+
+    # Gemini ile Semantik Değerlendirme
+    applicant_data = {
+        'bio': vp.bio,
+        'interests': vp.interests_list,
+        'skills': vp.skills_list,
+        'city': vp.city
+    }
+    event_data = {
+        'title': event.title,
+        'description': event.description,
+        'requirements': event.requirements,
+        'category': event.category,
+        'city': event.city
+    }
+    
+    evaluation_result = evaluate_applicant_with_gemini(applicant_data, event_data)
+    
+    # Eğer Gemini hata verirse veya anahtar yoksa kural tabanlı fallback'e geç
+    if not evaluation_result:
+        evaluation_result = {
+            'match_score': 80 if (matching_skills and city_matched) else (60 if matching_skills or matching_interests else 40),
+            'summary': summary,
+            'strengths': matching_skills + (matching_interests if matching_interests else []),
+            'gaps': missing_info,
+            'recommendation': 'strong_match' if matching_skills and city_matched else ('possible_match' if matching_skills or matching_interests else 'weak_match'),
+            'source': 'rule-based'
+        }
+
     return (jsonify({
         'applicant': {
             'user_id': vp.user_id,
@@ -165,12 +250,9 @@ def evaluate_applicant():
             'city': event.city,
             'requirements': event.requirements
         },
-        'evaluation': {
-            'summary': summary,
+        'evaluation': evaluation_result,
+        'rule_based_details': {
             'matching_skills': matching_skills,
             'matching_interests': matching_interests,
             'city_match': city_matched,
-            'reasons': reasons,
-            'missing_info': missing_info
-        }
     }), 200)
