@@ -255,4 +255,7 @@ def evaluate_applicant():
             'matching_skills': matching_skills,
             'matching_interests': matching_interests,
             'city_match': city_matched,
+            'reasons': reasons,
+            'missing_info': missing_info
+        }
     }), 200)
