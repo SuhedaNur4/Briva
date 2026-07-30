@@ -20,6 +20,29 @@ def register():
     user = User(email=email, role=role)
     user.set_password(password)
     db.session.add(user)
+    db.session.flush() # Get user ID
+    
+    if role == 'volunteer':
+        from app.models.volunteer import VolunteerProfile
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        if not first_name or not last_name:
+            return (jsonify({'error': 'Ad ve soyad zorunludur.'}), 400)
+        
+        profile = VolunteerProfile(user_id=user.id, first_name=first_name, last_name=last_name)
+        
+        if data.get('phone'):
+            profile.phone = data.get('phone')
+        
+        if data.get('birth_date'):
+            from datetime import date
+            try:
+                profile.birth_date = date.fromisoformat(data['birth_date'])
+            except ValueError:
+                return (jsonify({'error': 'Geçersiz doğum tarihi formatı (YYYY-MM-DD bekleniyor).'}), 400)
+        
+        db.session.add(profile)
+        
     db.session.commit()
     token = create_access_token(identity=str(user.id))
     return (jsonify({'message': 'Kayıt başarılı.', 'access_token': token, 'user': user.to_dict()}), 201)
