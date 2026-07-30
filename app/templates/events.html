@@ -80,6 +80,80 @@
     gap: 8px;
     align-items: flex-end;
   }
+  
+  /* QUIZ CTA */
+  .orgs-quiz-cta {
+    background:var(--sage, #e8f0eb);
+    padding: 40px 20px;
+    position:relative; overflow:hidden;
+    margin: 40px auto 20px;
+    border-radius: 32px;
+    max-width: 1200px;
+  }
+  .orgs-quiz-cta-card {
+    max-width:860px; margin:0 auto;
+    background:var(--green-deep, #0f5238);
+    border-radius:32px;
+    padding:50px;
+    display:flex; align-items:center; gap:48px;
+    position:relative; overflow:hidden;
+    cursor:default;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    will-change:transform;
+  }
+  .orgs-quiz-cta-card::before {
+    content:'';
+    position:absolute; top:-100px; right:-100px;
+    width:400px; height:400px;
+    background:rgba(255,255,255,0.04);
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .orgs-quiz-cta-text { flex:1; }
+  .orgs-quiz-cta-text h2 {
+    font-size:clamp(1.6rem,3vw,2.4rem);
+    font-weight:900; color:white;
+    letter-spacing:-0.03em; margin-bottom:14px;
+  }
+  .orgs-quiz-cta-text p {
+    color:rgba(255,255,255,0.6);
+    font-size:0.95rem; line-height:1.65;
+    max-width:440px;
+  }
+  .orgs-quiz-cta-btn {
+    background:white; color:var(--green-deep, #0f5238);
+    padding:18px 40px; border-radius:99px;
+    font-size:1rem; font-weight:800;
+    text-decoration:none; white-space:nowrap; flex-shrink:0;
+    box-shadow:0 8px 32px rgba(0,0,0,0.18);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .orgs-quiz-cta-btn:hover {
+    transform:translateY(-4px);
+    box-shadow:0 16px 40px rgba(0,0,0,0.22);
+  }
+  @media(max-width:700px){
+    .orgs-quiz-cta-card { flex-direction:column; text-align:center; padding:48px 32px; }
+    .orgs-quiz-cta-btn { width:100%; text-align:center; }
+  }
+
+  .scroll-reveal-text {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    color: var(--green-deep, #0f5238);
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    margin: 40px auto 30px;
+    max-width: 800px;
+    opacity: 0;
+    transform: scale(0.8) translateY(30px);
+    transition: opacity 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .scroll-reveal-text.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 </style>
 
 <div class="events-page-hero">
@@ -89,7 +163,22 @@
   </div>
 </div>
 
-<div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
+<div class="container" style="padding-top: var(--space-4); padding-bottom: var(--space-16);">
+  
+  <div class="scroll-reveal-text" id="reveal-text">
+    Henüz testi yapmadın mı?<br>
+    <span style="font-size: 0.55em; color: var(--text-muted); font-weight: 600; display: block; margin-top: 16px; letter-spacing: 0;">Seni daha yakından tanımak ve sana en uygun etkinlikleri önermek istiyoruz!</span>
+  </div>
+  <section class="orgs-quiz-cta">
+    <div class="orgs-quiz-cta-card" id="quiz-cta-card">
+      <div class="orgs-quiz-cta-text">
+        <h2>Birbirimizi Yakından Tanıyalım</h2>
+        <p>15 soruluk Bivi Testini çöz. Smart-Match motorumuz cevaplarından senin için en uygun STK'ları ve etkinlikleri belirleyerek önerilerini oluşturur.</p>
+      </div>
+      <a href="/quiz" class="orgs-quiz-cta-btn">Teste Git →</a>
+    </div>
+  </section>
+
   <section class="filter-pill-bar" aria-label="Etkinlik Filtreleri" style="max-width: 1200px; margin: 0 auto 80px;">
     <div class="fpb-group" style="flex: 2; min-width: 200px;">
       <label for="search-input">Ara</label>
@@ -198,5 +287,37 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/events_page.js"></script>
+<script src="{{ url_for('static', filename='js/services/events.js') }}"></script>
+<script src="{{ url_for('static', filename='js/events_page.js') }}"></script>
+<script>
+  // Fluid mouse tilt on quiz CTA card
+  const quizCard = document.getElementById('quiz-cta-card');
+  if (quizCard) {
+    quizCard.addEventListener('mousemove', (e) => {
+      const rect = quizCard.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / (rect.width / 2);
+      const dy = (e.clientY - cy) / (rect.height / 2);
+      quizCard.style.transform = `perspective(800px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.02)`;
+    });
+    quizCard.addEventListener('mouseleave', () => {
+      quizCard.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
+    });
+  }
+
+  // Scroll reveal for the test text
+  const revealText = document.getElementById('reveal-text');
+  if (revealText) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(revealText);
+  }
+</script>
 {% endblock %}
