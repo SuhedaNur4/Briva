@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statTotal = document.getElementById('stat-total-apps');
   const statApproved = document.getElementById('stat-approved-apps');
   const statPending = document.getElementById('stat-pending-apps');
+  const statXpPoints = document.getElementById('stat-xp-points');
 
   const recsSkeleton = document.getElementById('recs-skeleton');
   const recsGrid = document.getElementById('recs-grid');
@@ -85,6 +86,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (user) {
         const name = getattrOr(user, 'volunteer_profile.full_name', user.email || 'Gönüllü');
         if (userDisplayName) userDisplayName.textContent = name;
+        if (statXpPoints) {
+          statXpPoints.textContent = getattrOr(user, 'volunteer_profile.xp_points', 0);
+        }
       }
     } catch (e) {
       if (userDisplayName) userDisplayName.textContent = 'Gönüllü';

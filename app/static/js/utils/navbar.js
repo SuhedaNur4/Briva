@@ -11,8 +11,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await window.authService.me();
       const user = res.data.user || res.data;
       let name = '';
-      if (user.role === 'volunteer' && user.volunteer_profile && user.volunteer_profile.first_name) {
-        name = user.volunteer_profile.first_name;
+      if (user.role === 'volunteer' && user.volunteer_profile) {
+        name = user.volunteer_profile.first_name || user.email.split('@')[0];
+        
+        // Gamification / XP gösterimi
+        const xpBadge = document.getElementById('nav-xp-badge');
+        const xpPoints = document.getElementById('nav-xp-points');
+        if (xpBadge && xpPoints) {
+          xpPoints.textContent = user.volunteer_profile.xp_points || 0;
+          xpBadge.style.display = 'flex';
+        }
       } else if (user.role === 'organization' && user.organization && user.organization.name) {
         name = user.organization.name;
       } else {
