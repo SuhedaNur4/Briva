@@ -31,9 +31,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const historyEmpty = document.getElementById('history-empty');
 
 
+  // --- Auth Check ---
   if (!window.apiService.getToken()) {
-    if (loginSection) loginSection.style.display = 'block';
-    if (dashContent) dashContent.style.display = 'none';
+    window.location.href = '/login';
+    return;
   } else {
     if (loginSection) loginSection.style.display = 'none';
     if (dashContent) dashContent.style.display = 'block';
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadGamification();
     loadXpHistory();
     loadLeaderboard();
+    loadBiviProfile();
   }
 
   async function loadUser() {
@@ -86,6 +88,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (user) {
         const name = getattrOr(user, 'volunteer_profile.full_name', user.email || 'Gönüllü');
         if (userDisplayName) userDisplayName.textContent = name;
+        
+        const avatarInitial = document.getElementById('profile-avatar-initial');
+        if (avatarInitial) {
+          avatarInitial.textContent = name.charAt(0).toUpperCase();
+        }
+        
         if (statXpPoints) {
           statXpPoints.textContent = getattrOr(user, 'volunteer_profile.xp_points', 0);
         }
@@ -155,6 +163,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('profile-bio').value = vp.bio || '';
         document.getElementById('profile-skills').value = (vp.skills || []).join(', ');
         document.getElementById('profile-interests').value = (vp.interests || []).join(', ');
+        
+        try {
+          const authRes = await window.authService.me();
+          if (authRes.data && authRes.data.user) {
+            document.getElementById('profile-email').value = authRes.data.user.email || '';
+          }
+        } catch (e) { console.error('Email yüklenemedi'); }
 
         // Phase 17B UX Updates
         const pct = vp.profile_completion_percentage || 0;
@@ -657,6 +672,137 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (skeleton) skeleton.style.display = 'none';
       if (errorEl) errorEl.style.display = 'block';
     }
+  }
+
+  async function loadBiviProfile() {
+    const section = document.getElementById('bivi-profile-section');
+    const interestsContainer = document.getElementById('bivi-interests-container');
+    const skillsContainer = document.getElementById('bivi-skills-container');
+    if (!section || !interestsContainer || !skillsContainer) return;
+
+    try {
+      const res = await window.volunteersService.getMe();
+      const vp = res.data.volunteer;
+      if (vp && (vp.interests.length > 0 || vp.skills.length > 0)) {
+        section.style.display = 'block';
+        
+        interestsContainer.innerHTML = '';
+        if (vp.interests && vp.interests.length > 0) {
+          vp.interests.forEach(interest => {
+            const el = document.createElement('span');
+            el.style.background = '#e8f0eb';
+            el.style.color = '#093424';
+            el.style.padding = '6px 16px';
+            el.style.borderRadius = '99px';
+            el.style.fontSize = '0.9rem';
+            el.style.fontWeight = '600';
+            el.style.border = '1px solid #d4e4da';
+            el.textContent = interest.charAt(0).toUpperCase() + interest.slice(1);
+            interestsContainer.appendChild(el);
+          });
+        } else {
+          interestsContainer.innerHTML = '<span style="color:var(--text-muted);font-size:0.9rem;">Belirtilmemiş</span>';
+        }
+
+        skillsContainer.innerHTML = '';
+        if (vp.skills && vp.skills.length > 0) {
+          vp.skills.forEach(skill => {
+            const el = document.createElement('span');
+            el.style.background = '#fff4e5';
+            el.style.color = '#b37400';
+            el.style.padding = '6px 16px';
+            el.style.borderRadius = '99px';
+            el.style.fontSize = '0.9rem';
+            el.style.fontWeight = '600';
+            el.style.border = '1px solid #ffe8cc';
+            el.textContent = skill.charAt(0).toUpperCase() + skill.slice(1);
+            skillsContainer.appendChild(el);
+          });
+        } else {
+          skillsContainer.innerHTML = '<span style="color:var(--text-muted);font-size:0.9rem;">Belirtilmemiş</span>';
+        }
+      } else {
+        section.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('Bivi profil verisi yüklenemedi', e);
+    }
+  }
+
+  // --- Profile Modal Logic ---
+  const editProfileBtn = document.getElementById('edit-profile-btn');
+  const profileModal = document.getElementById('profile-modal');
+  const closeProfileModalBtn = document.getElementById('close-profile-modal');
+  const profileForm2 = document.getElementById('profile-form');
+  const profError = document.getElementById('prof-error');
+  const profSubmitBtn = document.getElementById('prof-submit-btn');
+
+  if (editProfileBtn && profileModal) {
+    editProfileBtn.addEventListener('click', async () => {
+      // Fetch current profile and populate
+      try {
+        const res = await window.volunteersService.getMe();
+        const vp = res.data.volunteer;
+        if (vp) {
+          document.getElementById('prof-firstname').value = vp.first_name || '';
+          document.getElementById('prof-lastname').value = vp.last_name || '';
+          document.getElementById('prof-phone').value = vp.phone || '';
+          document.getElementById('prof-city').value = vp.city || '';
+          document.getElementById('prof-birthdate').value = vp.birth_date || '';
+          document.getElementById('prof-interests').value = (vp.interests || []).join(', ');
+          document.getElementById('prof-skills').value = (vp.skills || []).join(', ');
+          document.getElementById('prof-bio').value = vp.bio || '';
+        }
+      } catch (e) {
+        console.warn('Profil verisi alınamadı:', e);
+      }
+      profileModal.style.display = 'flex';
+    });
+  }
+
+  if (closeProfileModalBtn && profileModal) {
+    closeProfileModalBtn.addEventListener('click', () => {
+      profileModal.style.display = 'none';
+      if (profError) profError.style.display = 'none';
+    });
+  }
+
+  if (profileForm2) {
+    profileForm2.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (profSubmitBtn.disabled) return;
+      
+      const payload = {
+        first_name: document.getElementById('prof-firstname').value.trim(),
+        last_name: document.getElementById('prof-lastname').value.trim(),
+        phone: document.getElementById('prof-phone').value.trim(),
+        city: document.getElementById('prof-city').value.trim(),
+        birth_date: document.getElementById('prof-birthdate').value.trim(),
+        bio: document.getElementById('prof-bio').value.trim(),
+        interests: document.getElementById('prof-interests').value.split(',').map(s => s.trim()).filter(Boolean),
+        skills: document.getElementById('prof-skills').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      profSubmitBtn.disabled = true;
+      profSubmitBtn.textContent = 'Kaydediliyor...';
+      if (profError) profError.style.display = 'none';
+
+      try {
+        await window.apiService.put('/api/volunteers/me', payload);
+        window.ui.showToast('Profil başarıyla güncellendi.', 'success');
+        profileModal.style.display = 'none';
+        window.location.reload();
+      } catch (error) {
+        if (profError) {
+          profError.style.display = 'block';
+          profError.textContent = error.message || 'Profil güncellenirken bir hata oluştu.';
+        }
+        window.ui.showToast('Profil kaydedilemedi.', 'error');
+      } finally {
+        profSubmitBtn.disabled = false;
+        profSubmitBtn.textContent = 'Kaydet';
+      }
+    });
   }
 
 });
