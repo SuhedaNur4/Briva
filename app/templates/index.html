@@ -19,6 +19,7 @@
     padding: 80px 64px;
     position: relative;
     overflow: hidden;
+    border-radius: 0 120px 120px 0;
   }
   .hero-left::before {
     content: '';
@@ -614,13 +615,13 @@
     
     <div class="scroll-text-row" id="story-row-1">
       <div class="scroll-text-content">
-        <span class="section-label">Briva Nedir?</span>
-        <h3>Seninle Birlikte Büyüyen Bir Hikaye</h3>
+        <h2 style="font-size: 2.5rem; color: var(--primary-main); font-weight: 900; margin-bottom: 8px;">Briva Nedir?</h2>
+        <h3 style="font-size: 1.5rem; margin-bottom: 24px; color: var(--text-main);">Seninle Birlikte Büyüyen Bir Hikaye</h3>
         <p>Briva, sıradan bir ilan panosu olmanın çok ötesinde, seni anlayan ve yönlendiren bir rehberdir. Gönüllülük yapmak istediğinde, genellikle karşına çıkan karmaşık başvuru süreçleri, uygun olmayan zaman dilimleri veya yeteneklerine hitap etmeyen görevler motivasyonunu kırabilir.</p>
         <p style="margin-top: 12px;">İşte tam bu noktada Briva devreye giriyor. Seni saatlerce uygun bir proje arama derdinden kurtarıp, ilgi alanlarına ve programına en uygun sivil toplum projelerini doğrudan karşına çıkarıyoruz.</p>
-        <div class="scroll-text-img">
-        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80" alt="Briva İyilik Ağı">
       </div>
+      <div class="scroll-text-img">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80" alt="Briva İyilik Ağı">
       </div>
     </div>
     
@@ -1108,6 +1109,22 @@
     document.querySelectorAll('.scroll-text-row').forEach(el => observer.observe(el));
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
+    // Fluid mouse tilt for guest banner
+    const guestCard = document.getElementById('ai-recs-guest');
+    if (guestCard) {
+      guestCard.addEventListener('mousemove', (e) => {
+        const rect = guestCard.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        guestCard.style.transform = `perspective(800px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.02)`;
+      });
+      guestCard.addEventListener('mouseleave', () => {
+        guestCard.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
+      });
+    }
+
     // AI önerileri
     const token = localStorage.getItem('briva_access_token') || sessionStorage.getItem('briva_access_token');
     if (token) {
@@ -1153,12 +1170,12 @@
 
   // Hero Slider
   const heroImages = [
-    "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80"
+    "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1531206715517-5c0ba140b4b8?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80"
   ];
   const heroSlider = document.getElementById('hero-slider');
   if (heroSlider) {

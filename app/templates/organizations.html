@@ -112,54 +112,7 @@
 }
 .orgs-zebra-text .detail-btn:hover { gap:14px; }
 
-/* QUIZ CTA — FLUID (mouse-aware) */
-.orgs-quiz-cta {
-  background:var(--sage);
-  padding:100px 40px;
-  position:relative; overflow:hidden;
-}
-.orgs-quiz-cta-card {
-  max-width:860px; margin:0 auto;
-  background:var(--green-deep);
-  border-radius:32px;
-  padding:72px;
-  display:flex; align-items:center; gap:48px;
-  position:relative; overflow:hidden;
-  cursor:default;
-  transition:transform 0.15s ease, box-shadow 0.15s ease;
-  will-change:transform;
-}
-.orgs-quiz-cta-card::before {
-  content:'';
-  position:absolute; top:-100px; right:-100px;
-  width:400px; height:400px;
-  background:rgba(255,255,255,0.04);
-  border-radius:50%;
-  pointer-events:none;
-}
-.orgs-quiz-cta-text { flex:1; }
-.orgs-quiz-cta-text h2 {
-  font-size:clamp(1.6rem,3vw,2.4rem);
-  font-weight:900; color:white;
-  letter-spacing:-0.03em; margin-bottom:14px;
-}
-.orgs-quiz-cta-text p {
-  color:rgba(255,255,255,0.6);
-  font-size:0.95rem; line-height:1.65;
-  max-width:440px;
-}
-.orgs-quiz-cta-btn {
-  background:white; color:var(--green-deep);
-  padding:18px 40px; border-radius:99px;
-  font-size:1rem; font-weight:800;
-  text-decoration:none; white-space:nowrap; flex-shrink:0;
-  box-shadow:0 8px 32px rgba(0,0,0,0.18);
-  transition:transform 0.2s, box-shadow 0.2s;
-}
-.orgs-quiz-cta-btn:hover {
-  transform:translateY(-4px);
-  box-shadow:0 16px 40px rgba(0,0,0,0.22);
-}
+
 
 /* STK GRID */
 .orgs-list-section {
@@ -262,8 +215,7 @@
 @media(max-width:700px){
   .orgs-zebra-row { grid-template-columns:1fr; gap:32px; }
   .orgs-zebra-row.reverse { direction:ltr; }
-  .orgs-quiz-cta-card { flex-direction:column; text-align:center; padding:48px 32px; }
-  .orgs-quiz-cta-btn { width:100%; text-align:center; }
+
   .orgs-hero { padding:72px 24px 60px; }
   .orgs-list-section, .orgs-quiz-cta { padding:64px 24px; }
   .orgs-mission-inner { padding:0 24px; }
@@ -333,16 +285,7 @@
   </div>
 </section>
 
-<!-- QUIZ CTA (fluid, mouse-aware) -->
-<section class="orgs-quiz-cta">
-  <div class="orgs-quiz-cta-card" id="quiz-cta-card">
-    <div class="orgs-quiz-cta-text">
-      <h2>Birbirimizi Yakından Tanıyalım</h2>
-      <p>15 soruluk Bivi Testini çöz. Smart-Match motorumuz cevaplarından senin için en uygun STK'ları ve etkinlikleri belirleyerek önerilerini oluşturur.</p>
-    </div>
-    <a href="/quiz" class="orgs-quiz-cta-btn">Teste Git →</a>
-  </div>
-</section>
+
 
 <!-- STK LİSTESİ -->
 <section class="orgs-list-section" id="org-list">
@@ -448,21 +391,7 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll('.orgs-zebra-row').forEach(el => observer.observe(el));
 
-// Fluid mouse tilt on quiz CTA card
-const card = document.getElementById('quiz-cta-card');
-if (card) {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / (rect.width / 2);
-    const dy = (e.clientY - cy) / (rect.height / 2);
-    card.style.transform = `perspective(800px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.02)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
-  });
-}
+
 </script>
 {% endblock %}
 
