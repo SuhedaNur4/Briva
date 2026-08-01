@@ -31,10 +31,17 @@ def seed():
         volunteer3 = User(email='mehmet@example.com', role='volunteer')
         volunteer3.set_password('password123')
 
-        # 15 STK kullanıcısı
+        # 20 STK kullanıcısı
+        org_emails = [
+            'tev@briva.com', 'kacuv@briva.com', 'tema@briva.com', 'losev@briva.com',
+            'cydd@briva.com', 'kizilay@briva.com', 'afad@briva.com', 'akut@briva.com',
+            'darussafaka@briva.com', 'tog@briva.com', 'kedv@briva.com', 'koruncuk@briva.com',
+            'acev@briva.com', 'tsd@briva.com', 'yesilay@briva.com', 'turkkanserdernegi@briva.com',
+            'morcati@briva.com', 'turmepa@briva.com', 'ttkd@briva.com', 'haytap@briva.com'
+        ]
         org_users = []
-        for i in range(1, 21):
-            u = User(email=f'stk{i}@briva.com', role='organization')
+        for em in org_emails:
+            u = User(email=em, role='organization')
             u.set_password('password123')
             org_users.append(u)
 
@@ -57,28 +64,28 @@ def seed():
             city='İzmir', interests='hayvan hakları,çevre', skills='fotoğrafçılık,sosyal medya')
         db.session.add_all([profile1, profile2, profile3])
 
-        print('[*] 15 STK profili olusturuluyor...')
+        print('[*] 20 STK profili olusturuluyor...')
         orgs_data = [
-            dict(name='Türk Eğitim Vakfı (TEV)', description='Eğitimde fırsat eşitliği için öğrencilere burs ve eğitim destekleri sunan Türkiye\'nin köklü eğitim vakfı. TEV gönüllüsü olarak gençlerin aydınlık geleceğine katkı sağlayabilir, çeşitli projelerde mentor veya destekçi olarak yer alabilirsiniz.', website='https://www.tev.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tev.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='AKUT Arama Kurtarma Derneği', description='Doğal afetlerde, kazalarda arama kurtarma çalışmaları yapan, alanında öncü gönüllü kuruluş. AKUT gönüllüsü olarak arama kurtarma operasyonlarında, lojistik destekte veya farkındalık eğitimlerinde görev alabilirsiniz.', website='https://www.akut.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=akut.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='TEMA Vakfı', description='Türkiye\'nin çöl olmasını engellemek, erozyonla mücadele ve doğa koruma çalışmaları yürüten vakıf. "Toprak Dede"nin izinden giderek fidan dikimi etkinliklerine, çevre eğitimlerine ve doğa yürüyüşlerine katılabilirsiniz.', website='https://www.tema.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tema.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Darüşşafaka Cemiyeti', description='Babası veya annesi hayatta olmayan, maddi olanakları yetersiz yetenekli çocuklara nitelikli eğitim veren cemiyet. Darüşşafaka\'nın eğitim misyonuna destek olmak için organizasyonlarda ve bağış kampanyalarında gönüllü olabilirsiniz.', website='https://www.darussafaka.org/', logo_url='https://www.google.com/s2/favicons?domain=darussafaka.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türk Kızılay', description='Afet müdahalesi, kan hizmetleri ve insani yardımlar konusunda ulusal ve uluslararası ölçekte çalışan kurum. Kızılay gönüllüleri, kan bağışı organizasyonlarından afet bölgelerindeki yardım dağıtımlarına kadar geniş bir yelpazede çalışır.', website='https://www.kizilay.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=kizilay.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='LÖSEV', description='Lösemili çocukların sağlık ve eğitim başta olmak üzere her türlü ihtiyaçlarının sağlanması için çalışan vakıf. LSV Dükkan, hastane etkinlikleri veya kampanya süreçlerinde aktif rol alarak lösemili çocuklara umut olabilirsiniz.', website='https://www.losev.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=losev.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Hayvan Hakları Federasyonu (HAYTAP)', description='Hayvan haklarının yasalarla güvence altına alınması ve toplumda farkındalık yaratılması için çalışan federasyon. Barınak iyileştirme, mama dağıtımı ve hukuki hak arama süreçlerinde HAYTAP\'a destek olabilirsiniz.', website='https://www.haytap.org/', logo_url='https://www.google.com/s2/favicons?domain=haytap.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türkiye Spastik Çocuklar Vakfı', description='Cerebral Palsy\'li çocuk ve erişkinlere teşhis, tedavi ve özel eğitim hizmeti veren vakıf. Etkinlik destekçisi, idari işler yardımcısı veya yetenekleriniz doğrultusunda özel atölye eğitmeni olarak çocuklara destek sağlayabilirsiniz.', website='https://www.tscv.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tscv.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='KAÇUV', description='Kanserli çocukların tedavilerinin sürekliliğini sağlamak ve ailelerine psikolojik, sosyal destek veren vakıf. Aile evlerinde, hastane oyun odalarında veya organizasyonlarda çocukların yüzünü güldüren etkinliklere katılabilirsiniz.', website='https://kacuv.org/', logo_url='https://www.google.com/s2/favicons?domain=kacuv.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türkiye Down Sendromu Derneği', description='Down sendromlu bireylerin toplumda bağımsız ve eşit yaşam sürmeleri için projeler üreten dernek. İş koçluğu, etkinlik asistanlığı veya farkındalık kampanyalarında görev alarak kapsayıcı bir toplum inşasına destek olabilirsiniz.', website='https://www.downturkiye.org/', logo_url='https://www.google.com/s2/favicons?domain=downturkiye.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Toplum Gönüllüleri Vakfı (TOG)', description='Gençlerin öncülüğünde sivil toplum projeleri yaratarak gençlerin kişisel gelişimlerini destekleyen vakıf. Üniversite kulüplerinde örgütlenerek yerel sorunlara çözüm üreten projeler tasarlayabilir ve uygulayabilirsiniz.', website='https://www.tog.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tog.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Kadın Emeğini Değerlendirme Vakfı (KEDV)', description='Dar gelirli kadınların ekonomik ve sosyal olarak güçlenmelerini, yerel kalkınmaya liderlik etmelerini destekleyen vakıf. Kadın kooperatifleri ve erken çocukluk eğitimi projelerinde uzmanlığınızla katkı sunabilirsiniz.', website='https://www.kedv.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=kedv.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türkiye Korunmaya Muhtaç Çocuklar Vakfı (KORUNCUK)', description='Çocukların sevgi ve şefkatle büyüdüğü, eğitimlerinden mahrum kalmadığı bir yaşam kurmak için çalışan vakıf. Koruncukköy\'lerde veya idari ofislerde, çocukların sosyal ve kültürel gelişimlerine destek olabilirsiniz.', website='https://koruncuk.org/', logo_url='https://www.google.com/s2/favicons?domain=koruncuk.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='AÇEV', description='Erken çocukluk, anne-baba ve kadın destek eğitimleriyle toplumsal gelişime katkı sağlayan vakıf. Saha araştırmalarında, ofis çalışmalarında veya eğitim materyallerinin hazırlanmasında AÇEV ekibine gönüllü destek verebilirsiniz.', website='https://www.acev.org/', logo_url='https://www.google.com/s2/favicons?domain=acev.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türkiye Sakatlar Derneği', description='Engelli bireylerin haklarını savunan, onların sosyal ve ekonomik hayata entegrasyonu için çalışan dernek. Erişilebilirlik projeleri, tekerlekli sandalye dağıtımı ve sosyal etkinliklerde derneğin çalışmalarına destek olabilirsiniz.', website='https://www.tsd.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tsd.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Yeşilay', description='Toplumu başta sigara, alkol, uyuşturucu olmak üzere her türlü bağımlılıktan korumak için çalışan kurum. Sağlıklı yaşam bilincini artırmaya yönelik seminerler, gençlik kampları ve spor etkinliklerinde gönüllü elçi olabilirsiniz.', website='https://www.yesilay.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=yesilay.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türk Kanser Derneği', description='Kanser hastalıklarıyla ilgili farkındalık yaratma, erken teşhis ve tedavi süreçlerinde hastalara destek olan dernek. Bilinçlendirme kampanyalarında, hasta ziyaretlerinde veya organizasyonel süreçlerde yer alabilirsiniz.', website='https://www.turkkanserdernegi.org/', logo_url='https://www.google.com/s2/favicons?domain=turkkanserdernegi.org&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Mor Çatı Kadın Sığınağı Vakfı', description='Erkek şiddetine maruz kalan kadınlara psikolojik, hukuki destek veren ve sığınak çalışması yürüten vakıf. Dayanışma merkezlerinde, organizasyonlarda veya uzmanlık alanınıza (hukuk, psikoloji) göre gönüllü destek sağlayabilirsiniz.', website='https://morcati.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=morcati.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='DenizTemiz Derneği (TURMEPA)', description='Türkiye\'nin denizlerinin ve su yollarının temizliğini sağlamak, korumak ve gelecek nesillere aktarmak için çalışan dernek. Kıyı temizlik etkinliklerine, sualtı atık çıkarma organizasyonlarına ve eğitim projelerine katılabilirsiniz.', website='https://www.turmepa.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=turmepa.org.tr&sz=128', phone='', address='', city='', is_verified=True),
-            dict(name='Türkiye Tabiatını Koruma Derneği (TTKD)', description='Türkiye\'nin doğal zenginliklerini, flora ve faunasını korumak için bilimsel ve eğitimsel çalışmalar yapan dernek. Doğa kamplarında, ekolojik araştırmalarda ve çevre bilinci yaratma projelerinde aktif rol alabilirsiniz.', website='https://www.ttkd.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=ttkd.org.tr&sz=128', phone='', address='', city='', is_verified=True),
+            dict(name='Türk Eğitim Vakfı (TEV)', description="Eğitimde fırsat eşitliği için öğrencilere burs ve eğitim destekleri sunan Türkiye'nin köklü eğitim vakfı. TEV gönüllüsü olarak gençlerin aydınlık geleceğine katkı sağlayabilir, çeşitli projelerde mentor veya destekçi olarak yer alabilirsiniz.", website='https://www.tev.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tev.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Kanserli Çocuklara Umut Vakfı (KAÇUV)', description="Kanserli çocukların tedavilerinin sürekliliğini sağlamak ve ailelerine psikolojik, sosyal destek veren vakıf. Aile evlerinde, hastane oyun odalarında veya organizasyonlarda çocukların yüzünü güldüren etkinliklere katılabilirsiniz.", website='https://kacuv.org/', logo_url='https://www.google.com/s2/favicons?domain=kacuv.org&sz=128', city='İstanbul', is_verified=True),
+            dict(name='TEMA Vakfı', description="Türkiye'nin çöl olmasını engellemek, erozyonla mücadele ve doğa koruma çalışmaları yürüten vakıf. Toprak Dede'nin izinden giderek fidan dikimi etkinliklerine, çevre eğitimlerine ve doğa yürüyüşlerine katılabilirsiniz.", website='https://www.tema.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tema.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='LÖSEV', description="Lösemili çocukların sağlık ve eğitim başta olmak üzere her türlü ihtiyaçlarının sağlanması için çalışan vakıf. LSV Dükkan, hastane etkinlikleri veya kampanya süreçlerinde aktif rol alarak lösemili çocuklara umut olabilirsiniz.", website='https://www.losev.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=losev.org.tr&sz=128', city='Ankara', is_verified=True),
+            dict(name='Çağdaş Yaşamı Destekleme Derneği (ÇYDD)', description="Atatürk ilke ve devrimlerini korumak, geliştirmek, çağdaş eğitim yoluyla çağdaş insan ve çağdaş topluma ulaşmak amacını güden dernek. ÇYDD gönüllüsü olarak gençlerin eğitimine ve kişisel gelişimine katkı sağlayan projelerde yer alabilirsiniz.", website='https://www.cydd.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=cydd.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Türk Kızılay', description="Afet müdahalesi, kan hizmetleri ve insani yardımlar konusunda ulusal ve uluslararası ölçekte çalışan kurum. Kızılay gönüllüleri, kan bağışı organizasyonlarından afet bölgelerindeki yardım dağıtımlarına kadar geniş bir yelpazede çalışır.", website='https://www.kizilay.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=kizilay.org.tr&sz=128', city='Ankara', is_verified=True),
+            dict(name='AFAD', description="Afet ve acil durumlara müdahale eden resmi kurum. AFAD Gönüllüsü olarak afet öncesi eğitimlere katılabilir ve olası afetlerde arama-kurtarma, ilk yardım ve lojistik destek ekiplerinde görev alabilirsiniz.", website='https://www.afad.gov.tr/', logo_url='https://www.google.com/s2/favicons?domain=afad.gov.tr&sz=128', city='Ankara', is_verified=True),
+            dict(name='AKUT Arama Kurtarma', description="Doğal afetlerde, kazalarda arama kurtarma çalışmaları yapan, alanında öncü gönüllü kuruluş. AKUT gönüllüsü olarak arama kurtarma operasyonlarında, lojistik destekte veya farkındalık eğitimlerinde görev alabilirsiniz.", website='https://www.akut.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=akut.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Darüşşafaka Cemiyeti', description="Babası veya annesi hayatta olmayan, maddi olanakları yetersiz yetenekli çocuklara nitelikli eğitim veren cemiyet. Darüşşafaka'nın eğitim misyonuna destek olmak için organizasyonlarda ve bağış kampanyalarında gönüllü olabilirsiniz.", website='https://www.darussafaka.org/', logo_url='https://www.google.com/s2/favicons?domain=darussafaka.org&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Toplum Gönüllüleri Vakfı (TOG)', description="Gençlerin öncülüğünde sivil toplum projeleri yaratarak gençlerin kişisel gelişimlerini destekleyen vakıf. Üniversite kulüplerinde örgütlenerek yerel sorunlara çözüm üreten projeler tasarlayabilir ve uygulayabilirsiniz.", website='https://www.tog.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tog.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Kadın Emeğini Değerlendirme Vakfı (KEDV)', description="Dar gelirli kadınların ekonomik ve sosyal olarak güçlenmelerini, yerel kalkınmaya liderlik etmelerini destekleyen vakıf. Kadın kooperatifleri ve erken çocukluk eğitimi projelerinde uzmanlığınızla katkı sunabilirsiniz.", website='https://www.kedv.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=kedv.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Türkiye Korunmaya Muhtaç Çocuklar Vakfı (KORUNCUK)', description="Çocukların sevgi ve şefkatle büyüdüğü, eğitimlerinden mahrum kalmadığı bir yaşam kurmak için çalışan vakıf. Koruncukköy'lerde veya idari ofislerde, çocukların sosyal ve kültürel gelişimlerine destek olabilirsiniz.", website='https://koruncuk.org/', logo_url='https://www.google.com/s2/favicons?domain=koruncuk.org&sz=128', city='İstanbul', is_verified=True),
+            dict(name='AÇEV', description="Erken çocukluk, anne-baba ve kadın destek eğitimleriyle toplumsal gelişime katkı sağlayan vakıf. Saha araştırmalarında, ofis çalışmalarında veya eğitim materyallerinin hazırlanmasında AÇEV ekibine gönüllü destek verebilirsiniz.", website='https://www.acev.org/', logo_url='https://www.google.com/s2/favicons?domain=acev.org&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Türkiye Sakatlar Derneği', description="Engelli bireylerin haklarını savunan, onların sosyal ve ekonomik hayata entegrasyonu için çalışan dernek. Erişilebilirlik projeleri, tekerlekli sandalye dağıtımı ve sosyal etkinliklerde derneğin çalışmalarına destek olabilirsiniz.", website='https://www.tsd.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=tsd.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Yeşilay', description="Toplumu başta sigara, alkol, uyuşturucu olmak üzere her türlü bağımlılıktan korumak için çalışan kurum. Sağlıklı yaşam bilincini artırmaya yönelik seminerler, gençlik kampları ve spor etkinliklerinde gönüllü elçi olabilirsiniz.", website='https://www.yesilay.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=yesilay.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Türk Kanser Derneği', description="Kanser hastalıklarıyla ilgili farkındalık yaratma, erken teşhis ve tedavi süreçlerinde hastalara destek olan dernek. Bilinçlendirme kampanyalarında, hasta ziyaretlerinde veya organizasyonel süreçlerde yer alabilirsiniz.", website='https://www.turkkanserdernegi.org/', logo_url='https://www.google.com/s2/favicons?domain=turkkanserdernegi.org&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Mor Çatı Kadın Sığınağı Vakfı', description="Erkek şiddetine maruz kalan kadınlara psikolojik, hukuki destek veren ve sığınak çalışması yürüten vakıf. Dayanışma merkezlerinde, organizasyonlarda veya uzmanlık alanınıza (hukuk, psikoloji) göre gönüllü destek sağlayabilirsiniz.", website='https://morcati.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=morcati.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='DenizTemiz Derneği (TURMEPA)', description="Türkiye'nin denizlerinin ve su yollarının temizliğini sağlamak, korumak ve gelecek nesillere aktarmak için çalışan dernek. Kıyı temizlik etkinliklerine, sualtı atık çıkarma organizasyonlarına ve eğitim projelerine katılabilirsiniz.", website='https://www.turmepa.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=turmepa.org.tr&sz=128', city='İstanbul', is_verified=True),
+            dict(name='Türkiye Tabiatını Koruma Derneği (TTKD)', description="Türkiye'nin doğal zenginliklerini, flora ve faunasını korumak için bilimsel ve eğitimsel çalışmalar yapan dernek. Doğa kamplarında, ekolojik araştırmalarda ve çevre bilinci yaratma projelerinde aktif rol alabilirsiniz.", website='https://www.ttkd.org.tr/', logo_url='https://www.google.com/s2/favicons?domain=ttkd.org.tr&sz=128', city='Ankara', is_verified=True),
+            dict(name='Hayvan Hakları Federasyonu (HAYTAP)', description="Hayvan haklarının yasalarla güvence altına alınması ve toplumda farkındalık yaratılması için çalışan federasyon. Barınak iyileştirme, mama dağıtımı ve hukuki hak arama süreçlerinde HAYTAP'a destek olabilirsiniz.", website='https://www.haytap.org/', logo_url='https://www.google.com/s2/favicons?domain=haytap.org&sz=128', city='İstanbul', is_verified=True),
         ]
 
         orgs = []
@@ -96,22 +103,31 @@ def seed():
         categories = ['çevre', 'eğitim', 'sosyal destek', 'hayvan hakları', 'sağlık', 'kültür sanat', 'afet yardımı']
         cities = ['İstanbul', 'Ankara', 'İzmir', 'Gaziantep', 'Bursa', 'Antalya', 'Trabzon']
         
+        import random
         for i, org in enumerate(orgs):
-            # Etkinlik 1
+            # Generate somewhat random but distinct dates, times, and capacities
+            days_offset_1 = random.randint(1, 15)
+            hours_duration_1 = random.randint(2, 6)
+            capacity_1 = random.choice([10, 15, 20, 30, 50, 100])
+            
             events_data.append(dict(
                 organization_id=org.id,
                 title=f'{org.name} - Saha Çalışması ve Destek',
                 description=f'{org.name} misyonuna katkı sağlamak üzere sahada aktif görev alacak enerjik gönüllüler arıyoruz. Etkinlik boyunca lojistik ve organizasyon süreçlerine destek vereceksiniz.',
                 category=categories[i % len(categories)],
-                city=cities[i % len(cities)],
+                city=cities[(i * 3) % len(cities)],
                 address='Şehir Merkezi Proje Alanı',
-                start_date=now + timedelta(days=i+2),
-                end_date=now + timedelta(days=i+2, hours=5),
-                max_volunteers=25,
+                start_date=now + timedelta(days=days_offset_1, hours=random.randint(9, 14)),
+                end_date=now + timedelta(days=days_offset_1, hours=random.randint(14, 18) + hours_duration_1),
+                max_volunteers=capacity_1,
                 status='published',
                 requirements='18 yaş üzeri, iletişim becerisi kuvvetli.'
             ))
-            # Etkinlik 2
+            
+            days_offset_2 = random.randint(16, 45)
+            hours_duration_2 = random.randint(2, 8)
+            capacity_2 = random.choice([5, 10, 25, 40, 200])
+            
             events_data.append(dict(
                 organization_id=org.id,
                 title=f'{org.name} - Farkındalık ve Eğitim Atölyesi',
@@ -119,9 +135,9 @@ def seed():
                 category='eğitim',
                 city='Online',
                 address='Uzaktan Katılım',
-                start_date=now + timedelta(days=i+5),
-                end_date=now + timedelta(days=i+12),
-                max_volunteers=15,
+                start_date=now + timedelta(days=days_offset_2, hours=random.randint(10, 16)),
+                end_date=now + timedelta(days=days_offset_2, hours=random.randint(16, 20) + hours_duration_2),
+                max_volunteers=capacity_2,
                 status='published'
             ))
 
