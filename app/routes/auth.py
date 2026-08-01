@@ -4,9 +4,12 @@ from app.extensions import db
 from app.models.user import User
 from app.utils.auth_helpers import get_current_user
 from app.utils.validators import parse_request_json, validate_email, validate_password, validate_role
+from app.extensions import limiter
+
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("5 per minute")
 def register():
     try:
         data = parse_request_json(request)
@@ -48,6 +51,7 @@ def register():
     return (jsonify({'message': 'Kayıt başarılı.', 'access_token': token, 'user': user.to_dict()}), 201)
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")
 def login():
     try:
         data = parse_request_json(request)
