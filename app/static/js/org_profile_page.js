@@ -69,18 +69,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dateStr = window.formatDate(ev.start_date);
         const loc = ev.city || 'Konum belirtilmedi';
         return `
-          <div class="event-card">
-            <div class="card-header">
+          <div class="event-card fade-in">
+            <div class="event-card-header">
               <span class="event-category">${ev.category || 'Genel'}</span>
               <span class="event-status published">Yayında</span>
             </div>
-            <h3 class="event-title">${ev.title}</h3>
-            <p class="event-meta">
-              <span>${dateStr}</span>
-              <span>•</span>
-              <span>${loc}</span>
-            </p>
-            <div class="card-footer" style="justify-content: flex-end;">
+            <div class="event-card-body">
+              <h3 class="event-title">${ev.title}</h3>
+              <p class="event-meta">
+                <span>${dateStr}</span>
+                <span>•</span>
+                <span>${loc}</span>
+              </p>
+            </div>
+            <div class="event-card-footer" style="justify-content: flex-end;">
               <a href="/events/${ev.id}" class="btn btn-outline btn-sm">Detayları İncele</a>
             </div>
           </div>
