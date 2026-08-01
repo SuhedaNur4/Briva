@@ -3,11 +3,99 @@
 {% block title %}Gönüllü Kontrol Paneli | Briva{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-16);">
+<style>
+  /* Glassmorphism & Premium UI */
+  .dashboard-wrapper {
+    background-color: #fafcfb;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    overflow: hidden;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-16);
+  }
+  .dashboard-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 230, 207, 0.4) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .dashboard-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(9, 52, 36, 0.08) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .premium-header {
+    background: linear-gradient(135deg, #093424 0%, #146146 100%);
+    color: white;
+    border-radius: 32px;
+    padding: 48px;
+    margin-bottom: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+    box-shadow: 0 24px 48px rgba(9,52,36,0.25);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .premium-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(168,230,207,0.2) 0%, rgba(9,52,36,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .stat-card {
+    border-radius: 24px;
+    padding: 32px 24px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+    z-index: 1;
+  }
+  .stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  }
+  .stat-card.xp {
+    background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+    border: none;
+    box-shadow: 0 12px 32px rgba(245,166,35,0.3);
+  }
+</style>
+
+<div class="dashboard-wrapper">
+<div class="container" style="position: relative; z-index: 1;">
   <div id="dashboard-content" style="display: none;">
-    <header style="background: #093424; color: white; border-radius: 24px; padding: 40px; margin-bottom: 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; box-shadow: 0 12px 40px rgba(9,52,36,0.2);">
-      <div style="display: flex; align-items: center; gap: 24px;">
-        <div id="profile-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; background: #a8e6cf; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #093424; font-weight: 800; cursor: pointer; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);" title="Profil Fotoğrafı Ekle (Yakında)">
+    <header class="premium-header">
+      <div style="display: flex; align-items: center; gap: 24px; position: relative; z-index: 2;">
+        <div id="profile-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; background: #a8e6cf; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #093424; font-weight: 800; cursor: pointer; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.2);" title="Profil Fotoğrafı Ekle (Yakında)">
           <span id="profile-avatar-initial">G</span>
         </div>
         <div>
@@ -15,30 +103,30 @@
           <p style="color: rgba(255,255,255,0.7); font-size: var(--text-base);">Sana uygun yeni fırsatlar var. Katkı sağlamaya hemen devam et.</p>
         </div>
       </div>
-      <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
-        <button type="button" id="edit-profile-btn" class="btn" style="background: rgba(255,255,255,0.15); color: white; border-radius: 99px; border: 1px solid rgba(255,255,255,0.3); font-weight: 700; padding: 12px 24px;">Profili Düzenle</button>
-        <button type="button" id="logout-btn" class="btn" style="background: rgba(255,255,255,0.1); color: white; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2);">Çıkış Yap</button>
+      <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; position: relative; z-index: 2;">
+        <button type="button" id="edit-profile-btn" class="btn" style="background: rgba(255,255,255,0.15); color: white; border-radius: 99px; border: 1px solid rgba(255,255,255,0.3); font-weight: 700; padding: 12px 24px; backdrop-filter: blur(4px);">Profili Düzenle</button>
+        <button type="button" id="logout-btn" class="btn" style="background: rgba(255,255,255,0.1); color: white; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">Çıkış Yap</button>
       </div>
     </header>
 
     <section id="summary-section" style="margin-bottom: var(--space-12);">
       <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Katkı Özeti</h2>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
-        <div style="background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%); border-radius: 20px; padding: 24px; box-shadow: 0 8px 24px rgba(245,166,35,0.2);">
-          <span style="font-size: var(--text-xs); color: rgba(255,255,255,0.9); font-weight: 700; display: block; margin-bottom: 8px;">⭐ İYİLİK PUANI</span>
-          <strong id="stat-xp-points" style="font-size: var(--text-4xl); color: white;">0</strong>
+        <div class="stat-card xp">
+          <span style="font-size: 0.85rem; color: rgba(255,255,255,0.9); font-weight: 700; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">⭐ İYİLİK PUANI (XP)</span>
+          <strong id="stat-xp-points" style="font-size: 3.5rem; color: white; line-height: 1; font-weight: 800;">0</strong>
         </div>
-        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">TOPLAM BAŞVURU</span>
-          <strong id="stat-total-apps" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
+        <div class="stat-card" style="border-bottom: 4px solid var(--text-main);">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">TOPLAM BAŞVURU</span>
+          <strong id="stat-total-apps" style="font-size: 3.5rem; color: var(--text-main); line-height: 1; font-weight: 800;">0</strong>
         </div>
-        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">ONAYLANAN KATILIM</span>
-          <strong id="stat-approved-apps" style="font-size: var(--text-3xl); color: var(--primary-main);">0</strong>
+        <div class="stat-card" style="border-bottom: 4px solid #34d399;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">ONAYLANAN KATILIM</span>
+          <strong id="stat-approved-apps" style="font-size: 3.5rem; color: #059669; line-height: 1; font-weight: 800;">0</strong>
         </div>
-        <div style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px;">
-          <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">BEKLEYEN DEĞERLENDİRME</span>
-          <strong id="stat-pending-apps" style="font-size: var(--text-3xl); color: var(--accent-orange);">0</strong>
+        <div class="stat-card" style="border-bottom: 4px solid #fbbf24;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">BEKLEYEN DEĞERLENDİRME</span>
+          <strong id="stat-pending-apps" style="font-size: 3.5rem; color: #d97706; line-height: 1; font-weight: 800;">0</strong>
         </div>
       </div>
       <div style="margin-top: 16px; padding: 16px 20px; background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(245,166,35,0.1) 100%); border: 1px solid rgba(245,166,35,0.3); border-radius: 12px;">
@@ -182,7 +270,9 @@
 <div style="grid-column: 1 / -1; margin-top: var(--space-8);">
   <section id="volunteer-profile-section" style="margin-bottom: var(--space-12);">
     <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-1);">Profil Durumu</h2>
-    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Profilindeki beceri ve ilgi alanlarını eksiksiz doldurman, Smart-Match yapay zekasının sana daha uygun etkinlikler bulmasına yardımcı olacaktır.</p>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">
+      Profilindeki beceri ve ilgi alanlarını eksiksiz doldurman, Smart-Match yapay zekasının sana daha uygun etkinlikler bulmasına yardımcı olacaktır. <strong>Ayrıca profilin, katıldığın etkinlikler ve çözdüğün kişilik testleri sonucunda yapay zeka tarafından otomatik olarak güncellenir ve isabetli fırsatlar sunulur.</strong>
+    </p>
 
     <!-- Phase 17B: Profile Completion Card -->
     <div id="profile-completion-card" style="background: #e8f0eb; border: 1px solid #d4e4da; border-radius: 20px; padding: 24px; margin-bottom: 24px;">
@@ -276,6 +366,8 @@
       </form>
     </div>
   </section>
+</div>
+</div>
 </div>
 
 <nav class="bottom-nav" aria-label="Mobil Alt Navigasyon">

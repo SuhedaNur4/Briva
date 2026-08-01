@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const meRes = await window.authService.me();
-  const user = meRes && meRes.user ? meRes.user : null;
+  const meRes = await window.authService.me().catch(() => null);
+  const user = meRes && meRes.data && meRes.data.user ? meRes.data.user : (meRes && meRes.user ? meRes.user : null);
   if (!user || user.role !== 'organization') {
     window.ui.showToast('Bu sayfaya erişim için STK yetkilisi olarak oturum açmalısınız.', 'error');
     window.location.href = '/organization/dashboard';
@@ -111,6 +111,72 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+
+  const aiBtn = document.getElementById('btn-ai-enhance');
+  const aiStatus = document.getElementById('ai-status');
+  if (aiBtn) {
+    aiBtn.addEventListener('click', async () => {
+      const title = document.getElementById('event-title').value.trim();
+      const desc = document.getElementById('event-description').value.trim();
+      const cat = document.getElementById('event-category').value.trim();
+
+      if (!title || !desc) {
+        window.ui.showToast('AI analizi için başlık ve açıklama alanları dolu olmalıdır.', 'warning');
+        return;
+      }
+
+      aiBtn.disabled = true;
+      if (aiStatus) {
+        aiStatus.style.display = 'inline';
+        aiStatus.textContent = 'Yapay Zeka analiz ediyor...';
+      }
+
+      try {
+        const payload = { title, description: desc };
+        if (cat) payload.category = cat;
+        // Check if there is an endpoint for AI analysis. Assuming POST /api/ai/analyze-event
+        const res = await window.apiService.post('/ai/analyze-event', payload);
+        if (res.error) throw new Error(res.error);
+        
+        // Populate the description with the improved version if available, or just show the score
+        if (res.data && res.data.analysis) {
+          if (res.data.analysis.improved_description && res.data.analysis.improved_description.trim() !== '') {
+            document.getElementById('event-description').value = res.data.analysis.improved_description;
+            saveDraftToLocal();
+          }
+          
+          const feedbackDiv = document.getElementById('ai-feedback');
+          const list = document.getElementById('ai-suggestions-list');
+          if (feedbackDiv && list) {
+             list.innerHTML = '';
+             let items = [];
+             if (res.data.analysis.concrete_suggestions) items.push(...res.data.analysis.concrete_suggestions.map(s => `<li style="margin-bottom: 4px;">💡 ${s}</li>`));
+             if (res.data.analysis.missing_info) items.push(...res.data.analysis.missing_info.map(s => `<li style="margin-bottom: 4px;">⚠️ ${s}</li>`));
+             if (res.data.analysis.missing_info_reasoning) items.push(`<li style="margin-bottom: 4px; font-style: italic; color: var(--text-muted);">🤔 ${res.data.analysis.missing_info_reasoning}</li>`);
+             if (res.data.analysis.title_suggestion) items.push(`<li style="margin-bottom: 4px;">🎯 <strong>Başlık Önerisi:</strong> ${res.data.analysis.title_suggestion}</li>`);
+             if (res.data.analysis.requirements_suggestion) items.push(`<li style="margin-bottom: 4px;">✅ <strong>Gereksinim Önerisi:</strong> ${res.data.analysis.requirements_suggestion}</li>`);
+             
+             if (items.length > 0) {
+                 list.innerHTML = items.join('');
+                 feedbackDiv.style.display = 'block';
+             } else {
+                 feedbackDiv.style.display = 'none';
+             }
+          }
+          
+          window.ui.showToast(`AI Analizi Tamamlandı! Kalite Skoru: ${res.data.analysis.quality_score}/100`, 'success');
+        }
+      } catch (err) {
+        window.ui.showToast(err.message || 'AI analizi başarısız oldu.', 'error');
+      } finally {
+        aiBtn.disabled = false;
+        if (aiStatus) {
+          aiStatus.style.display = 'none';
+          aiStatus.textContent = '';
+        }
+      }
+    });
+  }
 
   const updatePreview = () => {
     document.getElementById('prev-title').textContent = document.getElementById('event-title').value || '-';

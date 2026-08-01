@@ -45,3 +45,7 @@ def organizations_list_view():
 @views_bp.route('/quiz', methods=['GET'])
 def quiz_view():
     return render_template('personality_test.html')
+
+@views_bp.route('/roadmap', methods=['GET'])
+def roadmap_view():
+    return render_template('roadmap.html')

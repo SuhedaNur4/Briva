@@ -12,6 +12,9 @@
 }
 
 /* HERO */
+.org-card {
+  background: #f4f9f5 !important;
+}
 .orgs-hero {
   background: linear-gradient(135deg, var(--green-deep) 0%, #1a7a55 100%);
   padding: 100px 40px 80px;
@@ -123,8 +126,13 @@
 .orgs-filter-bar {
   display:flex; gap:24px; flex-wrap:wrap;
   margin-bottom:40px; align-items:center;
-  border-bottom: 2px solid #f0f4f2;
-  padding-bottom: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 16px 24px;
+  border-radius: 99px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 .orgs-filter-btn {
   padding:8px 12px; border:none; background:transparent;
@@ -133,9 +141,10 @@
   position: relative;
 }
 .orgs-filter-btn::after {
-  content: ''; position: absolute; bottom: -10px; left: 0; right: 0;
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
   height: 3px; background: var(--green-deep);
   transform: scaleX(0); transition: transform 0.2s ease;
+  border-radius: 99px;
 }
 .orgs-filter-btn:hover { color:var(--text-main); }
 .orgs-filter-btn.active { color:var(--green-deep); }
@@ -144,20 +153,24 @@
 .orgs-search {
   margin-left:auto;
   border:1.5px solid #d4e4da; border-radius:99px;
-  padding:8px 18px; font-size:0.9rem;
-  outline:none; transition:border-color 0.2s; width:200px;
+  padding:10px 20px; font-size:0.9rem;
+  outline:none; transition:border-color 0.2s, box-shadow 0.2s; width:240px;
+  background: rgba(255,255,255,0.9);
 }
-.orgs-search:focus { border-color:var(--green-deep); }
+.orgs-search:focus { border-color:var(--green-deep); box-shadow: 0 0 0 4px rgba(15,82,56,0.1); }
 .orgs-grid {
   display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));
   gap:24px;
 }
 .org-card {
-  background:#e8f0eb; border:1px solid #d4e4da;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
+  border:1px solid #d4e4da;
   border-radius:20px; padding:28px 24px;
   display:flex; flex-direction:column; gap:14px;
   transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   position:relative; overflow:hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 .org-card::before {
   content:''; position:absolute; top:0; left:0; right:0;

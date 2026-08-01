@@ -5,21 +5,33 @@
 {% block content %}
 <style>
   .events-page-hero {
-    background: linear-gradient(135deg, var(--primary-main) 0%, #166547 100%);
-    padding: 56px 40px 48px;
+    background: linear-gradient(135deg, #093424 0%, #146146 100%);
+    padding: 72px 40px 100px;
     margin: -1px;
     position: relative;
     overflow: hidden;
   }
+  
+  .event-card {
+    background: #f4f9f5 !important;
+  }
+  .events-page-hero::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(168,230,207,0.2) 0%, rgba(9,52,36,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
   .events-page-hero::after {
     content: '';
     position: absolute;
-    bottom: -40px;
-    left: 0;
-    right: 0;
-    height: 80px;
-    background: var(--bg-page);
-    clip-path: ellipse(55% 100% at 50% 100%);
+    bottom: -30px; left: -30px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(9,52,36,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
   }
   .events-page-hero h1 {
     font-size: clamp(2rem, 4vw, 3rem);
@@ -35,16 +47,20 @@
     line-height: 1.6;
   }
   .filter-pill-bar {
-    background: white;
-    border-radius: 16px;
-    padding: 20px 24px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    border: 1px solid #e8f0eb;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 24px 28px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
     align-items: flex-end;
     margin-top: 32px;
+    position: relative;
+    z-index: 2;
   }
   .fpb-group {
     display: flex;
@@ -160,6 +176,11 @@
   <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;">
     <h1>Gönüllülük Etkinlikleri</h1>
     <p>Becerilerinize, ilgi alanlarınıza ve müsaitlik durumunuza en uygun toplumsal fayda projelerini bulun.</p>
+  </div>
+  <div class="custom-shape-divider-bottom" style="position: absolute; bottom: 0; left: 0; width: 100%; overflow: hidden; line-height: 0; transform: rotate(180deg);">
+      <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style="position: relative; display: block; width: calc(100% + 1.3px); height: 60px;">
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" style="fill: var(--bg-page);"></path>
+      </svg>
   </div>
 </div>
 

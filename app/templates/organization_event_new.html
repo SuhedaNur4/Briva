@@ -44,7 +44,7 @@
 
   <form id="wizard-form" novalidate>
     <div class="wizard-pane active" id="pane-step-1">
-      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="background: #f4f9f5; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
         <div>
           <label for="event-title" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Etkinlik Başlığı *</label>
           <input type="text" id="event-title" name="title" required placeholder="Örn: Kadıköy Sahil Temizliği ve Geri Dönüşüm Atölyesi" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
@@ -56,6 +56,19 @@
         <div>
           <label for="event-description" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Etkinlik Açıklaması</label>
           <textarea id="event-description" name="description" rows="6" placeholder="Etkinliğin amacı, yapılacak işler ve katılımcı gönüllülere kazanımları..." style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
+          <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+            <button type="button" id="btn-ai-enhance" class="btn" style="background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%); color: white; border: none; padding: 8px 16px; border-radius: 99px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+              AI İle İlanı Geliştir
+            </button>
+            <span id="ai-status" style="font-size: 0.85rem; color: var(--text-muted); display: none;"></span>
+          </div>
+          <div id="ai-feedback" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.7); border-radius: 8px; border: 1px dashed var(--primary-main);">
+            <div style="font-weight: bold; margin-bottom: 8px; color: var(--primary-main); display: flex; align-items: center; gap: 5px;">
+               ✨ AI Geri Bildirimi ve Öneriler:
+            </div>
+            <ul id="ai-suggestions-list" style="font-size: 0.85rem; color: var(--text-main); padding-left: 20px; line-height: 1.5; margin: 0;"></ul>
+          </div>
         </div>
       </div>
       <div style="display: flex; justify-content: flex-end; margin-top: var(--space-6);">
@@ -64,7 +77,7 @@
     </div>
 
     <div class="wizard-pane" id="pane-step-2">
-      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="background: #f4f9f5; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4);">
           <div>
             <label for="event-start" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Başlangıç Tarihi ve Saati *</label>
@@ -91,7 +104,7 @@
     </div>
 
     <div class="wizard-pane" id="pane-step-3">
-      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="background: #f4f9f5; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
         <div>
           <label for="event-max" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Maksimum Gönüllü Kontenjanı</label>
           <input type="number" id="event-max" name="max_volunteers" min="1" placeholder="Örn: 50" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
@@ -109,7 +122,7 @@
     </div>
 
     <div class="wizard-pane" id="pane-step-4">
-      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="background: #f4f9f5; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5);">
         <h2 style="font-size: var(--text-xl); border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-3);">İlan Önizlemesi</h2>
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-3); font-size: var(--text-sm);">
           <strong style="color: var(--text-muted);">Başlık:</strong>
