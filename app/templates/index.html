@@ -19,6 +19,7 @@
     padding: 80px 64px;
     position: relative;
     overflow: hidden;
+    border-radius: 0 120px 120px 0;
   }
   .hero-left::before {
     content: '';
@@ -129,6 +130,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #eaf2ed; /* Açık adaçayı rengi */
   }
   .hero-slideshow {
     width: 85%;
@@ -564,7 +566,7 @@
     <h1 class="hero-h1">İyiliği teknolojiyle <em style="color:#a8e6cf">buluşturuyoruz.</em></h1>
     <p class="hero-desc">Zamanını ve yeteneklerini paylaşmak paha biçilemez. Briva, seni saatlerce uygun proje arama derdinden kurtarıp, ilgi alanlarına en uygun projeleri saniyelerde karşına çıkarır.</p>
     <div class="hero-actions">
-      <a href="/dashboard" class="hero-btn-primary">Hemen Kayıt Ol</a>
+      <a href="/dashboard" class="hero-btn-primary" id="hero-cta-btn">Hemen Kayıt Ol</a>
       <a href="#roadmap" class="hero-btn-ghost">Nasıl Çalışır?</a>
     </div>
     <div class="hero-stats">
@@ -614,14 +616,13 @@
     
     <div class="scroll-text-row" id="story-row-1">
       <div class="scroll-text-content">
-        <span class="section-label">Briva Nedir?</span>
-        <h3>Seninle Birlikte Büyüyen Bir Hikaye</h3>
+        <h2 style="font-size: 2.5rem; color: var(--primary-main); font-weight: 900; margin-bottom: 8px;">Briva Nedir?</h2>
+        <h3 style="font-size: 1.5rem; margin-bottom: 24px; color: var(--text-main);">Seninle Birlikte Büyüyen Bir Hikaye</h3>
         <p>Briva, sıradan bir ilan panosu olmanın çok ötesinde, seni anlayan ve yönlendiren bir rehberdir. Gönüllülük yapmak istediğinde, genellikle karşına çıkan karmaşık başvuru süreçleri, uygun olmayan zaman dilimleri veya yeteneklerine hitap etmeyen görevler motivasyonunu kırabilir.</p>
         <p style="margin-top: 12px;">İşte tam bu noktada Briva devreye giriyor. Seni saatlerce uygun bir proje arama derdinden kurtarıp, ilgi alanlarına ve programına en uygun sivil toplum projelerini doğrudan karşına çıkarıyoruz.</p>
       </div>
       <div class="scroll-text-img">
-        <!-- Birlikte gülümseyen gönüllüler, topluluk - Sağlam URL -->
-        <img src="https://images.unsplash.com/photo-1593113563332-4d564bb31c9a?auto=format&fit=crop&w=600&q=80" onerror="this.src='https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=600&q=80'" alt="Briva İyilik Ağı">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80" alt="Briva İyilik Ağı">
       </div>
     </div>
     
@@ -635,8 +636,7 @@
         <p style="margin-top: 12px;">Örneğin; eğitim alanında deneyimliysen ve sadece hafta sonları müsaitsen, sistemimiz sana tam olarak bu kriterlere uyan, doğrulanmış kuruluşların çocuk eğitim projelerini önerir. Böylece doğru zamanda doğru yerde olmanın mutluluğunu yaşarsın.</p>
       </div>
       <div class="scroll-text-img">
-        <!-- İnsanlar birlikte çalışıyor, işbirliği -->
-        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=600&q=80" onerror="this.src='https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=600&q=80'" alt="Akıllı Eşleşme">
+        <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=600&q=80" alt="Akıllı Eşleşme">
       </div>
     </div>
     
@@ -883,51 +883,54 @@
   .ai-rec-card {
     flex: 0 0 280px;
     scroll-snap-align: start;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: white;
+    border: 1px solid #e0ebe4;
     border-radius: 18px;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   }
   .ai-rec-card:hover {
-    background: rgba(255,255,255,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(9,52,36,0.08);
+    border-color: #a8e6cf;
   }
   .ai-rec-cat {
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #a8e6cf;
+    color: var(--primary-main);
   }
   .ai-rec-title {
     font-size: 1rem;
-    font-weight: 700;
-    color: white;
+    font-weight: 800;
+    color: var(--text-main);
     line-height: 1.35;
   }
   .ai-rec-org {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    color: var(--text-muted);
   }
   .ai-rec-link {
     display: inline-block;
     margin-top: auto;
-    background: rgba(168,230,207,0.15);
-    color: #a8e6cf;
-    border: 1px solid rgba(168,230,207,0.25);
-    padding: 8px 16px;
+    background: rgba(15, 82, 56, 0.05);
+    color: var(--primary-main);
+    padding: 10px 16px;
     border-radius: 99px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     text-decoration: none;
     text-align: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
   }
   .ai-rec-link:hover {
-    background: rgba(168,230,207,0.25);
+    background: var(--primary-main);
+    color: white;
   }
   .ai-recs-guest {
     background: rgba(255,255,255,0.05);
@@ -1028,10 +1031,20 @@
           Briva üzerinde yer alan her STK; eğitim, çevre, sağlık, afet ve daha pek çok alanda gerçek toplumsal etki yaratıyor. Katıldığın her etkinlik, bu kuruluşların güçlenmesine katkı sağlıyor.
         </p>
       </div>
-      <a href="/organizations" class="btn btn-primary" style="border-radius:99px; font-size:0.92rem; padding:12px 28px; white-space:nowrap; flex-shrink:0;">STK'lara Git →</a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="display: flex; gap: 12px;">
+          <button id="stk-prev-btn" style="background: white; border: 1.5px solid #d4e4da; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary-main); transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" onmouseover="this.style.background='var(--primary-main)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-main)';">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button id="stk-next-btn" style="background: white; border: 1.5px solid #d4e4da; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary-main); transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" onmouseover="this.style.background='var(--primary-main)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--primary-main)';">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <a href="/organizations" class="btn btn-primary" style="border-radius:99px; font-size:0.92rem; padding:12px 28px; white-space:nowrap; flex-shrink:0;">Tüm STK'lar →</a>
+      </div>
     </div>
     <!-- Yatay kayan STK şeridi -->
-    <div class="fade-up" style="display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 8px;">
+    <div id="stk-carousel" class="fade-up" style="display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 24px; padding-top: 8px; margin: 0 -40px; padding-left: 40px; padding-right: 40px; scroll-behavior: smooth;">
       <style>.stk-strip-card:hover { transform: translateY(-4px); border-color: var(--primary-main); box-shadow: 0 8px 24px rgba(15,82,56,0.12); }</style>
       {% if global_orgs %}
         {% for org in global_orgs %}
@@ -1063,38 +1076,27 @@
   <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 100% 0%, rgba(168,230,207,0.1) 0%, transparent 50%); pointer-events: none;"></div>
   
   <div class="ai-recs-inner" style="max-width: 1200px; margin: 0 auto; position: relative;">
-    <div class="ai-recs-header fade-up" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; border-bottom: 2px solid #e8f0eb; padding-bottom: 24px;">
-      <div>
-        <span style="font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--primary-main); display: block; margin-bottom: 12px;">✦ Smart-Match Motoru</span>
-        <h2 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--text-main); letter-spacing: -0.03em; margin: 0;">Senin İçin <span style="color: #a8e6cf;">Seçtik</span></h2>
-      </div>
-      <p style="max-width: 400px; color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin: 0; text-align: right;">Sana en uygun etkinlikleri keşfet. Smart-Match yapay zekası, yeteneklerin ve zamanınla en iyi eşleşen fırsatları saniyeler içinde önüne getirir.</p>
-    </div>
-    
-    <!-- Giriş yapmış kullanıcılar için -->
-    <div id="ai-recs-logged-in" style="display:none;" class="fade-up delay-1">
-      <div class="ai-recs-carousel" id="ai-recs-carousel"></div>
-    </div>
-    
-    <!-- Giriş yapmamış kullanıcılar için Premium Banner -->
-    <div id="ai-recs-guest" class="fade-up delay-1" style="background: linear-gradient(135deg, #093424 0%, #155c42 100%); border-radius: 32px; padding: 64px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 48px; box-shadow: 0 24px 60px rgba(9,52,36,0.15); transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease; will-change: transform;">
-      <div style="position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: rgba(168,230,207,0.05); border-radius: 50%; pointer-events: none;"></div>
-      <div style="position: absolute; bottom: -50px; right: -50px; width: 300px; height: 300px; background: rgba(168,230,207,0.08); border-radius: 50%; pointer-events: none;"></div>
-      
-      <div style="flex: 1; position: relative; z-index: 1;">
-        <h3 style="color: white; font-size: 2.2rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em;">Sana Özel Bir Akış Seni Bekliyor</h3>
-        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; line-height: 1.7; max-width: 540px; margin-bottom: 0;">Smart-Match, geçmiş etkileşimlerini, ilgi alanlarını ve bulunduğun şehri analiz ederek tamamen sana özel bir etkinlik akışı oluşturur. Bize kendini tanıttıkça, öneriler nokta atışı isabetli hale gelir.</p>
-      </div>
-      
-      <div style="position: relative; z-index: 1; flex-shrink: 0; background: rgba(255,255,255,0.05); padding: 32px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); text-align: center;">
-        <div style="font-size: 1.8rem; font-weight: 900; color: #a8e6cf; margin-bottom: 8px;">15 Soru</div>
-        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;">Mini Kişilik Testi</div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <a href="/quiz" class="btn" style="background: #a8e6cf; color: #093424; padding: 14px 28px; border-radius: 99px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: transform 0.2s ease;">Teste Başla ✦</a>
+      <!-- Herkes için Ortak Mini Kişilik Testi Banner -->
+      <div id="ai-recs-test" class="fade-up delay-2" style="background: linear-gradient(135deg, #093424 0%, #155c42 100%); border-radius: 32px; padding: 48px; margin-top: 32px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 48px; box-shadow: 0 24px 60px rgba(9,52,36,0.15); transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease; will-change: transform; flex-wrap: wrap;">
+        <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: rgba(168,230,207,0.05); border-radius: 50%; pointer-events: none;"></div>
+        <div style="position: absolute; bottom: -50px; left: -50px; width: 300px; height: 300px; background: rgba(168,230,207,0.08); border-radius: 50%; pointer-events: none;"></div>
+        
+        <div style="flex: 1; min-width: 300px; position: relative; z-index: 1;">
+          <h3 style="color: white; font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em;">Hangi Alan Sana Göre? 🤔</h3>
+          <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; line-height: 1.7; max-width: 540px; margin-bottom: 0;">
+            İyilik yapmak istiyorsun ama nereden başlayacağını bilmiyor musun? 15 soruluk mini testimizi çözerek sana en uygun gönüllülük alanlarını keşfet.
+          </p>
+        </div>
+        
+        <div style="position: relative; z-index: 1; flex-shrink: 0; background: rgba(255,255,255,0.05); padding: 32px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); text-align: center;">
+          <div style="font-size: 1.8rem; font-weight: 900; color: #a8e6cf; margin-bottom: 8px;">15 Soru</div>
+          <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;">Mini Kişilik Testi</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="/quiz" class="btn" style="background: #a8e6cf; color: #093424; padding: 14px 28px; border-radius: 99px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Teste Başla ✨</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 </section>
 
 <script>
@@ -1110,44 +1112,33 @@
     document.querySelectorAll('.scroll-text-row').forEach(el => observer.observe(el));
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-    // AI önerileri
-    const token = localStorage.getItem('briva_access_token') || sessionStorage.getItem('briva_access_token');
-    if (token) {
-      document.getElementById('ai-recs-guest').style.display = 'none';
-      document.getElementById('ai-recs-logged-in').style.display = 'block';
-      loadAIRecs(token);
+    // Fluid mouse tilt for universal test banner
+    const testCard = document.getElementById('ai-recs-test');
+    if (testCard) {
+      testCard.addEventListener('mousemove', (e) => {
+        const rect = testCard.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        testCard.style.transform = `perspective(800px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.02)`;
+      });
+      testCard.addEventListener('mouseleave', () => {
+        testCard.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)';
+      });
     }
 
+    const token = localStorage.getItem('briva_token') || sessionStorage.getItem('briva_token');
+    
+    // Update CTA button based on auth
+    if (token) {
+      const ctaBtn = document.getElementById('hero-cta-btn');
+      if (ctaBtn) {
+        ctaBtn.style.display = 'none';
+      }
+    }
 
   });
-
-  async function loadAIRecs(token) {
-    try {
-      const res = await fetch('/api/recommendations/me', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      const carousel = document.getElementById('ai-recs-carousel');
-      const recs = data.recommendations || [];
-      if (recs.length === 0) {
-        document.getElementById('ai-recs-logged-in').style.display = 'none';
-        document.getElementById('ai-recs-guest').style.display = 'block';
-        return;
-      }
-      carousel.innerHTML = recs.slice(0, 6).map(r => `
-        <div class="ai-rec-card">
-          <div class="ai-rec-cat">${r.category || 'Genel'}</div>
-          <div class="ai-rec-title">${escHtml(r.title)}</div>
-          <div class="ai-rec-org">${escHtml(r.organization?.name || 'Sivil Toplum Kuruluşu')}</div>
-          <a href="/events/${r.id}" class="ai-rec-link">Detayları Gör</a>
-        </div>
-      `).join('');
-    } catch(e) {
-      document.getElementById('ai-recs-logged-in').style.display = 'none';
-      document.getElementById('ai-recs-guest').style.display = 'block';
-    }
-  }
 
   function escHtml(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1155,13 +1146,13 @@
 
   // Hero Slider
   const heroImages = [
-    "https://images.unsplash.com/photo-1544027993-37db48d5f696?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1593113589914-075990190da5?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1531206715517-5c0ba140b4b8?auto=format&fit=crop&w=900&q=80"
-  ];
+      "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=80", // diverse group
+      "https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=900&q=80", // volunteers outdoors
+      "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=900&q=80", // hands together
+      "https://images.unsplash.com/photo-1594708767771-a7502209ff51?auto=format&fit=crop&w=900&q=80", // community cleanup
+      "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=900&q=80", // teamwork hands
+      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?auto=format&fit=crop&w=900&q=80"  // planting trees
+    ];
   const heroSlider = document.getElementById('hero-slider');
   if (heroSlider) {
     heroSlider.innerHTML = heroImages.map((src, i) => `<img src="${src}" class="${i===0 ? 'active' : ''}" alt="Gönüllüler">`).join('');
@@ -1172,6 +1163,19 @@
       currentIdx = (currentIdx + 1) % imgs.length;
       imgs[currentIdx].classList.add('active');
     }, 3000);
+  }
+  
+  // STK Carousel Scroll Logic
+  const stkCarousel = document.getElementById('stk-carousel');
+  const prevBtn = document.getElementById('stk-prev-btn');
+  const nextBtn = document.getElementById('stk-next-btn');
+  if (stkCarousel && prevBtn && nextBtn) {
+    prevBtn.addEventListener('click', () => {
+      stkCarousel.scrollBy({ left: -340, behavior: 'smooth' });
+    });
+    nextBtn.addEventListener('click', () => {
+      stkCarousel.scrollBy({ left: 340, behavior: 'smooth' });
+    });
   }
 </script>
 

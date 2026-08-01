@@ -37,9 +37,21 @@ class ApiService {
       const response = await fetch(url, config);
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const errorObj = new Error(data.error || 'İstek başarısız oldu');
+        let errorMsg = data.error || 'İstek başarısız oldu';
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After');
+          errorMsg = retryAfter ? `Çok fazla deneme yaptınız. Lütfen ${retryAfter} saniye bekleyin.` : 'Çok fazla istek gönderdiniz, lütfen bekleyin.';
+        } else if (response.headers.has('X-RateLimit-Remaining')) {
+           const remaining = response.headers.get('X-RateLimit-Remaining');
+           if (parseInt(remaining) <= 4) {
+             errorMsg += ` (1 dakika içinde ${remaining} hakkınız kaldı)`;
+           }
+        }
+        
+        const errorObj = new Error(errorMsg);
         errorObj.status = response.status;
         errorObj.data = data;
+        errorObj.remaining = response.headers.get('X-RateLimit-Remaining');
         throw errorObj;
       }
       return { data, status: response.status };

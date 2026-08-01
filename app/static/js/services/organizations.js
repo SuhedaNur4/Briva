@@ -21,13 +21,16 @@ class OrganizationsService {
 
   async findMyOrg(userId) {
     try {
-      const meRes = await this.getMe();
-      const org = meRes.organization || (meRes.data && meRes.data.organization);
-      if (org) return org;
+      const meRes = await this.getMe().catch(() => null);
+      if (meRes) {
+        const org = (meRes.data && meRes.data.organization) || meRes.organization;
+        if (org) return org;
+      }
     } catch (e) {
+      console.error(e);
     }
-    const res = await this.list({ per_page: 100 });
-    const orgs = res && res.organizations ? res.organizations : [];
+    const res = await this.list({ per_page: 100 }).catch(() => null);
+    const orgs = res && res.data && res.data.organizations ? res.data.organizations : (res && res.organizations ? res.organizations : []);
     return orgs.find(o => o.user_id === userId) || null;
   }
 }

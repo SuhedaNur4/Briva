@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% block title %}Giriş Yap veya Kayıt Ol - Briva{% endblock %}
+
+{% block content %}
+<!-- Full Page Container -->
+<style>
+  .auth-page-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -150px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 230, 207, 0.4) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .auth-page-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(9, 52, 36, 0.4) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>
+<div class="auth-page-wrapper" style="min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; background: url('/static/images/auth_page_bg.png') center/cover no-repeat; position: relative; overflow: hidden;">
+
+  <!-- Floating Welcome Animation -->
+  <div id="auth-welcome-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity 0.6s ease; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <h2 style="color: #093424; font-size: 5.5rem; font-weight: 900; letter-spacing: -2px; text-shadow: 0 4px 12px rgba(0,0,0,0.08); animation: popUpFade 3s ease forwards; text-align: center;">Briva'ya Hoş Geldin.</h2>
+  </div>
+
+  <!-- Main Auth Card -->
+  <div class="auth-card" style="display: flex; flex-direction: row; width: 100%; max-width: 1100px; min-height: 700px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 32px; overflow: hidden; box-shadow: 0 24px 64px rgba(15,82,56,0.15); border: 1px solid rgba(255,255,255,0.5); position: relative; z-index: 1;">
+    
+    <!-- Left Side: Image / Illustration -->
+    <div class="auth-left" style="flex: 1; position: relative; background: url('/static/images/auth_bg.png') center/cover no-repeat;">
+      <!-- CSS Curve Overlay to match reference -->
+      <div style="position: absolute; top: -10%; right: -5px; width: 150px; height: 120%; background: #257266; border-radius: 50% 0 0 50%; transform: scaleX(0.5); transform-origin: right;"></div>
+    </div>
+
+    <!-- Right Side: Form Area -->
+    <div class="auth-right" style="flex: 1.2; background: rgba(37, 114, 102, 0.95); padding: 60px 60px; display: flex; flex-direction: column; color: white; position: relative; z-index: 2;">
+      
+      <div style="margin-bottom: 30px;">
+        <h2 style="font-size: 1.8rem; font-weight: 400; margin: 0; color: #e0f2f1;">Merhaba!</h2>
+        <h3 style="font-size: 2rem; font-weight: 700; margin: 5px 0 0 0; color: white;">Seni gördüğümüze sevindik :)</h3>
+      </div>
+
+      <!-- Mode Toggle (Simulating the social/or buttons in reference) -->
+      <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+        <button id="toggle-login" class="auth-toggle-btn active" style="flex: 1; padding: 12px 24px; border: 1px solid rgba(255,255,255,0.4); border-radius: 99px; background: rgba(255,255,255,0.15); color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Giriş Yap</button>
+        <button id="toggle-register" class="auth-toggle-btn" style="flex: 1; padding: 12px 24px; border: 1px solid rgba(255,255,255,0.4); border-radius: 99px; background: transparent; color: rgba(255,255,255,0.8); font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Kayıt Ol</button>
+      </div>
+
+      <div style="display: flex; align-items: center; margin-bottom: 24px; opacity: 0.6;">
+        <div style="flex: 1; height: 1px; background: white;"></div>
+        <span style="padding: 0 16px; font-size: 0.85rem;">veya e-posta ile</span>
+        <div style="flex: 1; height: 1px; background: white;"></div>
+      </div>
+
+      <!-- ERROR MESSAGE CONTAINER -->
+      <div id="auth-error" style="display: none; background: rgba(255, 82, 82, 0.15); border: 1px solid #ff5252; padding: 12px 16px; margin-bottom: 24px; border-radius: 8px; color: #ff8a80; font-size: 0.9rem;"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="form-login" style="display: block;">
+        <div class="auth-row">
+          <div class="auth-form-group">
+            <label>E-posta Adresi</label>
+            <input type="email" id="login-email" required>
+          </div>
+        </div>
+        <div class="auth-row">
+          <div class="auth-form-group">
+            <label>Şifre</label>
+            <input type="password" id="login-password" required>
+          </div>
+        </div>
+        <div style="margin-top: 20px;">
+          <button type="submit" class="auth-submit-btn">Giriş Yap</button>
+        </div>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="form-register" style="display: none;">
+        <div class="auth-row">
+          <div class="auth-form-group">
+            <label>Ad</label>
+            <input type="text" id="reg-firstname" required>
+          </div>
+          <div class="auth-form-group">
+            <label>Soyad</label>
+            <input type="text" id="reg-lastname" required>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-form-group">
+            <label>E-posta Adresi</label>
+            <input type="email" id="reg-email" required>
+          </div>
+          <div class="auth-form-group">
+            <label>İletişim No</label>
+            <input type="text" id="reg-phone">
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-form-group">
+            <label>Şifre</label>
+            <input type="password" id="reg-password" required>
+          </div>
+          <div class="auth-form-group">
+            <label>Şifre (Tekrar)</label>
+            <input type="password" id="reg-password-confirm" required>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-form-group" style="flex: 0.5;">
+            <label>Yaş / Doğum Tarihi (Ops.)</label>
+            <input type="date" id="reg-birthdate">
+          </div>
+        </div>
+
+        <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px;">
+          <input type="checkbox" id="reg-terms" required style="width: 18px; height: 18px; accent-color: #c8e6c9; cursor: pointer;">
+          <label for="reg-terms" style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0; cursor: pointer;">Kullanım Şartları ve Gizlilik Politikası'nı kabul ediyorum.</label>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <button type="submit" class="auth-submit-btn">Kayıt Ol</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes popUpFade {
+    0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+    15% { transform: scale(1) translateY(0); opacity: 1; }
+    85% { transform: scale(1) translateY(0); opacity: 1; }
+    100% { transform: scale(0.9) translateY(-20px); opacity: 0; }
+  }
+
+  .auth-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    flex: 1;
+  }
+  .auth-form-group label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .auth-form-group input {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 99px !important;
+    padding: 12px 20px !important;
+    color: white !important;
+    font-size: 1rem !important;
+    outline: none !important;
+    transition: border-color 0.3s, background 0.3s !important;
+  }
+  .auth-form-group input:focus {
+    border-color: #fff !important;
+    background: rgba(255,255,255,0.05) !important;
+  }
+  .auth-form-group input::placeholder {
+    color: rgba(255,255,255,0.3) !important;
+  }
+  .auth-form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+  
+  .auth-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .auth-submit-btn {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #1b5e20;
+    border: none;
+    border-radius: 99px;
+    padding: 14px 48px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 150px;
+  }
+  .auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 900px) {
+    .auth-card { flex-direction: column !important; min-height: auto; }
+    .auth-left { display: none; }
+    .auth-right { border-radius: 32px !important; padding: 40px 24px !important; }
+    .auth-row { flex-direction: column; gap: 0; }
+    .auth-form-group { width: 100% !important; padding-right: 0 !important; }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Welcome Overlay Animation
+    const overlay = document.getElementById('auth-welcome-overlay');
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 600); // Wait for fade out transition
+    }, 1000); // Show for 1 second
+
+    // 2. Mode Toggle Logic
+    const urlParams = new URLSearchParams(window.location.search);
+    let mode = urlParams.get('mode') || 'login';
+    if (window.location.pathname === '/register') mode = 'register';
+    
+    const btnLogin = document.getElementById('toggle-login');
+    const btnRegister = document.getElementById('toggle-register');
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    const errorDiv = document.getElementById('auth-error');
+
+    function setMode(newMode) {
+      mode = newMode;
+      errorDiv.style.display = 'none';
+      if (mode === 'login') {
+        btnLogin.style.background = 'white';
+        btnLogin.style.color = '#257266';
+        btnRegister.style.background = 'transparent';
+        btnRegister.style.color = 'white';
+        formLogin.style.display = 'block';
+        formRegister.style.display = 'none';
+        window.history.replaceState({}, '', '/login');
+      } else {
+        btnRegister.style.background = 'white';
+        btnRegister.style.color = '#257266';
+        btnLogin.style.background = 'transparent';
+        btnLogin.style.color = 'white';
+        formRegister.style.display = 'block';
+        formLogin.style.display = 'none';
+        window.history.replaceState({}, '', '/register');
+      }
+    }
+
+    setMode(mode);
+
+    btnLogin.addEventListener('click', () => setMode('login'));
+    btnRegister.addEventListener('click', () => setMode('register'));
+
+    // 3. Form Submissions
+    function showError(msg) {
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+    }
+
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      
+      const submitBtn = formLogin.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Giriş Yapılıyor...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await window.authService.login(email, password);
+        if (res.error) throw new Error(res.error);
+        const role = res.data?.user?.role || res.data?.role;
+        if (role === 'organization') {
+          window.location.href = '/organization/dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
+      } catch (err) {
+        showError(err.message);
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    formRegister.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById('reg-password').value.trim();
+      const pwdConf = document.getElementById('reg-password-confirm').value.trim();
+      
+      if (pwd !== pwdConf) {
+        showError('Şifreler eşleşmiyor.');
+        return;
+      }
+
+      const payload = {
+        email: document.getElementById('reg-email').value.trim(),
+        password: pwd,
+        role: 'volunteer',
+        first_name: document.getElementById('reg-firstname').value.trim(),
+        last_name: document.getElementById('reg-lastname').value.trim(),
+        phone: document.getElementById('reg-phone').value.trim(),
+        birth_date: document.getElementById('reg-birthdate').value
+      };
+
+      const submitBtn = formRegister.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Kayıt Olunuyor...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await window.authService.register(payload);
+        if (res.error) throw new Error(res.error);
+        const role = res.data?.user?.role || res.data?.role;
+        if (role === 'organization') {
+          window.location.href = '/organization/dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
+      } catch (err) {
+        showError(err.message);
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

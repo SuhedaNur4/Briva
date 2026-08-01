@@ -11,10 +11,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await window.authService.me();
       const user = res.data.user || res.data;
       let name = '';
-      if (user.role === 'volunteer' && user.volunteer_profile && user.volunteer_profile.first_name) {
-        name = user.volunteer_profile.first_name;
-      } else if (user.role === 'organization' && user.organization && user.organization.name) {
-        name = user.organization.name;
+      if (user.role === 'volunteer' && user.volunteer_profile) {
+        name = user.volunteer_profile.first_name || user.email.split('@')[0];
+        
+        // Gamification / XP gösterimi
+        const xpBadge = document.getElementById('nav-xp-badge');
+        const xpPoints = document.getElementById('nav-xp-points');
+        if (xpBadge && xpPoints) {
+          xpPoints.textContent = user.volunteer_profile.xp_points || 0;
+          xpBadge.style.display = 'flex';
+        }
+      } else if (user.role === 'organization') {
+        name = user.organization?.name || user.email.split('@')[0];
+        const dashLink = document.getElementById('nav-dashboard-link');
+        if (dashLink) dashLink.href = '/organization/dashboard';
       } else {
         name = user.email.split('@')[0];
       }

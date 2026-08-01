@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Yol Haritası | Briva{% endblock %}
+{% block content %}
+<style>
+/* ===== YOL HARİTASI ===== */
+  .roadmap-section {
+    background: var(--primary-main);
+    padding: 96px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .roadmap-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .roadmap-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .roadmap-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .roadmap-header h2 {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 800;
+    color: white;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+  .roadmap-header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  /* Serpentine Roadmap Timeline */
+  .roadmap-timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 0;
+  }
+  .roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 100%;
+    background: rgba(168,230,207,0.15);
+    border-radius: 4px;
+    z-index: 0;
+  }
+  .roadmap-timeline-connector {
+    display: none;
+  }
+  .roadmap-card {
+    width: 45%;
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 32px 32px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    margin-bottom: -20px; /* Zikzak görünüm için bindirme */
+  }
+  .roadmap-card:nth-child(odd) { margin-left: auto; margin-top: 40px; }
+  .roadmap-card:nth-child(even) { margin-right: auto; }
+  
+  .roadmap-card::before {
+    content: ''; position: absolute;
+    top: 40px; width: 80px; height: 2px;
+    background: rgba(168,230,207,0.3);
+    z-index: -1;
+  }
+  .roadmap-card:nth-child(even)::before { right: -80px; }
+  .roadmap-card:nth-child(odd)::before { left: -80px; }
+  
+  .roadmap-card::after {
+    content: ''; position: absolute;
+    top: 33px; width: 16px; height: 16px;
+    background: #a8e6cf; border: 4px solid var(--primary-main);
+    border-radius: 50%; z-index: 2;
+    box-shadow: 0 0 0 4px rgba(168,230,207,0.2);
+  }
+  .roadmap-card:nth-child(even)::after { right: -91px; }
+  .roadmap-card:nth-child(odd)::after { left: -91px; }
+
+  .roadmap-card:hover {
+    background: rgba(255,255,255,0.14);
+    transform: translateY(-6px);
+  }
+  .roadmap-step-num {
+    width: 44px;
+    height: 44px;
+    background: #a8e6cf;
+    color: var(--primary-main);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 6px rgba(168,230,207,0.15);
+  }
+  .roadmap-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+  }
+  .roadmap-card p {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.65);
+  }
+  .roadmap-card .ai-badge {
+    display: inline-block;
+    background: rgba(168,230,207,0.15);
+    color: #a8e6cf;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(168,230,207,0.25);
+    margin-bottom: 12px;
+  }
+  @media (max-width: 900px) {
+    .roadmap-timeline::before { left: 30px; }
+    .roadmap-card { width: calc(100% - 70px); margin-left: 70px !important; margin-bottom: 24px; margin-top: 0 !important; }
+    .roadmap-card::before { display: none; }
+    .roadmap-card::after { left: -48px !important; }
+  }
+
+  
+</style>
+<div style="padding:40px 0;">
+<!-- ===== YOL HARİTASI ===== -->
+<section class="roadmap-section" id="roadmap">
+  <div class="roadmap-inner">
+    <div class="roadmap-header fade-up">
+      <h2>Platformu Nasıl Kullanacaksın?</h2>
+      <p>Briva'da iyilik serüvenin yalnızca birkaç basit adımdan oluşur. Akıllı sistemimiz seni her adımda yönlendirir.</p>
+    </div>
+    <div class="roadmap-timeline" style="position:relative;">
+      <div class="roadmap-timeline-connector"></div>
+      
+      <div class="roadmap-card fade-up delay-1">
+        <div class="roadmap-step-num">1</div>
+        <h3>Profilini Tamamla ve Keşfet</h3>
+        <p>Becerilerini, ilgi alanlarını ve müsait olduğun günleri gir. Hangi alana ilgin olduğunu henüz bilmiyor musun? Hiç sorun değil! Platformumuzdaki mini testimiz sayesinde (Birbirimizi Yakından Tanıyalım), gizli kalmış yeteneklerini ve severek yapabileceğin gönüllülük alanlarını senin için keşfediyoruz.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-2">
+        <div class="roadmap-step-num">2</div>
+        <div class="ai-badge">✦ Smart-Match AI</div>
+        <h3>Akıllı Asistan ile Etkinlik Seç</h3>
+        <p>Girdiğin veriler, test sonuçların ve geçmiş katılımların Briva Smart-Match yapay zeka motoru tarafından analiz edilir. Hangi etkinliğin sana en uygun olacağını (zaman, konum, yetenek eşleşmesi) hesaplayıp, senin için en ideal etkinlikleri özel bir akışta sunar. "Acaba ne yapsam?" diye düşünme, AI asistanın senin için en doğru eşleşmeyi bulur.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-3">
+        <div class="roadmap-step-num">3</div>
+        <h3>Başvur ve İyiliğe Adım At</h3>
+        <p>Detaylarını incelediğin etkinliğe tek tıkla başvur. STK yöneticisi onayladığında anında bildirim alırsın ve etkinlik "Yaklaşan Katılımların" listene düşer. İyilik yapmanın en kolay, en organize yolu budur.</p>
+      </div>
+      
+      <div class="roadmap-card fade-up delay-4">
+        <div class="roadmap-step-num">4</div>
+        <div class="ai-badge">✦ İyilik Puanı (İP)</div>
+        <h3>Katıl ve Etkini Büyüt</h3>
+        <p>Etkinliği tamamladıktan sonra sistem, tamamlanan etkinliğin zorluk seviyesine ve süresine göre hesaplanmış <strong style="color:#a8e6cf">İP (İyilik Puanı)</strong> hesabına otomatik yansıtır. Bu senin topluma kattığın değerin görünür halidir.</p>
+        <p style="margin-top: 10px; color: rgba(255,255,255,0.5); font-size: 0.85rem;">Puanların arttıkça "İlk Gönüllü", "Çevre Dostu", "Eğitim Elçisi" gibi özel rozetlerle profilini zenginleştir. Liderlik tablosunda yükselerek diğer gönüllülerle tatlı bir motivasyon döngüsüne girersin.</p>
+      </div>
+      
+    </div>
+  </div>
+</section>
+</div>
+{% endblock %}

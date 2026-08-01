@@ -9,8 +9,7 @@ from app.models.user import User
 from app.recommend import RecommendationEngine, UserContext, RECOMMENDATION_THRESHOLD
 from app.utils.auth_helpers import get_current_user, volunteer_required, organization_required
 from app.utils.validators import parse_request_json
-from app.utils.ai_analyzer import evaluate_applicant_with_gemini
-import google.generativeai as genai
+from app.utils.ai_analyzer import evaluate_applicant_with_gemini, explain_recommendation_with_gemini
 import os
 import json
 
@@ -110,24 +109,15 @@ def explain():
     is_empty_profile = not context_text
     
     explanation_text = ""
+    is_ai_generated = False
     if is_empty_profile:
         explanation_text = "Profilindeki bilgiler bu etkinlik için yeterli kişiselleştirme sağlamıyor. Sana özel öneriler için 15 soruluk testi tamamlayabilirsin."
     else:
         # Gemini ile açıklama üret (Kişiselleştirilmiş AI Explanation)
-        api_key = os.environ.get('GEMINI_API_KEY', '').strip()
-        if api_key:
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-2.0-flash')
-                prompt = f"""Sen bir gönüllülük platformu yapay zekasısın. Gönüllüye, aşağıdaki etkinliğin ona NEDEN uygun olduğunu 2-3 cümleyle samimi bir dille açıkla.
-YALNIZCA açıklama metnini döndür. Yorum yapma, Markdown kullanma.
-Gönüllü Profili: Şehir: {user_context.city}, Beceriler: {', '.join(user_context.skills)}, İlgi Alanları: {', '.join(user_context.interests)}, Geçmiş Katılımlar: {', '.join(user_context.past_participations)}
-Etkinlik: Başlık: {event.title}, Açıklama: {event.description}, Kategori: {event.category}, Gereksinimler: {event.requirements}
-                """
-                response = model.generate_content(prompt)
-                explanation_text = response.text.strip()
-            except Exception as e:
-                explanation_text = ""
+        event_context = f"Başlık: {event.title} | Açıklama: {event.description} | Kategori: {event.category} | Gereksinimler: {event.requirements}"
+        result = explain_recommendation_with_gemini(context_text, event_context)
+        explanation_text = result.get('explanation', '')
+        is_ai_generated = result.get('ai_generated', False)
                 
     rec_engine = RecommendationEngine()
     scored = rec_engine.score_event(user_context, event)
@@ -135,11 +125,14 @@ Etkinlik: Başlık: {event.title}, Açıklama: {event.description}, Kategori: {e
     if not explanation_text:
         # Fallback (Rule-based)
         explanation_text = "Bu etkinlik genel profil kriterlerinize temel düzeyde uyum sağlamaktadır."
+        is_ai_generated = False
         
     return (jsonify({
         'explanation': {
             'text': explanation_text,
             'is_empty_profile': is_empty_profile,
+            'ai_generated': is_ai_generated,
+            'fallback_used': not is_ai_generated,
             'total_score': scored.total_score,
             'matching_details': scored.matching_details
         }
@@ -223,7 +216,8 @@ def evaluate_applicant():
     
     evaluation_result = evaluate_applicant_with_gemini(applicant_data, event_data)
     
-    # Eğer Gemini hata verirse veya anahtar yoksa kural tabanlı fallback'e geç
+    # Eğer Gemini hata verirse veya anahtar yoksa evaluate_applicant_with_gemini fallback döner.
+    # Yine de None gelirse (eski sistem) manuel fallback yap.
     if not evaluation_result:
         evaluation_result = {
             'match_score': 80 if (matching_skills and city_matched) else (60 if matching_skills or matching_interests else 40),
@@ -231,7 +225,9 @@ def evaluate_applicant():
             'strengths': matching_skills + (matching_interests if matching_interests else []),
             'gaps': missing_info,
             'recommendation': 'strong_match' if matching_skills and city_matched else ('possible_match' if matching_skills or matching_interests else 'weak_match'),
-            'source': 'rule-based'
+            'source': 'rule-based',
+            'ai_generated': False,
+            'fallback_used': True
         }
 
     return (jsonify({

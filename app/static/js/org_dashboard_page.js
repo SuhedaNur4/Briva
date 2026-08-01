@@ -34,11 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  let meRes = await window.authService.me();
-  let user = meRes && meRes.user ? meRes.user : null;
+  let meRes = await window.authService.me().catch(() => null);
+  let user = meRes && meRes.data && meRes.data.user ? meRes.data.user : null;
 
   if (!user || user.role !== 'organization') {
-    if (loginPrompt) loginPrompt.style.display = 'block';
+    window.location.href = '/login';
     return;
   }
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         createBtn.disabled = true;
         createBtn.textContent = 'Kaydediliyor...';
-        const res = await window.organizationsService.create({ name, city, description });
+        const res = await window.organizationsService.create({ name, city, description }).catch(err => ({ error: err.message }));
         createBtn.disabled = false;
         createBtn.textContent = 'Profili Kaydet ve Başla';
         if (res && res.error) {
@@ -84,13 +84,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const loadDashboardData = async () => {
     const evRes = await window.eventsService.list({ organization_id: org.id, status: 'all' });
-    allEvents = evRes && evRes.events ? evRes.events : [];
+    allEvents = evRes && evRes.data && evRes.data.events ? evRes.data.events : (evRes && evRes.events ? evRes.events : []);
     allApps = [];
 
     for (const ev of allEvents) {
       const appRes = await window.eventsService.getApplications(ev.id);
-      if (appRes && appRes.applications) {
-        appRes.applications.forEach(a => {
+      const apps = appRes && appRes.data && appRes.data.applications ? appRes.data.applications : (appRes && appRes.applications ? appRes.applications : null);
+      if (apps) {
+        apps.forEach(a => {
           allApps.push({ ...a, event_title: ev.title });
         });
       }
@@ -620,6 +621,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (score >= 80) scoreElem.style.color = 'var(--primary-main)';
         else if (score >= 50) scoreElem.style.color = 'var(--accent-orange)';
         else scoreElem.style.color = 'var(--accent-red)';
+      }
+      
+      const badgeElem = document.getElementById('am-ai-badge');
+      if (badgeElem) {
+        if (ev.ai_generated) {
+          badgeElem.style.display = 'inline-flex';
+        } else {
+          badgeElem.style.display = 'none';
+        }
       }
       
       const summaryElem = document.getElementById('am-ai-summary');

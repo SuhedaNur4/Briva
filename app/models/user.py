@@ -27,7 +27,12 @@ class User(db.Model):
         return check_password_hash(self.password_hash, raw_password)
 
     def to_dict(self) -> dict:
-        return {'id': self.id, 'email': self.email, 'role': self.role, 'is_active': self.is_active, 'created_at': self.created_at.isoformat()}
+        d = {'id': self.id, 'email': self.email, 'role': self.role, 'is_active': self.is_active, 'created_at': self.created_at.isoformat()}
+        if self.role == 'volunteer' and self.volunteer_profile:
+            d['volunteer_profile'] = self.volunteer_profile.to_dict()
+        elif self.role == 'organization' and self.organization:
+            d['organization'] = self.organization.to_dict()
+        return d
 
     def __repr__(self) -> str:
         return f'<User id={self.id} email={self.email} role={self.role}>'

@@ -6,6 +6,14 @@ views_bp = Blueprint('views', __name__)
 def index():
     return render_template('index.html')
 
+@views_bp.route('/login', methods=['GET'])
+def login_view():
+    return render_template('auth.html')
+
+@views_bp.route('/register', methods=['GET'])
+def register_view():
+    return render_template('auth.html')
+
 @views_bp.route('/events', methods=['GET'])
 def list_events_view():
     return render_template('events.html')
@@ -37,3 +45,7 @@ def organizations_list_view():
 @views_bp.route('/quiz', methods=['GET'])
 def quiz_view():
     return render_template('personality_test.html')
+
+@views_bp.route('/roadmap', methods=['GET'])
+def roadmap_view():
+    return render_template('roadmap.html')

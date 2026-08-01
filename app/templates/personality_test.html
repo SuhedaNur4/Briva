@@ -11,14 +11,45 @@
     align-items: center;
     justify-content: center;
     padding: 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .quiz-shell::before {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -150px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 230, 207, 0.2) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .quiz-shell::after {
+    content: "";
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(9, 52, 36, 0.4) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
   }
   .quiz-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.4);
     border-radius: 28px;
     max-width: 680px;
     width: 100%;
     overflow: hidden;
     box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+    position: relative;
+    z-index: 1;
   }
   .quiz-header {
     background: var(--primary-main);
@@ -592,17 +623,17 @@
       <p id="results-desc" style="font-size: 1.1rem; color: var(--text-main); margin-bottom: var(--space-6); font-weight: 500;">Seni biraz daha tanıdık.</p>
       
       <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); text-align: left; margin-bottom: var(--space-8);">
-        <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--text-main);">Öne Çıkan İlgi Alanların</h3>
+        <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--text-main);">Test Sonucuna Göre Öne Çıkan İlgi Alanların</h3>
         <div id="results-insights" style="display: flex; flex-direction: column; gap: var(--space-4);">
           <!-- JavaScript ile doldurulacak -->
         </div>
       </div>
       
-      <h3 style="font-size: var(--text-xl); margin-bottom: var(--space-4); color: var(--primary-main);">Sana uygun gönüllülük etkinlikleri:</h3>
+      <h3 style="font-size: var(--text-xl); margin-bottom: var(--space-4); color: var(--primary-main);">Bu Alanlarda Sana Önerilen Aktif ve Güncel Etkinlikler:</h3>
       <div class="quiz-rec-grid" id="results-recs"></div>
       <div class="quiz-actions">
         <a href="/events" class="btn btn-outline" style="border-radius: 99px;">Tüm Etkinlikleri Gör</a>
-        <a href="/dashboard" class="btn btn-primary" style="border-radius: 99px;">Profil Oluştur & Kaydol</a>
+        <a href="/dashboard" class="btn btn-primary" style="border-radius: 99px;">Profile Ekle</a>
       </div>
     </div>
 

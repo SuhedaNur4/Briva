@@ -3,328 +3,542 @@
 {% block title %}STK Yönetim Paneli | Briva{% endblock %}
 
 {% block content %}
-<nav class="org-nav-bar" aria-label="STK Ana Navigasyon">
-  <div class="container">
-    <ul class="org-nav-list">
-      <li class="org-nav-item"><a href="/organization/dashboard#overview" class="org-tab-link active" data-tab="overview">Dashboard</a></li>
-      <li class="org-nav-item"><a href="/organization/dashboard#events" class="org-tab-link" data-tab="events">Etkinlikler</a></li>
-      <li class="org-nav-item"><a href="/organization/events/new">Yeni Etkinlik</a></li>
-      <li class="org-nav-item"><a href="/organization/dashboard#applications" class="org-tab-link" data-tab="applications">Başvurular</a></li>
-      <li class="org-nav-item"><a href="/organization/dashboard#profile" class="org-tab-link" data-tab="profile">Profil</a></li>
-    </ul>
+<style>
+  /* Base & Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  .org-dashboard-wrapper {
+    background-color: #fafcfb;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    overflow: hidden;
+  }
+  /* Decorative background blobs */
+  .org-dashboard-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 230, 207, 0.4) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .org-dashboard-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(9, 52, 36, 0.08) 0%, rgba(250, 252, 251, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Nav Bar - Floating Pill Glassmorphism */
+  .org-nav-bar-container {
+    position: sticky;
+    top: 80px; /* main navbar is 80px high */
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    padding: 16px 20px;
+    pointer-events: none; /* Let clicks pass through outside the pill */
+  }
+  .org-nav-bar {
+    background: #093424;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    box-shadow: 0 12px 32px rgba(9, 52, 36, 0.2);
+    pointer-events: auto; /* Re-enable clicks on the pill */
+    display: inline-flex;
+  }
+  .org-nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 6px 8px;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .org-nav-item a {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 10px 20px;
+    border-radius: 99px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+  .org-nav-item a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  .org-nav-item a.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+  }
+  
+  .org-tab-pane {
+    display: none;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .org-tab-pane.active {
+    display: block;
+  }
+  
+  /* Cards */
+  .premium-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.03);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .stat-card {
+    border-radius: 24px;
+    padding: 32px 24px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+  }
+  .stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 100%);
+    pointer-events: none;
+  }
+  .stat-card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    z-index: 1;
+  }
+  .stat-card-value {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    z-index: 1;
+    letter-spacing: -1px;
+  }
+
+  /* Specific Stat Card Colors */
+  .stat-card.total { background: linear-gradient(135deg, #093424 0%, #115941 100%); color: white; }
+  .stat-card.total .stat-card-title { color: rgba(255,255,255,0.7); }
+  .stat-card.total .stat-card-value { color: white; }
+  
+  .stat-card.active { border-bottom: 4px solid #34d399; }
+  .stat-card.active .stat-card-value { color: #059669; }
+  
+  .stat-card.pending { border-bottom: 4px solid #fbbf24; }
+  .stat-card.pending .stat-card-value { color: #d97706; }
+  
+  .stat-card.approved { border-bottom: 4px solid #60a5fa; }
+  .stat-card.approved .stat-card-value { color: #2563eb; }
+
+  /* Premium Header */
+  .premium-header {
+    background: linear-gradient(135deg, #093424 0%, #146146 100%);
+    color: white;
+    border-radius: 32px;
+    padding: 48px;
+    margin-bottom: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+    box-shadow: 0 24px 48px rgba(9,52,36,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .premium-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(168,230,207,0.2) 0%, rgba(9,52,36,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 10s ease-in-out infinite;
+  }
+  .premium-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%; left: 10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(9,52,36,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  
+  /* Buttons */
+  .btn-gradient {
+    background: linear-gradient(135deg, #a8e6cf 0%, #85d8ba 100%);
+    color: #093424;
+    border-radius: 99px;
+    font-weight: 800;
+    padding: 14px 32px;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(168,230,207,0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .btn-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(168,230,207,0.5);
+  }
+  .btn-outline-light {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 14px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+  }
+  .btn-outline-light:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+</style>
+
+<div class="org-dashboard-wrapper">
+  <div class="org-nav-bar-container">
+    <nav class="org-nav-bar" aria-label="STK Ana Navigasyon">
+      <ul class="org-nav-list">
+        <li class="org-nav-item"><a href="/organization/dashboard#overview" class="org-tab-link active" data-tab="overview">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0V11a1 1 0 011-1h2a1 1 0 011 1v9"/></svg>
+          Dashboard
+        </a></li>
+        <li class="org-nav-item"><a href="/organization/dashboard#events" class="org-tab-link" data-tab="events">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          İlanlar
+        </a></li>
+        <li class="org-nav-item"><a href="/organization/dashboard#applications" class="org-tab-link" data-tab="applications">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          Gelen Başvurular
+        </a></li>
+        <li class="org-nav-item"><a href="/organization/dashboard#profile" class="org-tab-link" data-tab="profile">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Kurum Ayarları
+        </a></li>
+      </ul>
+    </nav>
   </div>
-</nav>
 
-<div class="container" style="padding-bottom: var(--space-16);">
-  <div id="org-login-prompt" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 480px; margin: 0 auto;">
-    <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-3);">STK Yönetim Paneli</h1>
-    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Etkinlik ilanlarınızı oluşturmak ve gönüllü başvurularını yönetmek için STK yetkilisi olarak oturum açın.</p>
-    <div style="display: flex; flex-direction: column; gap: var(--space-3); text-align: left; margin-bottom: var(--space-6);">
-      <div>
-        <label for="org-login-email" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">E-posta Adresi</label>
-        <input type="email" id="org-login-email" placeholder="stk@briva.org" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-      </div>
-      <div>
-        <label for="org-login-pass" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şifre</label>
-        <input type="password" id="org-login-pass" placeholder="••••••••" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-      </div>
-      <button type="button" id="org-do-login-btn" class="btn btn-primary btn-block">STK Olarak Giriş Yap</button>
-    </div>
-    <div style="font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
-      Hızlı Test Girişi: <strong>stk@example.com / pass1234</strong>
-    </div>
-  </div>
+  <div class="container" style="padding-top: 40px; padding-bottom: 80px; position: relative; z-index: 1;">
 
-  <div id="org-create-profile-prompt" style="display: none; text-align: center; padding: var(--space-16) var(--space-6); background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 540px; margin: 0 auto;">
-    <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-3);">STK Profilinizi Oluşturun</h2>
-    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">Yönetim paneline erişmek ve etkinlik ilanları yayınlamak için kuruluşunuzun temel bilgilerini kaydedin.</p>
-    <div style="display: flex; flex-direction: column; gap: var(--space-4); text-align: left;">
-      <div>
-        <label for="new-org-name" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Adı *</label>
-        <input type="text" id="new-org-name" placeholder="Örn: Briva Sosyal Etki Derneği" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-      </div>
-      <div>
-        <label for="new-org-city" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şehir</label>
-        <input type="text" id="new-org-city" placeholder="Örn: İstanbul" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-      </div>
-      <div>
-        <label for="new-org-desc" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kısa Açıklama</label>
-        <textarea id="new-org-desc" rows="3" placeholder="Kuruluşunuzun faaliyet alanları ve amacı..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
-      </div>
-      <button type="button" id="create-org-btn" class="btn btn-primary btn-block">Profili Kaydet ve Başla</button>
-    </div>
-  </div>
-
-  <div id="org-dashboard-content" style="display: none;">
-    <header style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4);">
-      <div>
-        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
-          <span id="org-header-name" style="font-size: var(--text-xs); font-weight: 700; color: var(--primary-main); text-transform: uppercase;">Kuruluş</span>
-          <span id="org-verified-tag" style="display: none; background: var(--primary-light); color: var(--primary-main); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: var(--radius-sm);">Doğrulanmış STK</span>
+    <!-- Create Profile Prompt -->
+    <div id="org-create-profile-prompt" class="premium-card" style="display: none; text-align: center; padding: 64px 40px; max-width: 600px; margin: 0 auto;">
+      <div style="width: 96px; height: 96px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); color: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 32px; box-shadow: 0 12px 24px rgba(46,125,50,0.15);">🏛️</div>
+      <h2 style="font-size: 2.2rem; margin-bottom: 16px; color: #093424; font-weight: 800;">Hoş Geldiniz!</h2>
+      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; line-height: 1.6;">Gönüllü ilanları yayınlamak ve harika projelere imza atmak için kuruluşunuzun temel bilgilerini ekleyerek başlayalım.</p>
+      <div style="display: flex; flex-direction: column; gap: 24px; text-align: left;">
+        <div>
+          <label for="new-org-name" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Kuruluş Adı *</label>
+          <input type="text" id="new-org-name" placeholder="Örn: Briva Eğitim Derneği" style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; transition: all 0.2s; background: #f8fafc; outline: none;">
         </div>
-        <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-1);">STK Yönetim Paneli</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-base);">Etkinlik ilanlarınızı oluşturun, gelen gönüllü başvurularını inceleyin ve operasyonel kararlarınızı verin.</p>
-      </div>
-      <div style="display: flex; gap: var(--space-3);">
-        <a href="/organization/events/new" class="btn btn-primary btn-lg">Etkinlik Oluştur</a>
-        <button type="button" id="org-logout-btn" class="btn btn-outline">Çıkış</button>
-      </div>
-    </header>
-
-    <div id="tab-pane-overview" class="org-tab-pane">
-      <section id="org-summary-section" style="margin-bottom: var(--space-12);">
-        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Operasyonel Özet</h2>
-        <div id="org-action-required-banner" style="background: var(--bg-surface-alt); border: 1px solid var(--primary-main); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-6); display: none;">
-          <h3 style="font-size: var(--text-base); color: var(--primary-main); font-weight: 700; margin-bottom: var(--space-2);">Bugün Ne Yapman Gerekiyor?</h3>
-          <ul id="org-action-required-list" style="margin: 0; padding-left: var(--space-5); font-size: var(--text-sm); color: var(--text-main);"></ul>
+        <div>
+          <label for="new-org-city" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Merkez Şehir</label>
+          <input type="text" id="new-org-city" placeholder="Örn: İstanbul" style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; transition: all 0.2s; background: #f8fafc; outline: none;">
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
-          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">TOPLAM ETKİNLİK</span>
-            <strong id="stat-org-total-events" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
-          </div>
-          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">YAYINDAKİ İLANLAR</span>
-            <strong id="stat-org-published-events" style="font-size: var(--text-3xl); color: var(--primary-main);">0</strong>
-          </div>
-          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">BEKLEYEN BAŞVURU</span>
-            <strong id="stat-org-pending-apps" style="font-size: var(--text-3xl); color: var(--accent-orange);">0</strong>
-          </div>
-          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; display: block; margin-bottom: var(--space-1);">ONAYLANAN GÖNÜLLÜ</span>
-            <strong id="stat-org-approved-apps" style="font-size: var(--text-3xl); color: var(--text-main);">0</strong>
-          </div>
+        <div>
+          <label for="new-org-desc" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Misyon / Açıklama</label>
+          <textarea id="new-org-desc" rows="4" placeholder="Kısaca kuruluşunuzun amacından bahsedin..." style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; resize: vertical; transition: all 0.2s; background: #f8fafc; outline: none;"></textarea>
         </div>
-        <p class="editorial-note">Not: Operasyonel özet, sahte etki skoru veya yapay metrikler üretilmeden yalnızca veritabanındaki gerçek etkinlik ve başvuru kayıtlarınızdan hesaplanır.</p>
-      </section>
+        <button type="button" id="create-org-btn" class="btn-gradient" style="width: 100%; margin-top: 16px; font-size: 1.15rem; padding: 18px;">Profili Kaydet ve Başla</button>
+      </div>
+    </div>
 
-      <div class="dashboard-sections-grid">
-        <section id="section-active-events">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
-            <h2 style="font-size: var(--text-xl);">Aktif Etkinlikler</h2>
-            <a href="#events" class="org-tab-link" data-tab="events" style="font-size: var(--text-sm); color: var(--primary-main); font-weight: 600; text-decoration: none;">Tümünü Yönet →</a>
+    <!-- Main Dashboard Content -->
+    <div id="org-dashboard-content" style="display: none;">
+      <header class="premium-header">
+        <div style="display: flex; align-items: center; gap: 32px; position: relative; z-index: 1; flex: 1; min-width: 300px;">
+          <div style="width: 96px; height: 96px; border-radius: 24px; background: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #093424; font-weight: 900; box-shadow: 0 12px 32px rgba(0,0,0,0.3);">
+            <span id="org-header-initial">B</span>
           </div>
-          <div id="active-events-skeleton" class="events-grid">
-            <div class="skeleton-card"><div class="skeleton-line"></div></div>
-            <div class="skeleton-card"><div class="skeleton-line"></div></div>
-          </div>
-          <div id="active-events-grid" class="events-grid" style="display: none;"></div>
-          <div id="active-events-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Şu an yayında olan aktif bir etkinliğiniz bulunmuyor.</p>
-            <a href="/organization/events/new" class="btn btn-primary">Hemen İlk Etkinliği Oluştur</a>
-          </div>
-        </section>
-
-        <section id="section-pending-apps">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
-            <h2 style="font-size: var(--text-xl);">Bekleyen Başvurular (Hızlı Değerlendirme)</h2>
-            <a href="#applications" class="org-tab-link" data-tab="applications" style="font-size: var(--text-sm); color: var(--primary-main); font-weight: 600; text-decoration: none;">Tüm Başvurular →</a>
-          </div>
-          <div id="pending-apps-skeleton" class="events-grid">
-            <div class="skeleton-card"><div class="skeleton-line"></div></div>
-          </div>
-          <div id="pending-apps-container" style="display: none;">
-            <div class="applicant-table-container">
-              <table class="applicant-table" aria-label="Bekleyen Gönüllü Başvuruları">
-                <thead>
-                  <tr>
-                    <th>Gönüllü</th>
-                    <th>Etkinlik</th>
-                    <th>Tarih</th>
-                    <th>Not / Gerekçe</th>
-                    <th>Aksiyon</th>
-                  </tr>
-                </thead>
-                <tbody id="pending-apps-table-body"></tbody>
-              </table>
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <span style="background: rgba(255,255,255,0.15); color: white; font-size: 0.75rem; font-weight: 800; padding: 6px 14px; border-radius: 99px; letter-spacing: 1px; backdrop-filter: blur(4px);">KURUMSAL HESAP</span>
+              <span id="org-verified-tag" style="display: none; background: #a8e6cf; color: #093424; font-size: 0.75rem; font-weight: 800; padding: 6px 14px; border-radius: 99px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(168,230,207,0.4);">✓ DOĞRULANDI</span>
             </div>
-            <div class="applicant-cards-mobile" id="pending-apps-mobile-list"></div>
+            <h1 id="org-header-name" style="font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; color: white; letter-spacing: -0.5px;">STK Adı</h1>
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem; margin: 0; max-width: 500px; line-height: 1.5;">Topluma değer katan ilanlarınızı ve harika gönüllüleri buradan yönetin.</p>
           </div>
-          <div id="pending-apps-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            <p style="color: var(--text-muted); font-size: var(--text-sm);">Değerlendirme bekleyen yeni bir başvuru bulunmuyor.</p>
+        </div>
+        
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1;">
+          <a href="/organization/events/new" class="btn-gradient">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px;" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            Yeni Etkinlik İlanı
+          </a>
+          <button type="button" id="org-logout-btn" class="btn-outline-light">
+            Çıkış Yap
+          </button>
+        </div>
+      </header>
+
+      <!-- Overview Tab -->
+      <div id="tab-pane-overview" class="org-tab-pane active">
+        <section style="margin-bottom: 64px;">
+          <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 32px; color: #093424; display: flex; align-items: center; gap: 12px;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Genel Bakış
+          </h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+            <div class="stat-card total">
+              <span class="stat-card-title">Toplam Etkinlik</span>
+              <strong id="stat-org-total-events" class="stat-card-value">0</strong>
+            </div>
+            <div class="stat-card active">
+              <span class="stat-card-title">Yayında (Aktif)</span>
+              <strong id="stat-org-published-events" class="stat-card-value">0</strong>
+            </div>
+            <div class="stat-card pending">
+              <span class="stat-card-title">Onay Bekleyen</span>
+              <strong id="stat-org-pending-apps" class="stat-card-value">0</strong>
+            </div>
+            <div class="stat-card approved">
+              <span class="stat-card-title">Kabul Edilen</span>
+              <strong id="stat-org-approved-apps" class="stat-card-value">0</strong>
+            </div>
           </div>
         </section>
 
-        <section id="section-upcoming-events">
-          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Yaklaşan Etkinlikler (Tarih Sıralı)</h2>
+        <section>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: #093424; display: flex; align-items: center; gap: 12px;">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Yaklaşan Etkinlikler
+            </h2>
+            <button class="btn" style="color: var(--primary-main); font-weight: 700; padding: 8px 16px; background: rgba(9,52,36,0.05); border-radius: 99px; border: none; font-size: 0.95rem; cursor: pointer; transition: background 0.2s;" onclick="document.querySelector('[data-tab=\'events\']').click()" onmouseover="this.style.background='rgba(9,52,36,0.1)'" onmouseout="this.style.background='rgba(9,52,36,0.05)'">Tümünü Yönet →</button>
+          </div>
           <div id="upcoming-events-grid" class="events-grid"></div>
-          <div id="upcoming-events-empty" class="empty-state" style="display: none; padding: var(--space-8); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            <p style="color: var(--text-muted); font-size: var(--text-sm);">Yakın tarihte gerçekleşecek bir etkinlik bulunmuyor.</p>
-          </div>
-        </section>
-
-        <section id="section-recent-activities">
-          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Son Aktiviteler</h2>
-          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6);">
-            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-2);">Sistemde tüm etkinlik ve başvuru durum değişiklikleriniz anlık olarak güncellenir.</p>
-            <p class="editorial-note">Veri Bütünlüğü Raporu: Mevcut backend mimarisi bağımsız bir "Activity Feed" API endpoint'i sağlamamaktadır. Sahte aktivite akışı (fake activity feed) kural gereği kesinlikle oluşturulmamış; tüm operasyonel takip gerçek başvurular ve etkinlikler bölümlerine ayrıştırılmıştır.</p>
+          <div id="upcoming-events-empty" class="premium-card" style="display: none; padding: 64px; text-align: center;">
+            <div style="font-size: 56px; opacity: 0.5; margin-bottom: 24px;">🗓️</div>
+            <p style="color: var(--text-muted); font-size: 1.15rem; margin-bottom: 32px;">Yakın tarihte gerçekleşecek bir etkinlik bulunmuyor.</p>
+            <a href="/organization/events/new" class="btn-gradient">Hemen Yeni İlan Aç</a>
           </div>
         </section>
       </div>
-    </div>
 
-    <div id="tab-pane-events" class="org-tab-pane" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); gap: var(--space-4);">
-        <h2 style="font-size: var(--text-2xl);">Etkinlik Yönetimi</h2>
-        <div style="display: flex; gap: var(--space-2);">
-          <button type="button" class="btn btn-outline filter-ev-btn active" data-status="all">Tümü</button>
-          <button type="button" class="btn btn-outline filter-ev-btn" data-status="published">Yayınlananlar</button>
-          <button type="button" class="btn btn-outline filter-ev-btn" data-status="draft">Taslaklar</button>
-          <button type="button" class="btn btn-outline filter-ev-btn" data-status="completed">Tamamlananlar</button>
-        </div>
-      </div>
-      <div id="all-events-grid" class="events-grid"></div>
-      <div id="all-events-empty" class="empty-state" style="display: none; padding: var(--space-12); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
-        <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Bu kritere uygun etkinlik kaydınız bulunmuyor.</p>
-        <a href="/organization/events/new" class="btn btn-primary">Yeni Etkinlik Oluştur</a>
-      </div>
-    </div>
-
-    <div id="tab-pane-applications" class="org-tab-pane" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); gap: var(--space-4);">
-        <h2 style="font-size: var(--text-2xl);">Tüm Gönüllü Başvuruları</h2>
-        <div style="display: flex; gap: var(--space-2);">
-          <button type="button" class="btn btn-outline filter-app-btn active" data-status="all">Tümü</button>
-          <button type="button" class="btn btn-outline filter-app-btn" data-status="pending">Bekleyenler</button>
-          <button type="button" class="btn btn-outline filter-app-btn" data-status="approved">Onaylananlar</button>
-          <button type="button" class="btn btn-outline filter-app-btn" data-status="rejected">Reddedilenler</button>
-        </div>
-      </div>
-      <div id="all-apps-container" style="display: none;">
-        <div class="applicant-table-container">
-          <table class="applicant-table" aria-label="Tüm Gönüllü Başvuruları">
-            <thead>
-              <tr>
-                <th>Gönüllü</th>
-                <th>Etkinlik</th>
-                <th>Başvuru Tarihi</th>
-                <th>Başvuru Notu</th>
-                <th>Durum</th>
-                <th>İşlemler</th>
-              </tr>
-            </thead>
-            <tbody id="all-apps-table-body"></tbody>
-          </table>
-        </div>
-        <div class="applicant-cards-mobile" id="all-apps-mobile-list"></div>
-      </div>
-      <div id="all-apps-empty" class="empty-state" style="display: none; padding: var(--space-12); text-align: center; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">Görüntülenecek başvuru bulunmamaktadır.</p>
-      </div>
-    </div>
-
-    <div id="tab-pane-profile" class="org-tab-pane" style="display: none;">
-      <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-8); max-width: 640px;">
-        <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-6);">STK Profil Ayarları</h2>
-        <form id="org-profile-update-form">
-          <div style="display: flex; flex-direction: column; gap: var(--space-4);">
-            <div>
-              <label for="up-org-name" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Adı *</label>
-              <input type="text" id="up-org-name" required style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            </div>
-            <div>
-              <label for="up-org-city" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Şehir</label>
-              <input type="text" id="up-org-city" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            </div>
-            <div>
-              <label for="up-org-web" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Web Sitesi</label>
-              <input type="url" id="up-org-web" placeholder="https://..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            </div>
-            <div>
-              <label for="up-org-phone" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Telefon</label>
-              <input type="tel" id="up-org-phone" placeholder="0212..." style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-            </div>
-            <div>
-              <label for="up-org-address" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Adres</label>
-              <textarea id="up-org-address" rows="2" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
-            </div>
-            <div>
-              <label for="up-org-desc" style="font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); display: block; margin-bottom: var(--space-1);">Kuruluş Açıklaması</label>
-              <textarea id="up-org-desc" rows="4" style="width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);"></textarea>
-            </div>
-            <button type="submit" id="update-profile-btn" class="btn btn-primary">Değişiklikleri Kaydet</button>
+      <!-- Events Tab -->
+      <div id="tab-pane-events" class="org-tab-pane">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 40px; gap: 24px;">
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: #093424; margin: 0;">Tüm İlanlar</h2>
+          <div style="display: flex; gap: 8px; background: white; padding: 8px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);">
+            <button type="button" class="btn filter-ev-btn active" data-status="all" style="border: none; border-radius: 12px; font-weight: 700; padding: 10px 20px; background: var(--primary-light); color: var(--primary-main);">Tümü</button>
+            <button type="button" class="btn filter-ev-btn" data-status="published" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Yayında</button>
+            <button type="button" class="btn filter-ev-btn" data-status="draft" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Taslak</button>
+            <button type="button" class="btn filter-ev-btn" data-status="completed" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Tamamlandı</button>
           </div>
-        </form>
+        </div>
+        <div id="all-events-grid" class="events-grid"></div>
+        <div id="all-events-empty" class="premium-card" style="display: none; padding: 80px; text-align: center;">
+          <p style="color: var(--text-muted); font-size: 1.15rem; margin-bottom: 32px;">Bu kritere uygun etkinlik kaydınız bulunmuyor.</p>
+          <a href="/organization/events/new" class="btn-gradient">Yeni Etkinlik Oluştur</a>
+        </div>
       </div>
+
+      <!-- Applications Tab -->
+      <div id="tab-pane-applications" class="org-tab-pane">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 40px; gap: 24px;">
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: #093424; margin: 0;">Gönüllü Başvuruları</h2>
+          <div style="display: flex; gap: 8px; background: white; padding: 8px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);">
+            <button type="button" class="btn filter-app-btn active" data-status="all" style="border: none; border-radius: 12px; font-weight: 700; padding: 10px 20px; background: var(--primary-light); color: var(--primary-main);">Tümü</button>
+            <button type="button" class="btn filter-app-btn" data-status="pending" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Bekleyen</button>
+            <button type="button" class="btn filter-app-btn" data-status="approved" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Onaylanan</button>
+            <button type="button" class="btn filter-app-btn" data-status="rejected" style="border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; background: transparent; color: var(--text-muted);">Reddedilen</button>
+          </div>
+        </div>
+        <div id="all-apps-container" class="premium-card" style="display: none;">
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+              <thead style="background: #f8faf9; border-bottom: 2px solid #e2e8f0;">
+                <tr>
+                  <th style="padding: 20px 24px; font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Gönüllü</th>
+                  <th style="padding: 20px 24px; font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Etkinlik</th>
+                  <th style="padding: 20px 24px; font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Tarih</th>
+                  <th style="padding: 20px 24px; font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Durum</th>
+                  <th style="padding: 20px 24px; font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Aksiyon</th>
+                </tr>
+              </thead>
+              <tbody id="all-apps-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="all-apps-empty" class="premium-card" style="display: none; padding: 80px; text-align: center;">
+          <p style="color: var(--text-muted); font-size: 1.15rem; margin: 0;">Görüntülenecek başvuru bulunmamaktadır.</p>
+        </div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div id="tab-pane-profile" class="org-tab-pane">
+        <div class="premium-card" style="padding: 56px 48px; max-width: 680px; margin: 0 auto;">
+          <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 40px; color: #093424; text-align: center;">Kurum Ayarları</h2>
+          <form id="org-profile-update-form">
+            <div style="display: flex; flex-direction: column; gap: 28px;">
+              <div>
+                <label for="up-org-name" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Kuruluş Adı *</label>
+                <input type="text" id="up-org-name" required style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; background: #f8fafc; outline: none; transition: border-color 0.2s;">
+              </div>
+              <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 220px;">
+                  <label for="up-org-city" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Şehir</label>
+                  <input type="text" id="up-org-city" style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; background: #f8fafc; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div style="flex: 1; min-width: 220px;">
+                  <label for="up-org-phone" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">İletişim Tel</label>
+                  <input type="tel" id="up-org-phone" placeholder="0212..." style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; background: #f8fafc; outline: none; transition: border-color 0.2s;">
+                </div>
+              </div>
+              <div>
+                <label for="up-org-web" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Web Sitesi</label>
+                <input type="url" id="up-org-web" placeholder="https://..." style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; background: #f8fafc; outline: none; transition: border-color 0.2s;">
+              </div>
+              <div>
+                <label for="up-org-address" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Merkez Adresi</label>
+                <textarea id="up-org-address" rows="2" style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; resize: vertical; background: #f8fafc; outline: none; transition: border-color 0.2s;"></textarea>
+              </div>
+              <div>
+                <label for="up-org-desc" style="font-size: 0.9rem; font-weight: 700; color: #093424; display: block; margin-bottom: 8px;">Hakkımızda (Misyon & Vizyon)</label>
+                <textarea id="up-org-desc" rows="5" style="width: 100%; padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.05rem; resize: vertical; background: #f8fafc; outline: none; transition: border-color 0.2s;"></textarea>
+              </div>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+              <button type="submit" id="update-profile-btn" class="btn-gradient" style="width: 100%; padding: 18px; font-size: 1.15rem;">Değişiklikleri Kaydet</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- Aday İnceleme Modalı (Explainable AI) -->
-  <div id="applicant-modal" role="dialog" aria-modal="true" aria-labelledby="applicant-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; padding: var(--space-4);">
-    <div style="background: var(--surface-card); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); position: relative; padding: var(--space-6);">
-      <button type="button" id="close-applicant-modal" aria-label="Modalı Kapat" class="btn btn-outline btn-sm" style="position: absolute; top: var(--space-4); right: var(--space-4); border: none;">✕ Kapat</button>
-      
-      <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-4);">Aday İncelemesi</h2>
-      
-      <!-- Skeleton Loading State -->
-      <div id="applicant-modal-skeleton" style="display: none; display: flex; flex-direction: column; gap: var(--space-4);">
-        <div class="skeleton-line" style="height: 24px; width: 60%;"></div>
-        <div class="skeleton-line" style="height: 60px; width: 100%;"></div>
-        <div class="skeleton-line" style="height: 40px; width: 80%;"></div>
+<!-- Applicant Modal -->
+<div id="applicant-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+  <div style="background: white; width: 90%; max-width: 600px; border-radius: 24px; padding: 40px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto;">
+    <button id="close-applicant-modal" style="position: absolute; top: 24px; right: 24px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</button>
+    <h2 style="font-size: 1.5rem; font-weight: 800; color: #093424; margin-bottom: 24px;">Aday Değerlendirmesi</h2>
+    
+    <div id="applicant-modal-skeleton" style="display: none; flex-direction: column; gap: 16px;">
+      <div style="height: 20px; background: #e2e8f0; border-radius: 4px; width: 60%;"></div>
+      <div style="height: 20px; background: #e2e8f0; border-radius: 4px; width: 80%;"></div>
+      <div style="height: 100px; background: #e2e8f0; border-radius: 4px; width: 100%;"></div>
+    </div>
+    
+    <div id="applicant-modal-error" style="display: none; color: var(--accent-red); padding: 16px; background: rgba(239,68,68,0.1); border-radius: 8px;"></div>
+    
+    <div id="applicant-modal-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+        <div>
+          <h3 id="am-name" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; color: var(--text-main);"></h3>
+          <p id="am-city" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+        </div>
+        <div style="text-align: right; background: #f8fafc; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+            <span id="am-ai-badge" style="display: none; background: var(--primary-light); color: var(--primary-main); padding: 2px 8px; border-radius: 99px; font-size: 0.65rem;">🤖 AI Analizi</span>
+            Eşleşme Skoru
+          </div>
+          <div id="am-ai-score" style="font-size: 1.5rem; font-weight: 800; color: var(--primary-main);"></div>
+        </div>
       </div>
       
-      <!-- Error State -->
-      <div id="applicant-modal-error" style="display: none; background: var(--bg-surface-alt); border-left: 4px solid var(--accent-red); padding: var(--space-4); border-radius: var(--radius-sm); color: var(--text-main); font-size: var(--text-sm);"></div>
-
-      <!-- Real Content -->
-      <div id="applicant-modal-content" style="display: none;">
-        <div style="margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle);">
-          <h3 id="am-name" style="font-size: var(--text-lg); margin-bottom: var(--space-1);">-</h3>
-          <p id="am-city" style="font-size: var(--text-sm); color: var(--text-muted);">-</p>
+      <div style="margin-bottom: 24px;">
+        <h4 style="font-size: 0.9rem; font-weight: 700; color: #093424; margin-bottom: 8px;">AI Özeti</h4>
+        <p id="am-ai-summary" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;"></p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <div>
+          <h4 style="font-size: 0.9rem; font-weight: 700; color: #059669; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            Güçlü Yönler
+          </h4>
+          <ul id="am-ai-strengths" style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></ul>
         </div>
-        
-        <div style="margin-bottom: var(--space-4);">
-          <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">Hakkında</strong>
-          <p id="am-bio" style="font-size: var(--text-sm); margin: 0; line-height: 1.5;">-</p>
+        <div>
+          <h4 style="font-size: 0.9rem; font-weight: 700; color: #d97706; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            Eksikler / Riskler
+          </h4>
+          <ul id="am-ai-gaps" style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></ul>
         </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
-          <div>
-            <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">Beceriler</strong>
-            <div id="am-skills" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
-          </div>
-          <div>
-            <strong style="display: block; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-1);">İlgi Alanları</strong>
-            <div id="am-interests" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
-          </div>
+      </div>
+      
+      <div style="margin-bottom: 24px; background: #f8fafc; padding: 16px; border-radius: 12px;">
+        <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Aday Profili</h4>
+        <p id="am-bio" style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 12px;"></p>
+        <div style="margin-bottom: 8px;">
+          <strong style="font-size: 0.85rem;">Beceriler:</strong>
+          <div id="am-skills" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;"></div>
         </div>
-
-        <div style="background: var(--primary-light); border: 1px solid var(--primary-main); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
-            <h4 style="font-size: var(--text-base); color: var(--primary-main); margin: 0;">🤖 AI Aday Analizi</h4>
-            <span id="am-ai-score" style="font-weight: bold; font-size: var(--text-lg); padding: 4px 12px; border-radius: 99px; background: white; border: 1px solid var(--primary-main);"></span>
-          </div>
-          <p id="am-ai-summary" style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-4); line-height: 1.5;">-</p>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
-            <div>
-              <strong style="color: var(--primary-main); font-size: var(--text-sm); display: block; margin-bottom: 4px;">✓ Güçlü Yönler</strong>
-              <ul id="am-ai-strengths" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
-            </div>
-            <div>
-              <strong style="color: var(--accent-orange); font-size: var(--text-sm); display: block; margin-bottom: 4px;">⚠️ Eksikler</strong>
-              <ul id="am-ai-gaps" style="font-size: var(--text-sm); margin: 0; padding-left: var(--space-4);"></ul>
-            </div>
-          </div>
+        <div>
+          <strong style="font-size: 0.85rem;">İlgi Alanları:</strong>
+          <div id="am-interests" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;"></div>
         </div>
-        
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-3); border-top: 1px solid var(--border-subtle); padding-top: var(--space-4);">
-          <button type="button" id="am-reject-btn" class="btn btn-outline" style="color: var(--accent-red); border-color: var(--accent-red);">Reddet</button>
-          <button type="button" id="am-approve-btn" class="btn btn-primary">Başvuruyu Onayla</button>
-        </div>
+      </div>
+      
+      <div style="display: flex; gap: 16px; margin-top: 32px;">
+        <button id="am-reject-btn" type="button" class="btn btn-outline" style="flex: 1; padding: 14px; font-weight: 700;">Reddet</button>
+        <button id="am-approve-btn" type="button" class="btn btn-primary" style="flex: 1; padding: 14px; font-weight: 700; background: #059669; border-color: #059669;">Başvuruyu Onayla</button>
       </div>
     </div>
   </div>
 </div>
 
-<nav class="org-bottom-nav" aria-label="Mobil STK Alt Navigasyon">
-  <a href="/organization/dashboard#overview" class="org-tab-link active" data-tab="overview">Özet</a>
-  <a href="/organization/dashboard#events" class="org-tab-link" data-tab="events">Etkinlikler</a>
-  <a href="/organization/events/new">Yeni</a>
-  <a href="/organization/dashboard#applications" class="org-tab-link" data-tab="applications">Başvurular</a>
-  <a href="/organization/dashboard#profile" class="org-tab-link" data-tab="profile">Profil</a>
-</nav>
-{% endblock %}
-
-{% block scripts %}
+<script>
+  // Add focus states to inputs using JS to keep CSS clean in HTML
+  document.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('focus', function() {
+      this.style.borderColor = '#093424';
+      this.style.background = 'white';
+      this.style.boxShadow = '0 0 0 4px rgba(9,52,36,0.1)';
+    });
+    el.addEventListener('blur', function() {
+      this.style.borderColor = '#e2e8f0';
+      this.style.background = '#f8fafc';
+      this.style.boxShadow = 'none';
+    });
+  });
+</script>
 <script src="/static/js/org_dashboard_page.js"></script>
 {% endblock %}

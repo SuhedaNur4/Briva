@@ -16,6 +16,11 @@ class Config:
     CORS_ORIGINS: list = os.environ.get("CORS_ORIGINS", "*").split(",")
     # Rate Limiting
     RATELIMIT_DEFAULT: str = os.environ.get("RATELIMIT_DEFAULT", "200 per day, 50 per hour")
+    RATELIMIT_HEADERS_ENABLED: bool = True
+    # Gemini AI Config
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+    GEMINI_GENERATION_MODEL = os.environ.get('GEMINI_GENERATION_MODEL', 'gemini-3.5-flash')
+    GEMINI_EMBEDDING_MODEL = os.environ.get('GEMINI_EMBEDDING_MODEL', 'models/gemini-embedding-2')
 
 class DevelopmentConfig(Config):
     DEBUG: bool = True
