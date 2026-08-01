@@ -110,8 +110,40 @@ def list_events():
         per_page = min(100, max(1, int(request.args.get('per_page', 20))))
     except ValueError:
         page, per_page = (1, 20)
+    
     pagination = query.order_by(Event.start_date.asc()).paginate(page=page, per_page=per_page, error_out=False)
-    return (jsonify({'events': [e.to_dict() for e in pagination.items], 'pagination': {'page': pagination.page, 'per_page': pagination.per_page, 'total': pagination.total, 'pages': pagination.pages}}), 200)
+    
+    events_data = [e.to_dict() for e in pagination.items]
+    
+    # AI Smart-Match: Kullanıcı giriş yapmışsa ve gönüllü profili varsa önerilenleri işaretle
+    try:
+        verify_jwt_in_request(optional=True)
+        user = get_current_user()
+        if user and user.role == 'volunteer' and user.volunteer_profile:
+            from app.models.recommendation import UserContext
+            from app.recommend import RecommendationEngine
+            
+            profile = user.volunteer_profile
+            user_context = UserContext(
+                city=profile.city or '',
+                interests=profile.interests_list,
+                skills=profile.skills_list,
+                available_days=[]
+            )
+            engine = RecommendationEngine(threshold=60)
+            recommended_events = engine.recommend(user_context, pagination.items)
+            recommended_ids = {r.id for r in recommended_events}
+            
+            for ed in events_data:
+                if ed['id'] in recommended_ids:
+                    ed['is_recommended'] = True
+    except Exception:
+        pass
+
+    return (jsonify({
+        'events': events_data, 
+        'pagination': {'page': pagination.page, 'per_page': pagination.per_page, 'total': pagination.total, 'pages': pagination.pages}
+    }), 200)
 
 @events_bp.route('/<int:event_id>', methods=['GET'])
 def get_event(event_id: int):
