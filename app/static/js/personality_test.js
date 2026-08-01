@@ -166,6 +166,9 @@
         })
       });
 
+      // Save for later just in case user is not logged in and goes to dashboard
+      localStorage.setItem('pending_bivi_answers', JSON.stringify(finalAnswers));
+
       if (!res.ok) throw new Error('API hatası');
       const data = await res.json();
       showResults(data, finalAnswers);
@@ -229,16 +232,17 @@
       recsEl.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 16px;">Profiline uygun etkinlikler yakında eklenecek. Tüm etkinliklere göz atabilirsin!</p>';
     } else {
       recs.slice(0, 4).forEach(rec => {
+        const eventData = rec.event || {};
         const card = document.createElement('div');
         card.className = 'quiz-rec-card';
-        const orgName = rec.organization?.name || 'Sivil Toplum Kuruluşu';
-        const city = rec.city ? `${rec.city} · ` : '';
+        const orgName = eventData.organization_name || 'Sivil Toplum Kuruluşu';
+        const city = eventData.city ? `${eventData.city} · ` : '';
         card.innerHTML = `
           <div>
-            <h3>${escapeHtml(rec.title)}</h3>
-            <p>${city}${escapeHtml(orgName)} · ${escapeHtml(rec.category || 'Genel')}</p>
+            <h3>${escapeHtml(eventData.title)}</h3>
+            <p>${city}${escapeHtml(orgName)} · ${escapeHtml(eventData.category || 'Genel')}</p>
           </div>
-          <a href="/events/${rec.id}" class="quiz-rec-link">İncele</a>
+          <a href="/events/${eventData.id}" class="quiz-rec-link">İncele</a>
         `;
         recsEl.appendChild(card);
       });
