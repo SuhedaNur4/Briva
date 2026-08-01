@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadUser();
     loadProfile();
     loadApplications();
-    // loadRecommendations(); // Artık butona basılınca çağrılacak
+    loadRecommendations();
     loadFavorites();
     loadGamification();
     loadXpHistory();
