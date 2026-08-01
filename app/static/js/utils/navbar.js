@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           xpPoints.textContent = user.volunteer_profile.xp_points || 0;
           xpBadge.style.display = 'flex';
         }
-      } else if (user.role === 'organization' && user.organization && user.organization.name) {
-        name = user.organization.name;
+      } else if (user.role === 'organization') {
+        name = user.organization?.name || user.email.split('@')[0];
+        const dashLink = document.getElementById('nav-dashboard-link');
+        if (dashLink) dashLink.href = '/organization/dashboard';
       } else {
         name = user.email.split('@')[0];
       }
