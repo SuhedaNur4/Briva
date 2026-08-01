@@ -208,19 +208,18 @@ https://miro.com/app/board/uXjVH6Zd5xA=/?share_link_id=171753192793
 ## 🖼️ UI (Arayüz) Ekran Görüntüleri ve Detayları
 
 ### 1. Ana Sayfa (Landing Page)
-![Ana Sayfa](website/fullpage.png)
+![Ana Sayfa](ProjectManagement/website/fullpage.png)
 **Açıklama:** Platformun ana giriş noktası (Landing Page) olan arayüzüdür. Temel işlevi, gönüllüler ile sivil toplum kuruluşları arasındaki dağınık başvuru süreçlerini tek bir merkeze toplayarak kullanıcılara yapay zeka destekli akıllı eşleştirme (AI Matchmaking) olanaklarını tanıtmaktır. Bu ekran üzerinden platformun temel modüllerine ve gönüllülük fırsatlarına doğrudan yönlendirme sağlanır.
 
 **Teknik Tasarım Tercihimiz:** Arayüz katmanında bilgi hiyerarşisini belirginleştirmek amacıyla **Glassmorphism** prensipleri uygulanmıştır. Komponentlerde `backdrop-filter: blur()` CSS özelliği ve RGBa renk paletleri kullanılarak z-index katmanları arasında görsel derinlik (depth) oluşturulmuştur. CSS fade-in animasyonlarıyla dom yüklenme geçişleri optimize edilmiş ve kullanıcı deneyimi (UX) kesintisiz hale getirilmiştir.
 
 ### 2. Giriş Ekranı (Login) ve Güvenlik Sınırlandırmaları
-![Giriş Ekranı](website/loginpage.png)
+![Giriş Ekranı](ProjectManagement/website/login_page.png)
 **Açıklama:** Kullanıcıların ve kurumların sisteme dahil olduğu giriş sayfasıdır. Bu sayfada güvenlik amacıyla **dakikada en fazla 5 giriş denemesi** yapılabilmesini sağlayan bir *Rate Limiting* (Hız Sınırlandırma) mekanizması aktiftir.
 **Teknik Sebebi:** Kötü niyetli kişi veya botların Brute-Force (Kaba Kuvvet) veya Credential Stuffing (Çalıntı Şifre) yöntemleriyle hesapları ele geçirmesini ve peş peşe yapılan isteklerle (DDoS) sunucu kaynaklarını tüketmesini engellemektir.
 
 ### 3. Sivil Toplum Kuruluşu (STK) Paneli
-![STK Paneli](website/organization_panel_page.png)
-![STK Paneli](website/organization_panel_dashboard.png)
+![STK Paneli](ProjectManagement/website/organization_panel_dashboard.png)
 *(Not: Bu ekranda görünen kurum isimleri ve veriler tamamen sistemin test edilebilmesi için üretilmiş örnek verilerdir, gerçek hesapları yansıtmamaktadır.)*
 **Açıklama:** Platformu kullanan kurumların, projelerini ve gönüllü akışını yönettikleri özet ekrandır (Dashboard). Ayrıca STK'lar yeni etkinlik (ilan) oluştururken, ilan metinlerinin daha profesyonel ve dikkat çekici hale getirilmesi için yapay zeka (AI) destekli metin düzenleme asistanından yararlanılmaktadır.
 * **Toplam Etkinlik:** STK'nın bugüne kadar açtığı tüm etkinliklerin sayısı.
@@ -229,17 +228,17 @@ https://miro.com/app/board/uXjVH6Zd5xA=/?share_link_id=171753192793
 * **Kabul Edilen:** Tüm zamanlarda etkinliklere katılımı yetkililerce onaylanan toplam gönüllü sayısı.
 
 ### 4. Bivi Testi (Kişilik Envanteri)
-![Bivi Testi](website/bivi_test.png)
+![Bivi Testi](ProjectManagement/website/bivi_test.png)
 **Açıklama:** Gönüllülerin ilgi alanlarını ve süper güçlerini (yeteneklerini) keşfetmelerini sağlayan etkileşimli mini test ekranıdır.
 **Yapay Zeka (AI) Entegrasyonu:** Test sonuçları arka planda çalışan yapay zeka algoritması tarafından analiz edilerek kullanıcının vektörel profiline (User Context) işlenir. AI motoru, bu anlamsal verileri kullanarak "hangi gönüllünün hangi sosyal etki projesinde daha yüksek katma değer sağlayacağını" hesaplar.
 
 ### 5. Gönüllü Paneli (User Dashboard)
-![Gönüllü Paneli](website/user_dashboard.png)
+![Gönüllü Paneli](ProjectManagement/website/user_dashboard.png)
 **Açıklama:** Gönüllülerin kişisel iyilik puanlarını (XP), başvuru geçmişlerini ve statülerini yönettikleri ana kontrol panelidir.
 **AI Öneri Sistemi:** Paneldeki "Sana Uygun Fırsatlar" bölümü dinamik çalışır. Kullanıcının Bivi Testi'nden elde edilen anlamsal (semantic) verileri ve geçmişte katıldığı etkinliklerin nitelikleri yapay zeka motoru (Smart-Match) tarafından harmanlanarak anlık ve kişiye özel proje önerileri (Recommendations) üretilir.
 
 ### 6. Etkinlik Keşif Ekranı (Events)
-![Etkinlikler](website/events.png)
+![Etkinlikler](ProjectManagement/website/events.png)
 **Açıklama:** Gönüllülerin, sivil toplum kuruluşları tarafından açılan tüm aktif sosyal etki projelerini listeleyebildikleri, şehir, kategori ve müsaitlik durumu bazında detaylı filtreleme yapabildikleri ana arama sayfasıdır.
 
 # Sprint 1 — Core Platform 
