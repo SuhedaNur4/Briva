@@ -101,6 +101,10 @@ def _register_error_handlers(flask_app: Flask) -> None:
     def not_found(e):
         return (jsonify({'error': 'Kaynak bulunamadı'}), 404)
 
+    @flask_app.errorhandler(429)
+    def ratelimit_handler(e):
+        return jsonify(error="Çok fazla istek gönderdiniz. Lütfen bekleyin.", detail=str(e.description)), 429
+
     @flask_app.errorhandler(409)
     def conflict(e):
         return (jsonify({'error': 'Çakışma', 'detail': str(e)}), 409)
