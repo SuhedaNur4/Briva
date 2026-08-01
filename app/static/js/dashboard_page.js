@@ -36,6 +36,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = '/login';
     return;
   } else {
+    // Submit pending bivi answers if any exist
+    const pendingAnswers = localStorage.getItem('pending_bivi_answers');
+    if (pendingAnswers) {
+      try {
+        await window.apiService.post('/quiz/result', {
+          answers: JSON.parse(pendingAnswers),
+          update_profile: true
+        });
+        localStorage.removeItem('pending_bivi_answers');
+      } catch (err) {
+        console.error('Failed to save pending bivi answers', err);
+      }
+    }
+
     if (loginSection) loginSection.style.display = 'none';
     if (dashContent) dashContent.style.display = 'block';
     loadDashboard();
@@ -86,6 +100,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await window.authService.me();
       const user = res.data.user || res.data;
       if (user) {
+        if (user.role === 'organization') {
+          window.location.href = '/organization/dashboard';
+          return;
+        }
         const name = getattrOr(user, 'volunteer_profile.full_name', user.email || 'Gönüllü');
         if (userDisplayName) userDisplayName.textContent = name;
         
@@ -454,7 +472,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           card.innerHTML = `
             <div class="event-card-body">
               <h3 style="font-size: var(--text-base); margin-bottom: var(--space-2);">
-                <a href="/events/${fav.event_id}" style="color: var(--text-main); text-decoration: none;">Etkinlik #${fav.event_id}</a>
+                <a href="/events/${fav.event_id}" style="color: var(--text-main); text-decoration: none;">${fav.event && fav.event.title ? fav.event.title : `Etkinlik #${fav.event_id}`}</a>
               </h3>
               <span style="font-size: var(--text-xs); color: var(--text-muted); display: block; margin-bottom: var(--space-4);">Kaydedilme Tarihi: ${window.formatDate(fav.created_at)}</span>
             </div>

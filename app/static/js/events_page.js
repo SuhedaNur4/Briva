@@ -187,15 +187,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.className = 'event-card';
 
       let matchHtml = '';
-      if (rec && rec.total_score > 0) {
-        const badgeText = window.formatRecommendationBadge(rec, event.city);
-        if (badgeText) {
-          matchHtml = `
-            <div style="background: var(--bg-surface-alt); color: var(--color-primary); padding: 4px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; display: inline-block; margin-bottom: var(--space-2); border: 1px solid var(--border-subtle);">
-              Bu etkinlik sana uygun olabilir: ${badgeText}
-            </div>
-          `;
-        }
+      if ((rec && rec.total_score > 0) || event.is_recommended) {
+        matchHtml = `
+          <span style="background: rgba(168,230,207,0.2); color: var(--primary-main); padding: 4px 10px; border-radius: 99px; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; border: 1px solid rgba(168,230,207,0.4);">
+            ✨ ÖNERİLEN
+          </span>
+        `;
       }
 
       const dateStr = window.formatDate(event.start_date);
@@ -221,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div style="font-size: var(--text-xs); color: var(--text-muted); display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-4); background: var(--bg-subtle); padding: var(--space-3); border-radius: var(--radius-md);">
             <div><strong>Tarih:</strong> ${dateStr} (${timeStr})</div>
             <div><strong>Lokasyon:</strong> ${locationStr}</div>
-            <div><strong>Kontenjan:</strong> ${event.quota ? `${event.quota} Gönüllü İhtiyacı` : 'Belirtilmemiş'}</div>
+            <div><strong>Kontenjan:</strong> ${event.max_volunteers ? `${event.max_volunteers} Gönüllü İhtiyacı` : 'Belirtilmemiş'}</div>
           </div>
         </div>
         <div class="event-card-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); gap: var(--space-2);">
