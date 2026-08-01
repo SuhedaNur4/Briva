@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
@@ -16,7 +17,6 @@ MAX_RECOMMENDATIONS: int = 20
 
 _EVENT_EMBEDDING_CACHE = {}
 
-import math
 from app.utils.ai_analyzer import get_embedding
 
 def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
@@ -31,6 +31,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
 
 @dataclass
 class UserContext:
+    bio: str = ''
     city: str = ''
     interests: list[str] = field(default_factory=list)
     skills: list[str] = field(default_factory=list)
@@ -46,6 +47,7 @@ class UserContext:
         """Kullanıcının semantik profili için metin üretir."""
         parts = []
         if self.city: parts.append(f"Şehir: {self.city}")
+        if self.bio: parts.append(f"Biyografi: {self.bio}")
         if self.interests: parts.append(f"İlgi Alanları: {', '.join(self.interests)}")
         if self.skills: parts.append(f"Beceriler: {', '.join(self.skills)}")
         if self.past_participations: parts.append(f"Geçmiş Katılımlar: {', '.join(self.past_participations)}")
@@ -55,7 +57,7 @@ class UserContext:
 
     @classmethod
     def from_volunteer_profile(cls, profile: 'VolunteerProfile') -> 'UserContext':
-        return cls(city=_normalize_str(profile.city or ''), interests=_normalize_list(profile.interests_list), skills=_normalize_list(profile.skills_list), available_days=_normalize_list(getattr(profile, 'available_days_list', [])))
+        return cls(bio=profile.bio or '', city=_normalize_str(profile.city or ''), interests=_normalize_list(profile.interests_list), skills=_normalize_list(profile.skills_list), available_days=_normalize_list(getattr(profile, 'available_days_list', [])))
 
     def with_feedback(self, liked_categories: list[str], disliked_categories: list[str],
                       liked_event_ids: set | None = None, disliked_event_ids: set | None = None) -> 'UserContext':
@@ -68,7 +70,7 @@ class UserContext:
 
     @classmethod
     def from_dict(cls, data: dict) -> 'UserContext':
-        return cls(city=_normalize_str(data.get('city', '')), interests=_normalize_list(data.get('interests', [])), skills=_normalize_list(data.get('skills', [])), available_days=_normalize_list(data.get('available_days', [])), liked_categories=_normalize_list(data.get('liked_categories', [])), disliked_categories=_normalize_list(data.get('disliked_categories', [])))
+        return cls(bio=data.get('bio', ''), city=_normalize_str(data.get('city', '')), interests=_normalize_list(data.get('interests', [])), skills=_normalize_list(data.get('skills', [])), available_days=_normalize_list(data.get('available_days', [])), liked_categories=_normalize_list(data.get('liked_categories', [])), disliked_categories=_normalize_list(data.get('disliked_categories', [])))
 
 @dataclass
 class EventScore:
@@ -198,7 +200,12 @@ class RecommendationEngine:
             valid_events.append(event)
             
         # Semantic Retrieval
-        user_emb = get_embedding(user.get_context_text())
+        context_text = user.get_context_text()
+        
+        user_emb = None
+        # Boş profil kontrolü: eğer context çok kısa/boşsa API'ye gitme
+        if len(context_text.strip()) > 10:
+            user_emb = get_embedding(context_text)
         
         for event in valid_events:
             scored = self.score_event(user, event)
