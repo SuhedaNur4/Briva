@@ -120,6 +120,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const totalScore = exp.total_score !== undefined ? exp.total_score : 0;
       const details = exp.matching_details || {};
 
+      const isAiGenerated = exp.ai_generated || false;
+      const aiBadge = document.getElementById('ai-badge');
+      if (aiBadge) {
+        if (isAiGenerated) {
+          aiBadge.style.display = 'block';
+          aiBadge.textContent = '🤖 Yapay Zeka Analizi';
+        } else {
+          aiBadge.style.display = 'none';
+        }
+      }
+
       if (isEmpty || totalScore < 70) {
         document.getElementById('ai-match-title').style.display = 'none';
         aiScoreText.style.display = 'none';
