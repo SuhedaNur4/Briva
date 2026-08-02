@@ -428,8 +428,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           card.className = 'event-card';
           const badgeText = window.formatRecommendationBadge(rec, ev.city) || 'Önerilen Fırsat';
           card.innerHTML = `
-            <div class="event-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
-              <span style="background: var(--bg-surface-alt); color: var(--color-primary); padding: 4px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; border: 1px solid var(--border-subtle);">Bu etkinlik sana uygun olabilir: ${badgeText}</span>
+            <div class="event-card-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); gap: 8px;">
+              <span style="background: var(--bg-surface-alt); color: var(--color-primary); padding: 4px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; border: 1px solid var(--border-subtle);">Uygunluk: ${badgeText}</span>
+              <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
             </div>
             <div class="event-card-body">
               <h3 style="font-size: var(--text-base); margin-bottom: var(--space-2);">
@@ -504,6 +505,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const card = document.createElement('article');
     card.className = 'event-card';
     card.innerHTML = `
+      <div class="event-card-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); gap: 8px;">
+        <span class="event-category" style="background: var(--bg-color); color: var(--text-color); padding: 4px 12px; border-radius: 12px; font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid var(--border-subtle);">${ev.category || 'Etkinlik'}</span>
+        <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
+      </div>
       <div class="event-card-body">
         <h3 style="font-size: var(--text-base); margin-bottom: var(--space-1);">
           <a href="/events/${ev.id}" style="color: var(--text-main); text-decoration: none;">${ev.title}</a>
@@ -584,6 +589,28 @@ document.addEventListener('DOMContentLoaded', async () => {
           badgeEl.title = b.description;
           badgesContainer.appendChild(badgeEl);
         });
+      }
+
+      // Dynamic big badge logic
+      const badgeSec = document.getElementById('gamification-badge-section');
+      const badgeImg = document.getElementById('dynamic-badge-img');
+      const badgeTitle = document.getElementById('dynamic-badge-title');
+      const xp = gam.xp;
+      
+      let badgeUrl = null;
+      let badgeName = null;
+      
+      if (xp >= 100) { badgeUrl = '/static/images/badges/badge_100_1785692920805.png'; badgeName = '100 İyilik Puanı Rozeti'; }
+      else if (xp >= 75) { badgeUrl = '/static/images/badges/badge_75_1785692912285.png'; badgeName = '75 İyilik Puanı Rozeti'; }
+      else if (xp >= 50) { badgeUrl = '/static/images/badges/badge_50_1785692903232.png'; badgeName = '50 İyilik Puanı Rozeti'; }
+      else if (xp >= 25) { badgeUrl = '/static/images/badges/badge_25_1785692883223.png'; badgeName = '25 İyilik Puanı Rozeti'; }
+      
+      if (badgeUrl && badgeSec && badgeImg && badgeTitle) {
+          badgeImg.src = badgeUrl;
+          badgeTitle.textContent = badgeName;
+          badgeSec.style.display = 'block';
+      } else if (badgeSec) {
+          badgeSec.style.display = 'none';
       }
 
     } catch (e) {

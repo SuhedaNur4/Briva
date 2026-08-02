@@ -22,9 +22,9 @@ from app.models.xp_transaction import XPTransaction
 
 XP_RULES: dict[str, dict] = {
     'PROFILE_COMPLETED': {'amount': 20, 'reason': 'Profil tamamlandı'},
-    'APPLICATION_CREATED': {'amount': 5, 'reason': 'Etkinliğe başvuru yapıldı'},
-    'APPLICATION_ACCEPTED': {'amount': 10, 'reason': 'Başvuru kabul edildi'},
-    'EVENT_COMPLETED': {'amount': 50, 'reason': 'Etkinlik katılımı tamamlandı'},
+    'APPLICATION_CREATED': {'amount': 0, 'reason': 'Etkinliğe başvuru yapıldı'},
+    'APPLICATION_ACCEPTED': {'amount': 0, 'reason': 'Başvuru kabul edildi'},
+    'EVENT_COMPLETED': {'amount': 5, 'reason': 'Etkinlik katılımı tamamlandı'},
 }
 
 LEVEL_THRESHOLDS: list[int] = [0, 100, 250, 500, 1000, 1750, 2750, 4000, 5500, 7500]
