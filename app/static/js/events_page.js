@@ -200,9 +200,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       const locationStr = event.city ? `${event.city} - ${event.location || ''}` : (event.location || 'Çevrimiçi / Belirtilmemiş');
 
       card.innerHTML = `
-        <div class="event-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
-          <span class="event-category" style="font-size: var(--text-xs); font-weight: 600; color: var(--primary-main);">${event.category || 'Genel'}</span>
-          ${matchHtml}
+        <div class="event-card-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); gap: 8px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <span class="event-category" style="background: var(--bg-color); color: var(--text-color); padding: 4px 12px; border-radius: 12px; font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid var(--border-subtle);">${event.category || 'Genel'}</span>
+            <span class="event-city" style="background: rgba(5, 150, 105, 0.1); color: #059669; padding: 4px 12px; border-radius: 12px; font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(5, 150, 105, 0.2);">${event.city || 'Belirtilmemiş'}</span>
+            ${matchHtml}
+          </div>
+          <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
         </div>
         <div class="event-card-body">
           <h2 class="event-title" style="font-size: var(--text-lg); margin-bottom: var(--space-1);">

@@ -73,8 +73,11 @@
   <div id="detail-content" class="event-detail-grid" style="display: none;">
     <div class="detail-main glass-card" style="border-radius: var(--radius-lg); padding: var(--space-8);">
       <div style="margin-bottom: var(--space-6); border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-6);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
-          <span id="ev-category" style="font-size: var(--text-xs); font-weight: 700; color: var(--primary-main); text-transform: uppercase; letter-spacing: 0.05em;"></span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span id="ev-category" style="font-size: var(--text-xs); font-weight: 700; color: var(--primary-main); text-transform: uppercase; letter-spacing: 0.05em;"></span>
+            <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
+          </div>
           <span id="ev-status" class="status-badge"></span>
         </div>
         <h1 id="ev-title" style="font-size: var(--text-3xl); margin-bottom: var(--space-3); color: var(--text-main);"></h1>
