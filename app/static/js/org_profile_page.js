@@ -70,8 +70,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loc = ev.city || 'Konum belirtilmedi';
         return `
           <div class="event-card fade-in">
-            <div class="event-card-header">
-              <span class="event-category">${ev.category || 'Genel'}</span>
+            <div class="event-card-header" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="event-category">${ev.category || 'Genel'}</span>
+                <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
+              </div>
               <span class="event-status published">Yayında</span>
             </div>
             <div class="event-card-body">

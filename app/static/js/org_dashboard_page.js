@@ -74,6 +74,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (dashContent) dashContent.style.display = 'block';
 
   document.getElementById('org-header-name').textContent = org.name;
+  
+  const headerLogoEl = document.getElementById('org-header-logo');
+  if (headerLogoEl) {
+    const cleanDomain = org.website ? org.website.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0] : '';
+    const defaultLogo = `https://ui-avatars.com/api/?name=${encodeURIComponent(org.name || 'STK')}&background=random`;
+    headerLogoEl.src = org.logo_url || (cleanDomain ? `https://logo.clearbit.com/${cleanDomain}` : defaultLogo);
+    headerLogoEl.onerror = function() { this.src = defaultLogo; this.onerror = null; };
+  }
+
   if (org.is_verified) {
     const vTag = document.getElementById('org-verified-tag');
     if (vTag) vTag.style.display = 'inline-block';
@@ -157,8 +166,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const quota = ev.max_volunteers ? `${ev.approved_count} / ${ev.max_volunteers}` : `${ev.approved_count} Onaylı`;
         return `
           <div class="event-card">
-            <div class="card-header">
-              <span class="event-category">${ev.category || 'Genel'}</span>
+            <div class="card-header" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="event-category">${ev.category || 'Genel'}</span>
+                <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap;">+5 İyilik Puanı</span>
+              </div>
               <span class="event-status published">Yayında</span>
             </div>
             <h3 class="event-title">${ev.title}</h3>
@@ -361,11 +373,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p class="event-description" style="margin-bottom: var(--space-4);">${ev.description || 'Açıklama girilmemiş.'}</p>
             <div class="card-footer" style="justify-content: space-between; align-items: center;">
               <span style="font-size: var(--text-xs); color: var(--text-muted);">Kontenjan: ${ev.approved_count}/${ev.max_volunteers || '∞'}</span>
-              <a href="/events/${ev.id}" class="btn btn-outline btn-sm" target="_blank">Sayfayı Gör</a>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-outline btn-sm act-edit-ev-btn" data-id="${ev.id}">Düzenle</button>
+                <a href="/events/${ev.id}" class="btn btn-outline btn-sm" target="_blank">Sayfayı Gör</a>
+              </div>
             </div>
           </div>
         `;
       }).join('');
+      
+      document.querySelectorAll('.act-edit-ev-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const evId = e.currentTarget.getAttribute('data-id');
+          openEditEventModal(evId);
+        });
+      });
     }
   };
 
@@ -506,16 +528,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.querySelectorAll('.filter-ev-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.filter-ev-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-ev-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-muted)';
+        b.style.fontWeight = '600';
+      });
       e.currentTarget.classList.add('active');
+      e.currentTarget.style.background = 'var(--primary-light)';
+      e.currentTarget.style.color = 'var(--primary-main)';
+      e.currentTarget.style.fontWeight = '700';
       renderAllEvents(e.currentTarget.getAttribute('data-status'));
     });
   });
 
   document.querySelectorAll('.filter-app-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.filter-app-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-app-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-muted)';
+        b.style.fontWeight = '600';
+      });
       e.currentTarget.classList.add('active');
+      e.currentTarget.style.background = 'var(--primary-light)';
+      e.currentTarget.style.color = 'var(--primary-main)';
+      e.currentTarget.style.fontWeight = '700';
       renderAllApps(e.currentTarget.getAttribute('data-status'));
     });
   });
@@ -570,10 +608,102 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && amModal && amModal.style.display === 'flex') {
-      amModal.style.display = 'none';
+    if (e.key === 'Escape') {
+      if (amModal && amModal.style.display === 'flex') amModal.style.display = 'none';
+      if (document.getElementById('edit-event-modal') && document.getElementById('edit-event-modal').style.display === 'flex') document.getElementById('edit-event-modal').style.display = 'none';
     }
   });
+
+  let currentEditEventId = null;
+  const editEvModal = document.getElementById('edit-event-modal');
+  const editEvClose = document.getElementById('close-edit-event-modal');
+  const editEvForm = document.getElementById('edit-event-form');
+  const editEvErr = document.getElementById('edit-event-error');
+  const editEvBtn = document.getElementById('edit-ev-submit-btn');
+
+  if (editEvClose) {
+    editEvClose.addEventListener('click', () => {
+      if (editEvModal) editEvModal.style.display = 'none';
+    });
+  }
+
+  window.openEditEventModal = (evId) => {
+    currentEditEventId = evId;
+    const ev = allEvents.find(e => e.id == evId);
+    if (!ev) return;
+    
+    document.getElementById('edit-ev-title').value = ev.title || '';
+    document.getElementById('edit-ev-category').value = ev.category || '';
+    
+    // ISO 8601 date comes as "2026-08-02T18:00:00+00:00". Trim it to 16 chars for flatpickr/datetime-local
+    const startStr = ev.start_date ? ev.start_date.substring(0, 16) : '';
+    const endStr = ev.end_date ? ev.end_date.substring(0, 16) : '';
+    
+    document.getElementById('edit-ev-start').value = startStr;
+    document.getElementById('edit-ev-end').value = endStr;
+    
+    if (!window._editEvStartPicker) {
+      window._editEvStartPicker = flatpickr("#edit-ev-start", { enableTime: true, time_24hr: true, locale: "tr", dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "d.m.Y H:i" });
+      window._editEvEndPicker = flatpickr("#edit-ev-end", { enableTime: true, time_24hr: true, locale: "tr", dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "d.m.Y H:i" });
+    } else {
+      window._editEvStartPicker.setDate(startStr);
+      window._editEvEndPicker.setDate(endStr);
+    }
+
+    document.getElementById('edit-ev-city').value = ev.city || '';
+    document.getElementById('edit-ev-address').value = ev.address || '';
+    document.getElementById('edit-ev-max').value = ev.max_volunteers || '';
+    document.getElementById('edit-ev-description').value = ev.description || '';
+    document.getElementById('edit-ev-status').value = ev.status || 'draft';
+    
+    if (editEvErr) editEvErr.style.display = 'none';
+    if (editEvModal) editEvModal.style.display = 'flex';
+  };
+
+  if (editEvForm) {
+    editEvForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentEditEventId) return;
+      
+      if (editEvBtn) {
+        editEvBtn.disabled = true;
+        editEvBtn.textContent = 'Kaydediliyor...';
+      }
+      
+      const payload = {
+        title: document.getElementById('edit-ev-title').value.trim(),
+        category: document.getElementById('edit-ev-category').value.trim(),
+        start_date: document.getElementById('edit-ev-start').value,
+        end_date: document.getElementById('edit-ev-end').value,
+        city: document.getElementById('edit-ev-city').value.trim(),
+        address: document.getElementById('edit-ev-address').value.trim(),
+        description: document.getElementById('edit-ev-description').value.trim(),
+        status: document.getElementById('edit-ev-status').value
+      };
+      
+      const maxVol = document.getElementById('edit-ev-max').value;
+      if (maxVol) payload.max_volunteers = parseInt(maxVol, 10);
+      else payload.max_volunteers = null;
+      
+      const res = await window.eventsService.update(currentEditEventId, payload);
+      
+      if (editEvBtn) {
+        editEvBtn.disabled = false;
+        editEvBtn.textContent = 'Değişiklikleri Kaydet';
+      }
+      
+      if (res && res.error) {
+        if (editEvErr) {
+          editEvErr.textContent = res.error;
+          editEvErr.style.display = 'block';
+        }
+      } else {
+        window.ui.showToast('Etkinlik başarıyla güncellendi.', 'success');
+        if (editEvModal) editEvModal.style.display = 'none';
+        await loadDashboardData();
+      }
+    });
+  }
 
   let currentAppId = null;
 
