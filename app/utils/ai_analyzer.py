@@ -92,7 +92,7 @@ def _analyze_with_gemini(
             GEMINI_MODEL,
             generation_config={'temperature': 0.4, 'response_mime_type': 'application/json'},
         )
-        response = model.generate_content(prompt)
+        response = model.generate_content(prompt, request_options={"timeout": 5.0})
         parsed = json.loads(_strip_code_fences(response.text))
         return _validate_analysis(parsed)
     except Exception as e:

@@ -35,7 +35,9 @@ def create_event():
     for field in ['description', 'category', 'city', 'address', 'requirements']:
         if field in data:
             try:
-                setattr(event, field, validate_optional_string(data[field], field))
+                # Text alanları için limiti yüksek tutuyoruz, String(100/255) olanlar için varsayılan limit yeterli
+                max_len = 10000 if field in ['description', 'requirements', 'address'] else 255
+                setattr(event, field, validate_optional_string(data[field], field, max_length=max_len))
             except ValueError as e:
                 return (jsonify({'error': str(e)}), 400)
     if data.get('end_date'):
@@ -55,15 +57,7 @@ def create_event():
             return (jsonify({'error': str(e)}), 400)
     db.session.add(event)
     db.session.commit()
-    # Issue #18: etkinlik oluşturulurken açıklama kalitesi AI ile analiz edilip yanıtla döner
-    analysis = analyze_event_text(
-        title=event.title,
-        description=event.description or '',
-        category=event.category or '',
-        city=event.city or '',
-        requirements=event.requirements or '',
-    )
-    return (jsonify({'message': 'Etkinlik oluşturuldu.', 'event': event.to_dict(), 'ai_analysis': compact_analysis(analysis)}), 201)
+    return (jsonify({'message': 'Etkinlik oluşturuldu.', 'event': event.to_dict()}), 201)
 
 @events_bp.route('', methods=['GET'])
 def list_events():
@@ -186,7 +180,8 @@ def update_event(event_id: int):
     for field in ['description', 'category', 'city', 'address', 'requirements']:
         if field in data:
             try:
-                setattr(event, field, validate_optional_string(data[field], field))
+                max_len = 10000 if field in ['description', 'requirements', 'address'] else 255
+                setattr(event, field, validate_optional_string(data[field], field, max_length=max_len))
             except ValueError as e:
                 return (jsonify({'error': str(e)}), 400)
     if 'start_date' in data:

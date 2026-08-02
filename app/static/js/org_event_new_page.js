@@ -11,42 +11,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const form = document.getElementById('wizard-form');
   let currentStep = 1;
 
-  const saveDraftToLocal = () => {
-    const draft = {
-      title: document.getElementById('event-title').value,
-      category: document.getElementById('event-category').value,
-      description: document.getElementById('event-description').value,
-      start_date: document.getElementById('event-start').value,
-      end_date: document.getElementById('event-end').value,
-      city: document.getElementById('event-city').value,
-      address: document.getElementById('event-address').value,
-      max_volunteers: document.getElementById('event-max').value,
-      requirements: document.getElementById('event-requirements').value
-    };
-    localStorage.setItem('briva_wizard_draft', JSON.stringify(draft));
-  };
-
-  const loadDraftFromLocal = () => {
-    const saved = localStorage.getItem('briva_wizard_draft');
-    if (saved) {
-      try {
-        const d = JSON.parse(saved);
-        if (d.title) document.getElementById('event-title').value = d.title;
-        if (d.category) document.getElementById('event-category').value = d.category;
-        if (d.description) document.getElementById('event-description').value = d.description;
-        if (d.start_date) document.getElementById('event-start').value = d.start_date;
-        if (d.end_date) document.getElementById('event-end').value = d.end_date;
-        if (d.city) document.getElementById('event-city').value = d.city;
-        if (d.address) document.getElementById('event-address').value = d.address;
-        if (d.max_volunteers) document.getElementById('event-max').value = d.max_volunteers;
-        if (d.requirements) document.getElementById('event-requirements').value = d.requirements;
-      } catch (e) {
-        localStorage.removeItem('briva_wizard_draft');
-      }
-    }
-  };
-
-  loadDraftFromLocal();
+  if (document.getElementById('event-start')) {
+    flatpickr("#event-start", { enableTime: true, time_24hr: true, locale: "tr", dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "d.m.Y H:i" });
+  }
+  if (document.getElementById('event-end')) {
+    flatpickr("#event-end", { enableTime: true, time_24hr: true, locale: "tr", dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "d.m.Y H:i" });
+  }
 
   const showStep = (stepNum) => {
     document.querySelectorAll('.wizard-pane').forEach(p => p.classList.remove('active'));
@@ -64,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     currentStep = stepNum;
     if (errBox) errBox.style.display = 'none';
-    saveDraftToLocal();
 
     if (stepNum === 4) {
       updatePreview();
@@ -142,7 +111,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (res.data && res.data.analysis) {
           if (res.data.analysis.improved_description && res.data.analysis.improved_description.trim() !== '') {
             document.getElementById('event-description').value = res.data.analysis.improved_description;
-            saveDraftToLocal();
           }
           
           const feedbackDiv = document.getElementById('ai-feedback');
@@ -263,36 +231,49 @@ document.addEventListener('DOMContentLoaded', async () => {
       const reqs = document.getElementById('event-requirements').value.trim();
       if (reqs) payload.requirements = reqs;
 
-      const res = await window.eventsService.create(payload);
-      
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = prevSubmitText;
-      }
-      if (draftBtn) {
-        draftBtn.disabled = false;
-        draftBtn.textContent = prevDraftText;
-      }
+      try {
+        const res = await window.eventsService.create(payload);
+        
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = prevSubmitText;
+        }
+        if (draftBtn) {
+          draftBtn.disabled = false;
+          draftBtn.textContent = prevDraftText;
+        }
 
-      if (res && res.error) {
-        window.ui.showToast(res.error, 'error');
+        if (res && res.error) {
+          window.ui.showToast(res.error, 'error');
+          if (errBox) {
+            errBox.textContent = res.error;
+            errBox.style.display = 'block';
+          }
+        } else {
+          const msg = currentStatus === 'draft' ? 'Etkinliğiniz taslak olarak kaydedildi.' : 'Etkinliğiniz başarıyla yayınlandı!';
+          window.ui.showToast(msg, 'success');
+          if (form) form.reset();
+          setTimeout(() => {
+            window.location.href = '/organization/dashboard#events';
+          }, 1200);
+        }
+      } catch (error) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = prevSubmitText;
+        }
+        if (draftBtn) {
+          draftBtn.disabled = false;
+          draftBtn.textContent = prevDraftText;
+        }
+        window.ui.showToast(error.message || 'Bir hata oluştu.', 'error');
         if (errBox) {
-          errBox.textContent = res.error;
+          errBox.textContent = error.message || 'Bir hata oluştu.';
           errBox.style.display = 'block';
         }
-      } else {
-        localStorage.removeItem('briva_wizard_draft');
-        const msg = currentStatus === 'draft' ? 'Etkinliğiniz taslak olarak kaydedildi.' : 'Etkinliğiniz başarıyla yayınlandı!';
-        window.ui.showToast(msg, 'success');
-        setTimeout(() => {
-          window.location.href = '/organization/dashboard#events';
-        }, 1200);
       }
     });
   }
 
-  const inputs = form.querySelectorAll('input, textarea');
-  inputs.forEach(inp => {
-    inp.addEventListener('input', saveDraftToLocal);
-  });
+
 });
